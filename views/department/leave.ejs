@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Leave Requests | RSR HRMS</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-text: #222222;
+      --rsr-text-light: #717171;
+      --rsr-border: #ebebeb;
+      --rsr-bg: #f8f9fa;
+      --rsr-white: #ffffff;
+    }
+
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--rsr-text);
+      letter-spacing: -0.01em;
+    }
+
+    .navbar {
+      background: var(--rsr-white) !important;
+      border-bottom: 1px solid var(--rsr-border);
+      padding: 1rem 0;
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      color: var(--rsr-blue) !important;
+    }
+
+    .page-header {
+      padding: 60px 0 40px;
+      background: var(--rsr-white);
+      border-bottom: 1px solid var(--rsr-border);
+      margin-bottom: 40px;
+    }
+
+    /* Decision Cards */
+    .leave-request-card {
+      background: var(--rsr-white);
+      border: 1px solid var(--rsr-border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .leave-request-card:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+      border-color: #d1d9e0;
+    }
+
+    /* Badges */
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+
+    .bg-approved {
+      background-color: #e6fcf5;
+      color: #0ca678;
+    }
+
+    .bg-rejected {
+      background-color: #fff5f5;
+      color: #ff6b6b;
+    }
+
+    .bg-pending {
+      background-color: #fff9db;
+      color: #f08c00;
+    }
+
+    /* Form Elements */
+    .reason-input {
+      border-radius: 10px;
+      border: 1px solid var(--rsr-border);
+      font-size: 0.85rem;
+      padding: 8px 12px;
+      width: 200px !important;
+    }
+
+    .btn-decision {
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 8px 16px;
+      transition: all 0.2s;
+    }
+
+    .btn-unpaid {
+      background-color: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+    }
+
+    .btn-unpaid:hover {
+      background-color: #e2e8f0;
+    }
+
+    .employee-avatar {
+      width: 44px;
+      height: 44px;
+      background: #f0f7ff;
+      color: var(--rsr-blue);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../partials/anti-cache') %>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="/dashboard">
+          <i class="fa-solid fa-user-check me-2"></i> RSR HRMS
+        </a>
+      </div>
+    </nav>
+
+    <header class="page-header">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-end">
+          <div>
+            <p class="text-primary fw-bold small mb-1" style="letter-spacing: 0.1em;">DEPARTMENTAL REVIEW</p>
+            <h1 class="fw-bold mb-0">Approve/Reject Leaves</h1>
+          </div>
+          <a href="/department/<%= department %>" class="btn btn-outline-dark btn-sm rounded-pill px-4 fw-bold">
+            <i class="fa-solid fa-arrow-left me-2"></i> Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <div class="container pb-5">
+
+      [Image of an organizational hierarchy showing the leave approval workflow from an employee's request to a
+      manager's final decision]
+
+      <div class="row">
+        <div class="col-lg-10 mx-auto">
+          <% if (leaves && leaves.length> 0) { %>
+            <% leaves.forEach(leave=> {
+              let leaveEmp = null;
+              if (leave.employeeId && employees) {
+              leaveEmp = employees.find(e => e._id.toString() === leave.employeeId.toString());
+              }
+              %>
+              <div class="leave-request-card">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                  <div class="d-flex align-items-center">
+                    <div class="employee-avatar me-3">
+                      <%= leaveEmp ? leaveEmp.firstName.charAt(0) : 'E' %>
+                    </div>
+                    <div>
+                      <h6 class="fw-bold mb-0">
+                        <%= leaveEmp ? leaveEmp.firstName + ' ' + leaveEmp.lastName : 'Unknown Personnel' %>
+                      </h6>
+                      <span
+                        class="status-badge <%= leave.status === 'APPROVED' ? 'bg-approved' : leave.status === 'REJECTED' ? 'bg-rejected' : 'bg-pending' %>">
+                        <%= leave.status %>
+                      </span>
+                      <% if (leave.status==='REJECTED' && leave.rejectionReason) { %>
+                        <small class="text-danger ms-2 fw-semibold">Reason: <%= leave.rejectionReason %></small>
+                        <% } %>
+                    </div>
+                  </div>
+
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-light text-dark border p-2 px-3 small">
+                      <i class="fa-solid fa-user-shield me-2 text-primary"></i>Manager Action Required
+                    </span>
+                  </div>
+                </div>
+
+                <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+                  <div class="small">
+                    <i class="fa-regular fa-calendar-days me-2"></i> Leave Type: <strong>
+                      <%= leave.leaveType %>
+                    </strong>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <form method="POST" action="/department/<%= department %>/leave/<%= leave._id %>"
+                      class="d-flex gap-2 align-items-center">
+                      <input type="text" name="rejectionReason" class="form-control form-control-sm reason-input"
+                        placeholder="Note for rejection..." />
+                      <button name="action" value="approve" class="btn btn-success btn-decision">
+                        <i class="fa-solid fa-check me-1"></i> Approve
+                      </button>
+                      <button name="action" value="reject" class="btn btn-danger btn-decision">
+                        <i class="fa-solid fa-xmark me-1"></i> Reject
+                      </button>
+                    </form>
+
+                    <form method="POST" action="/department/<%= department %>/leave/<%= leave._id %>">
+                      <button name="action" value="regularize-unpaid" class="btn btn-decision btn-unpaid shadow-sm">
+                        <i class="fa-solid fa-receipt me-1"></i> Regularize Unpaid
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <% }) %>
+                <% } else { %>
+                  <div class="text-center py-5">
+                    <i class="fa-solid fa-inbox text-muted fs-1 mb-3"></i>
+                    <p class="text-muted">No pending leave requests found for your department.</p>
+                  </div>
+                  <% } %>
+        </div>
+      </div>
+    </div>
+
+    <footer class="text-center py-5 border-top">
+      <p class="text-muted small">© 2026 RSR HRMS • Management Decision Terminal</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

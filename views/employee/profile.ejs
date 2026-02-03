@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Profile | RSR Aviation</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-text: #222222;
+      --rsr-text-light: #717171;
+      --rsr-border: #ebebeb;
+      --rsr-bg: #ffffff;
+      --rsr-light: #f7f9fc;
+    }
+
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--rsr-text);
+      letter-spacing: -0.01em;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: #fff !important;
+      border-bottom: 1px solid var(--rsr-border);
+      padding: 1.2rem 0;
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      color: var(--rsr-blue) !important;
+    }
+
+    /* Page Header */
+    .page-header {
+      padding: 60px 0 40px;
+      border-bottom: 1px solid var(--rsr-border);
+      margin-bottom: 40px;
+    }
+
+    /* Profile Cards */
+    .profile-section-card {
+      border: 1px solid var(--rsr-border);
+      border-radius: 16px;
+      padding: 32px;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      height: 100%;
+    }
+
+    .section-title {
+      font-weight: 800;
+      font-size: 1.25rem;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+    }
+
+    .section-title i {
+      color: var(--rsr-blue);
+      margin-right: 12px;
+    }
+
+    /* List Group Customization */
+    .list-group-item {
+      border: none;
+      padding: 12px 0;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--rsr-border);
+      font-size: 0.95rem;
+    }
+
+    .list-group-item:last-child {
+      border-bottom: none;
+    }
+
+    .label-text {
+      color: var(--rsr-text-light);
+      font-weight: 500;
+    }
+
+    .value-text {
+      color: var(--rsr-text);
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* Table Styling */
+    .table-container {
+      border: 1px solid var(--rsr-border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+
+    .table thead th {
+      background-color: var(--rsr-light);
+      padding: 14px 20px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--rsr-text-light);
+    }
+
+    .table tbody td {
+      padding: 16px 20px;
+      font-size: 0.9rem;
+      border-bottom: 1px solid var(--rsr-border);
+    }
+
+    /* Badges */
+    .badge {
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+    }
+
+    .bg-success {
+      background-color: #e6fcf5 !important;
+      color: #0ca678 !important;
+    }
+
+    .bg-danger {
+      background-color: #fff5f5 !important;
+      color: #ff6b6b !important;
+    }
+
+    .bg-warning {
+      background-color: #fff9db !important;
+      color: #f08c00 !important;
+    }
+
+    .btn-download {
+      color: var(--rsr-blue);
+      background: var(--rsr-light);
+      border: none;
+      border-radius: 8px;
+      transition: 0.2s;
+    }
+
+    .btn-download:hover {
+      background: #e0eaff;
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../partials/anti-cache') %>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="/dashboard">
+          <i class="fa-solid fa-paper-plane me-2"></i> RSR AVIATION
+        </a>
+        <div class="ms-auto">
+          <a href="/dashboard" class="btn btn-outline-dark btn-sm rounded-pill px-4">Dashboard</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="page-header">
+      <div class="container">
+        <p class="text-primary fw-bold small mb-1" style="letter-spacing: 0.1em;">PERSONNEL FILE</p>
+        <h1 class="fw-bold mb-0">My Profile</h1>
+        <p class="text-muted mt-2">Manage your professional identity and banking credentials.</p>
+      </div>
+    </header>
+
+    <div class="container pb-5">
+      <div class="row g-4">
+
+        <div class="col-lg-6">
+          <div class="profile-section-card mb-4">
+            <h5 class="section-title"><i class="fa-solid fa-id-card"></i> User Credentials</h5>
+
+            <% if (employee) { %>
+              <div class="text-center mb-4">
+                <img src="/employee/photo/<%= employee._id %>" alt="Profile Photo" class="rounded-circle shadow-sm"
+                  style="width: 120px; height: 120px; object-fit: cover; border: 4px solid var(--rsr-light);"
+                  onerror="this.src='https://ui-avatars.com/api/?name=<%= employee.firstName %>+<%= employee.lastName %>&background=0052cc&color=fff&size=128'">
+              </div>
+              <% } %>
+
+                <div class="list-group">
+                  <div class="list-group-item">
+                    <span class="label-text">Username</span>
+                    <span class="value-text">
+                      <%= user.username %>
+                    </span>
+                  </div>
+                  <div class="list-group-item">
+                    <span class="label-text">Aadhar Number</span>
+                    <span class="value-text">
+                      <%= employee.bankDetails?.aadharNumber || 'Not Provided' %>
+                    </span>
+                  </div>
+                </div>
+
+                <h5 class="section-title mt-5"><i class="fa-solid fa-building-columns"></i> Banking Details</h5>
+                <div class="list-group">
+                  <div class="list-group-item">
+                    <span class="label-text">Account Number</span>
+                    <span class="value-text">
+                      <%= employee.bankDetails?.accountNumber || 'Not Provided' %>
+                    </span>
+                  </div>
+                  <div class="list-group-item">
+                    <span class="label-text">IFSC Code</span>
+                    <span class="value-text">
+                      <%= employee.bankDetails?.ifscCode || 'Not Provided' %>
+                    </span>
+                  </div>
+                  <div class="list-group-item">
+                    <span class="label-text">Bank Name</span>
+                    <span class="value-text">
+                      <%= employee.bankDetails?.bankName || 'Not Provided' %>
+                    </span>
+                  </div>
+                  <div class="list-group-item">
+                    <span class="label-text">Branch</span>
+                    <span class="value-text">
+                      <%= employee.bankDetails?.branchName || 'Not Provided' %>
+                    </span>
+                  </div>
+                </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="profile-section-card">
+            <h5 class="section-title"><i class="fa-solid fa-briefcase"></i> Employment Details</h5>
+            <% if (employee) { %>
+              <div class="list-group">
+                <div class="list-group-item">
+                  <span class="label-text">Full Name</span>
+                  <span class="value-text">
+                    <%= employee.firstName %>
+                      <%= employee.lastName %>
+                  </span>
+                </div>
+                <div class="list-group-item">
+                  <span class="label-text">Employee Code</span>
+                  <span class="value-text">
+                    <%= employee.employeeCode %>
+                  </span>
+                </div>
+                <div class="list-group-item">
+                  <span class="label-text">Email Address</span>
+                  <span class="value-text text-primary">
+                    <%= employee.email %>
+                  </span>
+                </div>
+                <div class="list-group-item">
+                  <span class="label-text">Department</span>
+                  <span class="value-text">
+                    <%= employee.department %>
+                  </span>
+                </div>
+                <div class="list-group-item">
+                  <span class="label-text">Designation</span>
+                  <span class="value-text">
+                    <%= employee.designation %>
+                  </span>
+                </div>
+                <div class="list-group-item">
+                  <span class="label-text">Date of Joining</span>
+                  <span class="value-text">
+                    <%= employee.dateOfJoining ? employee.dateOfJoining.toLocaleDateString() : 'N/A' %>
+                  </span>
+                </div>
+              </div>
+              <% } else { %>
+                <p class="text-muted p-3 bg-light rounded text-center">No employee records found.</p>
+                <% } %>
+
+                  <h5 class="section-title mt-5"><i class="fa-solid fa-file-shield"></i> Documentation</h5>
+                  <div class="table-container">
+                    <table class="table align-middle">
+                      <thead>
+                        <tr>
+                          <th>Document</th>
+                          <th>Status</th>
+                          <th class="text-end">Download</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% if (documents && documents.length> 0) { %>
+                          <% documents.forEach(function(doc) { %>
+                            <tr>
+                              <td>
+                                <div class="fw-bold">
+                                  <%= doc.name %>
+                                </div>
+                                <div class="text-muted small" style="font-size: 0.7rem;">
+                                  <%= doc.fileType %> • <%= doc.uploadedAt.toLocaleDateString() %>
+                                </div>
+                              </td>
+                              <td>
+                                <% if(doc.status==='APPROVED' ) { %>
+                                  <span class="badge bg-success">Approved</span>
+                                  <% } else if(doc.status==='REJECTED' ) { %>
+                                    <span class="badge bg-danger">Rejected</span>
+                                    <% } else { %>
+                                      <span class="badge bg-warning text-dark">Pending</span>
+                                      <% } %>
+                              </td>
+                              <td class="text-end">
+                                <a href="/documents/download/<%= doc._id %>" class="btn btn-sm btn-download">
+                                  <i class="fa fa-download p-1"></i>
+                                </a>
+                              </td>
+                            </tr>
+                            <% }) %>
+                              <% } else { %>
+                                <tr>
+                                  <td colspan="3" class="text-center py-4 text-muted small">No documents uploaded.</td>
+                                </tr>
+                                <% } %>
+                      </tbody>
+                    </table>
+                  </div>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <div class="profile-section-card border-danger border-opacity-25">
+            <h5 class="section-title text-danger"><i class="fa-solid fa-user-slash"></i> Employment Termination</h5>
+            <p class="text-muted small">
+              Resignation requests are sent directly to your Reporting Manager and Department Head.
+              Revoking is allowed only while the request is still pending.
+            </p>
+
+            <% if (employee.resignationStatus==='Pending' ) { %>
+              <div class="alert alert-warning d-flex align-items-center justify-content-between">
+                <div>
+                  <strong><i class="fa-solid fa-hourglass-half me-2"></i> Resignation Pending</strong>
+                  <div class="small mt-1">Submitted on: <%= employee.resignationDate ?
+                      employee.resignationDate.toLocaleDateString() : 'Unknown' %>
+                  </div>
+                </div>
+                <form action="/employee/revoke-resignation" method="POST"
+                  onsubmit="return confirm('Are you sure you want to revoke your resignation?');">
+                  <button type="submit" class="btn btn-outline-dark btn-sm">
+                    <i class="fa-solid fa-rotate-left me-2"></i> Revoke Resignation
+                  </button>
+                </form>
+              </div>
+              <% } else if (employee.resignationStatus==='Approved' ) { %>
+                <div class="alert alert-danger">
+                  <strong><i class="fa-solid fa-check-circle me-2"></i> Resignation Approved</strong>
+                  <p class="mb-0 small mt-1">Your resignation has been accepted by management.</p>
+                </div>
+                <% } else { %>
+                  <% if (employee.resignationStatus==='Rejected' ) { %>
+                    <div class="alert alert-danger mb-3">
+                      <i class="fa-solid fa-circle-xmark me-2"></i> Your previous resignation was
+                      <strong>Rejected</strong>.
+                    </div>
+                    <% } %>
+                      <form action="/employee/resign" method="POST"
+                        onsubmit="return confirm('Are you sure you want to apply for resignation? This action allows your manager to review your exit request.');">
+                        <div class="mb-3">
+                          <label class="form-label small fw-bold text-muted">Reason for Resignation</label>
+                          <textarea name="reason" class="form-control" rows="3" required
+                            placeholder="Please explain why you are leaving..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger w-100">
+                          <i class="fa-solid fa-right-from-bracket me-2"></i> Submit Resignation Request
+                        </button>
+                      </form>
+                      <% } %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Resignation Confirmation Modal (Standard JS confirm used, but custom script added for clarity) -->
+    <script>
+      function confirmResignation() {
+        if (confirm("Are you sure you want to apply for resignation?\n\nThis action will notify your Manager and HR Department.")) {
+          document.getElementById('resignForm').submit();
+        }
+      }
+    </script>
+
+    <footer class="text-center py-5 border-top mt-5">
+      <p class="text-muted small">© 2026 RSR Aviation Group • Precision in Personnel Management</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

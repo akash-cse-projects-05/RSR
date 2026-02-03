@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Training Progress | RSR Aviation</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-text: #222222;
+      --rsr-text-light: #717171;
+      --rsr-border: #ebebeb;
+      --rsr-bg: #ffffff;
+      --rsr-light: #f7f9fc;
+    }
+
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--rsr-text);
+      letter-spacing: -0.01em;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: #fff !important;
+      border-bottom: 1px solid var(--rsr-border);
+      padding: 1.2rem 0;
+    }
+    .navbar-brand {
+      font-weight: 800;
+      color: var(--rsr-blue) !important;
+    }
+
+    /* Page Header */
+    .page-header {
+      padding: 60px 0 40px;
+      border-bottom: 1px solid var(--rsr-border);
+      margin-bottom: 40px;
+    }
+
+    /* Professional Table Styling */
+    .training-container {
+      border: 1px solid var(--rsr-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      background: #fff;
+    }
+    .table { margin-bottom: 0; }
+    .table thead th {
+      background-color: var(--rsr-light);
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--rsr-text-light);
+      border-bottom: 1px solid var(--rsr-border);
+    }
+    .table tbody td {
+      padding: 24px 20px;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--rsr-border);
+    }
+
+    /* Progress Bar Customization */
+    .progress {
+      height: 8px;
+      background-color: #e9ecef;
+      border-radius: 10px;
+      margin-bottom: 5px;
+    }
+    .progress-bar {
+      background-color: var(--rsr-blue);
+      border-radius: 10px;
+    }
+
+    /* Form Elements */
+    .update-input {
+      border: 1px solid var(--rsr-border);
+      border-radius: 8px;
+      padding: 5px 10px;
+      width: 70px !important;
+      font-weight: 600;
+    }
+    .update-input:focus {
+      border-color: var(--rsr-blue);
+      box-shadow: none;
+    }
+
+    /* Buttons */
+    .btn-resource {
+      background: #fff;
+      border: 1px solid var(--rsr-border);
+      color: var(--rsr-blue);
+      font-weight: 600;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      transition: all 0.2s;
+    }
+    .btn-resource:hover {
+      background: var(--rsr-light);
+      border-color: var(--rsr-blue);
+    }
+    .btn-update {
+      background-color: var(--rsr-blue);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      padding: 6px 12px;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="/dashboard">
+      <i class="fa-solid fa-paper-plane me-2"></i> RSR AVIATION
+    </a>
+    <div class="ms-auto">
+      <a href="/dashboard" class="btn btn-outline-dark btn-sm rounded-pill px-3">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="container">
+    <p class="text-primary fw-bold small mb-1" style="letter-spacing: 0.1em;">CAREER DEVELOPMENT</p>
+    <h1 class="fw-bold mb-0">My Training Progress</h1>
+    <p class="text-muted mt-2">Track your certification modules and aviation learning paths.</p>
+  </div>
+</header>
+
+<div class="container pb-5">
+  
+  <div class="training-container">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width: 20%;">Title</th>
+            <th style="width: 25%;">Module Description</th>
+            <th style="width: 15%;">Timeline</th>
+            <th style="width: 10%;">Resources</th>
+            <th style="width: 15%;">Completion</th>
+            <th style="width: 15%;" class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (tasks && tasks.length > 0) { %>
+            <% let hasTraining = false; %>
+            <% tasks.forEach(function(task) { if (task.type === 'Training') { hasTraining = true; %>
+              <tr>
+                <td>
+                  <div class="fw-bold text-dark"><%= task.title %></div>
+                  <div class="badge bg-light text-primary mt-1" style="font-size: 0.65rem; border: 1px solid var(--rsr-border);">Aviation Module</div>
+                </td>
+                <td class="text-muted small"><%= task.description %></td>
+                <td class="small">
+                  <div class="mb-1"><span class="text-muted">Start:</span> <%= task.startDate ? new Date(task.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : 'N/A' %></div>
+                  <div><span class="text-muted">Due:</span> <span class="fw-bold text-danger"><%= task.deadline ? new Date(task.deadline).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : 'N/A' %></span></div>
+                </td>
+                <td>
+                  <% if (task.resources && task.resources.length > 0) { %>
+                    <% task.resources.forEach(function(link) { %>
+                      <a href="<%= link %>" target="_blank" class="btn btn-resource mb-1">
+                        <i class="fa-solid fa-link me-1"></i>Material
+                      </a>
+                    <% }); %>
+                  <% } else { %>
+                    <span class="text-muted small">No links</span>
+                  <% } %>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="fw-bold small" style="color: var(--rsr-blue);"><%= task.progress %>%</span>
+                  </div>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: <%= task.progress %>%"></div>
+                  </div>
+                </td>
+                <td class="text-end">
+                  <form action="/department/<%= department %>/training/<%= task._id %>/progress" method="POST" class="d-flex align-items-center justify-content-end gap-2">
+                    <input type="number" name="progress" min="0" max="100" value="<%= task.progress %>" class="form-control update-input" />
+                    <button type="submit" class="btn btn-primary btn-update">Update</button>
+                  </form>
+                </td>
+              </tr>
+            <% } }); %>
+            
+            <% if (!hasTraining) { %>
+              <tr><td colspan="6" class="text-center py-5 text-muted small">No training modules currently assigned to your profile.</td></tr>
+            <% } %>
+
+          <% } else { %>
+            <tr><td colspan="6" class="text-center py-5 text-muted small">No tasks found.</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mt-4 p-4 rounded-4 border bg-light bg-opacity-50">
+     <p class="small text-muted mb-0">
+       <i class="fa-solid fa-graduation-cap me-2"></i> Progress updates are monitored by the Department Head. Ensure all mandatory aviation safety modules are completed before the assigned deadlines.
+     </p>
+  </div>
+
+</div>
+
+<footer class="text-center py-5 border-top">
+  <p class="text-muted small">© 2026 RSR Aviation Group • Human Capital Development</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

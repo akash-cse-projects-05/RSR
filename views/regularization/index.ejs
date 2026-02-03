@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Regularization | RSR HRMS</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-text: #222222;
+      --rsr-text-light: #717171;
+      --rsr-border: #ebebeb;
+      --rsr-bg: #f8fafc;
+      --rsr-white: #ffffff;
+    }
+
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--rsr-text);
+      letter-spacing: -0.01em;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: var(--rsr-white) !important;
+      border-bottom: 1px solid var(--rsr-border);
+      padding: 1rem 0;
+    }
+    .navbar-brand { font-weight: 800; color: var(--rsr-blue) !important; }
+
+    /* Page Header */
+    .page-header {
+      padding: 60px 0 40px;
+      border-bottom: 1px solid var(--rsr-border);
+      margin-bottom: 40px;
+      background: var(--rsr-white);
+    }
+
+    /* Cards */
+    .glass-card {
+      background: var(--rsr-white);
+      border: 1px solid var(--rsr-border);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+      height: 100%;
+    }
+
+    /* Form Styling */
+    .form-label {
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--rsr-text-light);
+      margin-bottom: 8px;
+    }
+    .form-control {
+      border-radius: 12px;
+      padding: 12px 16px;
+      border: 1px solid var(--rsr-border);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+    .form-control:focus {
+      border-color: var(--rsr-blue);
+      box-shadow: 0 0 0 4px rgba(0, 82, 204, 0.05);
+    }
+
+    /* Table Styling */
+    .table-container {
+      border: 1px solid var(--rsr-border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+    .table thead th {
+      background-color: #f8fafc;
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--rsr-text-light);
+      text-transform: uppercase;
+    }
+    .table tbody td {
+      padding: 16px 20px;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--rsr-border);
+      font-size: 0.9rem;
+    }
+
+    /* Badges */
+    .badge-rsr {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.7rem;
+    }
+    .bg-pending { background-color: #fff9db; color: #f08c00; }
+    .bg-approved { background-color: #e6fcf5; color: #0ca678; }
+    .bg-rejected { background-color: #fff5f5; color: #ff6b6b; }
+
+    .btn-main {
+      background-color: var(--rsr-blue);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    .btn-main:hover {
+      background-color: #0043a8;
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="/dashboard">
+      <i class="fa-solid fa-clock-rotate-left me-2"></i> RSR HRMS
+    </a>
+    <div class="ms-auto">
+      <a href="/dashboard" class="btn btn-outline-dark btn-sm rounded-pill px-4 fw-bold">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="container">
+    <p class="text-primary fw-bold small mb-1" style="letter-spacing: 0.1em;">COMPLIANCE & RECORDS</p>
+    <h1 class="fw-bold mb-0">Attendance Regularization</h1>
+    <p class="text-muted mt-2">Request corrections for missing logs or technical discrepancies in your attendance record.</p>
+  </div>
+</header>
+
+<div class="container pb-5">
+  <div id="reg-alert"></div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="glass-card">
+        <h5 class="fw-bold mb-4">Request Adjustment</h5>
+        <form id="regularizationForm" action="/regularization/request" method="POST">
+          <div class="mb-3">
+            <label for="date" class="form-label">Effective Date</label>
+            <input type="date" class="form-control" id="date" name="date" required>
+          </div>
+          <div class="mb-4">
+            <label for="reason" class="form-label">Reason for Discrepancy</label>
+            <textarea class="form-control" id="reason" name="reason" rows="4" placeholder="e.g. Technical error during punch-in, field visit, etc." required></textarea>
+          </div>
+          <button type="submit" class="btn-main w-100 shadow-sm">
+            <i class="fa-solid fa-paper-plane me-2"></i> Submit for Approval
+          </button>
+        </form>
+        <div class="mt-4 p-3 bg-light rounded-3">
+          <small class="text-muted"><i class="fa-solid fa-circle-info me-2 text-primary"></i> Requests are typically reviewed by HR within 24-48 business hours.</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="glass-card">
+        <h5 class="fw-bold mb-3">Recent Correction Logs</h5>
+
+        
+
+        <div class="table-container">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Requested Date</th>
+                  <th>Reasoning</th>
+                  <th>Current Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (requests && requests.length > 0) { %>
+                  <% requests.forEach(function(req) { %>
+                    <tr>
+                      <td class="fw-bold text-dark"><i class="fa-regular fa-calendar me-2 text-muted"></i><%= req.date %></td>
+                      <td class="text-muted small"><%= req.reason %></td>
+                      <td>
+                        <span class="badge-rsr <%= req.status === 'Pending' ? 'bg-pending' : req.status === 'Approved' ? 'bg-approved' : 'bg-rejected' %>">
+                          <%= req.status %>
+                        </span>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="3" class="text-center py-5 text-muted small">No historical requests found.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="text-center py-5">
+  <p class="text-muted small">© 2026 RSR HRMS • Workforce Compliance Terminal</p>
+</footer>
+
+<script>
+document.getElementById('regularizationForm').onsubmit = async function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const data = Object.fromEntries(new FormData(form).entries());
+  const alertDiv = document.getElementById('reg-alert');
+  
+  // Loading State
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Submitting...';
+  alertDiv.innerHTML = ""; 
+
+  try {
+    const res = await fetch(form.action, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    const text = await res.text();
+    
+    if (res.ok) {
+      alertDiv.innerHTML = `<div class="alert alert-success border-0 shadow-sm alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-check me-2"></i> ${text}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+      form.reset();
+      // Reload history to show new request
+      setTimeout(() => location.reload(), 2000);
+    } else {
+      alertDiv.innerHTML = `<div class="alert alert-danger border-0 shadow-sm alert-dismissible fade show" role="alert">
+        <i class="fa-solid fa-circle-exclamation me-2"></i> ${text}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+    }
+  } catch (err) {
+    alertDiv.innerHTML = `<div class="alert alert-danger border-0 shadow-sm alert-dismissible fade show" role="alert">
+      Something went wrong. Please check your network connection.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>`;
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> Submit for Approval';
+  }
+};
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

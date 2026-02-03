@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Trip Management | HR Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f7f9fc;
+        }
+
+        .avatar-small {
+            width: 30px;
+            height: 30px;
+            background: #e2e8f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.75rem;
+            color: #475569;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('../partials/anti-cache') %>
+
+        <nav class="navbar navbar-dark bg-dark sticky-top px-3">
+            <a class="navbar-brand fw-bold" href="/hr/dashboard"><i class="fa-solid fa-earth-americas me-2"></i> Travel
+                Command Center</a>
+            <a href="/hr/dashboard" class="btn btn-sm btn-outline-light">Back to Dashboard</a>
+        </nav>
+
+        <div class="container py-4">
+
+            <!-- PENDING REQUESTS -->
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-hourglass-half text-warning me-2"></i> Pending Approvals</h5>
+            <div class="card shadow-sm border-0 mb-5">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Employee</th>
+                                    <th>Destination</th>
+                                    <th>Dates</th>
+                                    <th>Purpose</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if(pendingTrips.length===0) { %>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">No pending requests.</td>
+                                    </tr>
+                                    <% } %>
+                                        <% pendingTrips.forEach(trip=> { %>
+                                            <tr>
+                                                <td class="ps-4">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="avatar-small me-2">
+                                                            <%= (trip.employeeId && trip.employeeId.firstName) ?
+                                                                trip.employeeId.firstName.charAt(0) : "?" %>
+                                                        </div>
+                                                        <div>
+                                                            <div class="fw-bold">
+                                                                <%= (trip.employeeId && trip.employeeId.firstName) ?
+                                                                    trip.employeeId.firstName + " " +
+                                                                    (trip.employeeId.lastName || "" )
+                                                                    : "Unknown Employee" %>
+                                                            </div>
+                                                            <div class="small text-muted">
+                                                                <%= (trip.employeeId && trip.employeeId.department) ?
+                                                                    trip.employeeId.department : "General" %>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="fw-bold">
+                                                    <%= trip.destination %>
+                                                </td>
+                                                <td>
+                                                    <div class="small">
+                                                        <%= new Date(trip.startDate).toLocaleDateString() %>
+                                                    </div>
+                                                    <div class="small text-muted">to <%= new
+                                                            Date(trip.endDate).toLocaleDateString() %>
+                                                    </div>
+                                                </td>
+                                                <td><small class="text-muted">
+                                                        <%= trip.purpose %>
+                                                    </small></td>
+                                                <td class="text-end pe-4">
+                                                    <div class="d-flex gap-2 justify-content-end">
+                                                        <form action="/trip/hr/action/<%= trip._id %>" method="POST">
+                                                            <button name="status" value="Approved"
+                                                                class="btn btn-sm btn-success fw-bold px-3">Approve</button>
+                                                        </form>
+
+                                                        <div class="dropdown">
+                                                            <button
+                                                                class="btn btn-sm btn-outline-danger dropdown-toggle"
+                                                                type="button" data-bs-toggle="dropdown">Reject</button>
+                                                            <div class="dropdown-menu p-3 shadow" style="width: 250px;">
+                                                                <form action="/trip/hr/action/<%= trip._id %>"
+                                                                    method="POST">
+                                                                    <input type="hidden" name="status" value="Rejected">
+                                                                    <textarea name="reason" class="form-control mb-2"
+                                                                        rows="2" placeholder="Reason..."
+                                                                        required></textarea>
+                                                                    <button class="btn btn-danger btn-sm w-100">Confirm
+                                                                        Rejection</button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIVE TRIPS -->
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-satellite-dish text-success me-2"></i> Live Tracking (Active
+                Trips)</h5>
+            <div class="row g-4 mb-5">
+                <% if(activeTrips.length===0) { %>
+                    <div class="col-12 text-center text-muted py-3">No personnel currently on approved travel.</div>
+                    <% } %>
+                        <% activeTrips.forEach(trip=> { %>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div class="badge bg-success bg-opacity-10 text-success"><i
+                                                    class="fa-solid fa-circle me-1" style="font-size: 6px;"></i> LIVE
+                                            </div>
+                                            <small class="text-muted text-uppercase fw-bold">
+                                                <%= trip.destination %>
+                                            </small>
+                                        </div>
+                                        <h5 class="fw-bold mb-1">
+                                            <%= (trip.employeeId) ? trip.employeeId.firstName + " " +
+                                                (trip.employeeId.lastName || "" ) : "Unknown Employee" %>
+                                        </h5>
+                                        <p class="text-muted small mb-3">
+                                            <%= new Date(trip.startDate).toLocaleDateString() %> - <%= new
+                                                    Date(trip.endDate).toLocaleDateString() %>
+                                        </p>
+                                        <a href="/trip/track/<%= trip._id %>"
+                                            class="btn btn-outline-primary w-100 fw-bold">
+                                            <i class="fa-solid fa-map-location-dot me-2"></i> View Route Map
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }) %>
+            </div>
+
+            <!-- COMPLETED TRIPS (REPORTS) -->
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-clipboard-check text-primary me-2"></i> Completed Trip
+                Reports</h5>
+            <div class="card shadow-sm border-0 mb-5">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Employee</th>
+                                    <th>Destination</th>
+                                    <th>Completion Date</th>
+                                    <th class="text-end pe-4">Report</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if(typeof completedTrips==='undefined' || completedTrips.length===0) { %>
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">No completed trips found.
+                                        </td>
+                                    </tr>
+                                    <% } else { %>
+                                        <% completedTrips.forEach(trip=> { %>
+                                            <tr>
+                                                <td class="ps-4 fw-bold">
+                                                    <%= (trip.employeeId) ? trip.employeeId.firstName + " " +
+                                                        (trip.employeeId.lastName || "" ) : "Unknown" %>
+                                                </td>
+                                                <td>
+                                                    <%= trip.destination %>
+                                                </td>
+                                                <td>
+                                                    <%= new Date(trip.updatedAt).toLocaleDateString() %>
+                                                </td>
+                                                <td class="text-end pe-4">
+                                                    <a href="/trip/track/<%= trip._id %>"
+                                                        class="btn btn-sm btn-primary">
+                                                        <i class="fa-solid fa-file-invoice me-2"></i> View Logs
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

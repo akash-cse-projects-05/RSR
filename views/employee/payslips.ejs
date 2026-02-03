@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Payslips | RSR Aviation</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-bg: #ffffff;
+      --rsr-light: #f7f9fc;
+      --text-main: #222222;
+      --text-muted: #717171;
+      --border-color: #ebebeb;
+    }
+
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    .navbar {
+      background: #fff !important;
+      border-bottom: 1px solid var(--rsr-border);
+      padding: 1.2rem 0;
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      color: var(--rsr-blue) !important;
+    }
+
+    .page-header {
+      padding: 60px 0 40px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 40px;
+    }
+
+    .formula-bar {
+      background-color: var(--rsr-light);
+      border: 1px solid var(--rsr-border);
+      border-radius: 12px;
+      padding: 15px 25px;
+      margin-bottom: 30px;
+      font-size: 0.85rem;
+    }
+
+    .payroll-container {
+      border: 1px solid var(--rsr-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+
+    .table thead th {
+      background-color: var(--rsr-light);
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--rsr-text-light);
+      border-bottom: 1px solid var(--rsr-border);
+    }
+
+    .table tbody td {
+      padding: 20px;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .currency {
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: 600;
+    }
+
+    .net-pay-val {
+      color: var(--rsr-blue);
+      font-weight: 800;
+    }
+
+    .deduction-text {
+      color: #dc3545;
+      font-size: 0.85rem;
+    }
+
+    .status-pill {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .pill-paid {
+      background: #e6fcf5;
+      color: #0ca678;
+    }
+
+    .pill-pending {
+      background: #fff5f5;
+      color: #ff6b6b;
+    }
+
+    .btn-download {
+      border: 1px solid var(--rsr-border);
+      background: #fff;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 8px 16px;
+    }
+
+    .btn-download:hover {
+      border-color: var(--rsr-blue);
+      color: var(--rsr-blue);
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+      <a class="navbar-brand" href="/dashboard">
+        <i class="fa-solid fa-paper-plane me-2"></i> RSR AVIATION
+      </a>
+      <div class="ms-auto">
+        <a href="/dashboard" class="btn btn-outline-dark btn-sm rounded-pill px-3">Dashboard</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <div class="container">
+      <p class="text-primary fw-bold small mb-1" style="letter-spacing: 0.1em;">FINANCIAL RECORDS</p>
+      <h1 class="fw-bold mb-0">My Payslips</h1>
+      <p class="text-muted mt-2">View and download your monthly salary breakdown.</p>
+    </div>
+  </header>
+
+  <div class="container pb-5">
+
+    <div class="formula-bar d-flex align-items-center">
+      <i class="fa-solid fa-circle-info text-primary me-3 fs-4"></i>
+      <div>
+        <span class="fw-bold text-dark">Net Pay Calculation:</span>
+        <span class="text-muted ms-2">(Basic + Allowances + Bonuses) - (Deductions + Taxes)</span>
+      </div>
+    </div>
+
+    <div class="payroll-container">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th>Basic Salary</th>
+              <th>Allowances</th>
+              <th>Deductions & Taxes</th>
+              <th>Bonuses</th>
+              <th>Net Pay</th>
+              <th>Status</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (payslips && payslips.length> 0) { %>
+              <% payslips.forEach(function(payslip) { %>
+                <% let totalEarnings=(payslip.basicSalary || 0) + (payslip.allowances || 0) + (payslip.bonuses || 0);
+                  let totalDeductions=(payslip.deductions || 0) + (payslip.taxes || 0); let finalNetPay=totalEarnings -
+                  totalDeductions; %>
+                  <tr>
+                    <td>
+                      <div class="fw-bold text-dark">
+                        <%= payslip.month %>
+                      </div>
+                      <div class="text-muted small">
+                        <%= payslip.year %>
+                      </div>
+                    </td>
+                    <td class="currency text-muted">₹ <%= (payslip.basicSalary || 0).toFixed(2) %>
+                    </td>
+                    <td class="currency text-muted">₹ <%= (payslip.allowances || 0).toFixed(2) %>
+                    </td>
+
+                    <td>
+                      <div class="deduction-text fw-bold">₹ -<%= totalDeductions.toFixed(2) %>
+                      </div>
+                      <% if (payslip.deductionDetails && payslip.deductionDetails.length> 0) { %>
+                        <div class="mt-1" style="font-size: 0.7rem; color: #717171;">
+                          <% payslip.deductionDetails.forEach(function(d, index) { %>
+                            <%= d.label %>: ₹<%= d.amount.toFixed(0) %>
+                                <% if(index < payslip.deductionDetails.length - 1) { %>, <% } %>
+                                    <% }) %>
+                        </div>
+                        <% } %>
+                    </td>
+
+                    <td class="currency text-success fw-bold">₹ <%= (payslip.bonuses || 0).toFixed(2) %>
+                    </td>
+
+                    <td class="net-pay-val currency fs-5">₹ <%= (finalNetPay || 0).toFixed(2) %>
+                    </td>
+
+                    <td>
+                      <span class="status-pill <%= payslip.paymentStatus === 'Paid' ? 'pill-paid' : 'pill-pending' %>">
+                        <%= payslip.paymentStatus %>
+                      </span>
+                    </td>
+
+                    <td class="text-end">
+                      <a href="/payslip/download/<%= payslip._id %>" class="btn btn-download shadow-sm">
+                        <i class="fa-solid fa-file-pdf me-2"></i>Download
+                      </a>
+                    </td>
+                  </tr>
+                  <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="8" class="text-center py-5 text-muted small">
+                          No payslip records available.
+                        </td>
+                      </tr>
+                      <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="mt-4 p-4 rounded-4 border bg-light bg-opacity-50">
+      <p class="small text-muted mb-0">
+        <i class="fa-solid fa-shield-halved me-2"></i> This is an official automated document from RSR Aviation Group.
+        For payroll discrepancies, please raise a ticket in the help center.
+      </p>
+    </div>
+
+  </div>
+
+  <footer class="text-center py-5 border-top">
+    <p class="text-muted small">© 2026 RSR Aviation Group • Confidential Financial Portal</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Request Trip | RSR HRMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <style>
+        .map-picker {
+            height: 300px;
+            width: 100%;
+            border-radius: 12px;
+            border: 2px solid #eee;
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #444;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <%- include('../partials/anti-cache') %>
+
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-7">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-header bg-white border-bottom p-4">
+                            <div class="d-flex align-items-center">
+                                <a href="/trip/my-trips"
+                                    class="btn btn-outline-light text-dark btn-sm rounded-circle me-3 border"><i
+                                        class="fa-solid fa-arrow-left"></i></a>
+                                <h4 class="mb-0 fw-bold text-primary">New Trip Request</h4>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <form action="/trip/request" method="POST" id="tripForm">
+
+                                <!-- Location Section -->
+                                <h6 class="fw-bold text-uppercase text-muted mb-3 small">1. Destination Audit</h6>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Destination Name</label>
+                                    <input type="text" name="destination" class="form-control form-control-lg"
+                                        placeholder="e.g. Mumbai Site Office" required
+                                        oninput="searchLocation(this.value)">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Pin Exact Location (Required)</label>
+                                    <div id="map" class="map-picker"></div>
+                                    <div class="form-text"><i class="fa-solid fa-circle-info me-1"></i> Drag the marker
+                                        to the exact audit location.</div>
+                                    <input type="hidden" name="destLat" id="destLat">
+                                    <input type="hidden" name="destLng" id="destLng">
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">Source / Starting Point</label>
+                                    <input type="text" name="source" class="form-control"
+                                        placeholder="e.g. New Delhi HQ" required>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <!-- Schedule Section -->
+                                <h6 class="fw-bold text-uppercase text-muted mb-3 small">2. Schedule & Duration</h6>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Start Date</label>
+                                        <input type="date" name="startDate" id="startDate" class="form-control" required
+                                            onchange="calcDuration()">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">End Date</label>
+                                        <input type="date" name="endDate" id="endDate" class="form-control" required
+                                            onchange="calcDuration()">
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-primary d-flex align-items-center mb-4" id="durationAlert">
+                                    <i class="fa-regular fa-clock me-3 fs-4"></i>
+                                    <div>
+                                        <div class="small text-uppercase opacity-75 fw-bold">Total Duration</div>
+                                        <strong class="fs-5" id="durationText">1 Day</strong>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="form-label">Purpose of Visit</label>
+                                    <textarea name="purpose" class="form-control" rows="3"
+                                        placeholder="Describe the audit or field work..." required></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-3 shadow-sm">
+                                    <i class="fa-solid fa-paper-plane me-2"></i> Submit Request
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+        <script>
+            // Init Map
+            const map = L.map('map').setView([20.5937, 78.9629], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+
+            let marker = L.marker([20.5937, 78.9629], { draggable: true }).addTo(map);
+
+            // Update Coords on Drag
+            function updateCoords(lat, lng) {
+                document.getElementById('destLat').value = lat;
+                document.getElementById('destLng').value = lng;
+            }
+
+            marker.on('dragend', function (e) {
+                const p = e.target.getLatLng();
+                updateCoords(p.lat, p.lng);
+            });
+
+            // Search debounce
+            let timeout = null;
+            function searchLocation(query) {
+                clearTimeout(timeout);
+                timeout = setTimeout(async () => {
+                    if (query.length < 3) return;
+                    try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}`);
+                        const data = await res.json();
+                        if (data && data.length > 0) {
+                            const lat = data[0].lat;
+                            const lng = data[0].lon;
+                            map.setView([lat, lng], 14);
+                            marker.setLatLng([lat, lng]);
+                            updateCoords(lat, lng);
+                        }
+                    } catch (e) { console.error("Search failed"); }
+                }, 1000);
+            }
+
+            // Duration Calc
+            function calcDuration() {
+                const start = document.getElementById('startDate').value;
+                const end = document.getElementById('endDate').value;
+                if (start && end) {
+                    const s = new Date(start);
+                    const e = new Date(end);
+                    const diffTime = Math.abs(e - s);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Inclusive
+                    document.getElementById('durationText').innerHTML = diffDays + (diffDays === 1 ? " Day" : " Days");
+                }
+            }
+
+            // Init default coords
+            updateCoords(20.5937, 78.9629);
+
+        </script>
+</body>
+
+</html>

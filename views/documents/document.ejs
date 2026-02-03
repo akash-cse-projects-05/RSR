@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Documents | RSR Aviation</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-text: #222222;
+      --rsr-text-light: #717171;
+      --rsr-border: #ebebeb;
+      --rsr-bg: #ffffff;
+      --rsr-light: #f7f9fc;
+    }
+
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--rsr-text);
+      letter-spacing: -0.01em;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: #fff !important;
+      border-bottom: 1px solid var(--rsr-border);
+      padding: 1.2rem 0;
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      color: var(--rsr-blue) !important;
+    }
+
+    /* Header Section */
+    .page-header {
+      padding: 60px 0 40px;
+      border-bottom: 1px solid var(--rsr-border);
+      margin-bottom: 40px;
+    }
+
+    /* Table Styling */
+    .table-container {
+      border: 1px solid var(--rsr-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      margin-bottom: 40px;
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+
+    .table thead th {
+      background-color: var(--rsr-light);
+      border-bottom: 1px solid var(--rsr-border);
+      padding: 16px 24px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--rsr-text-light);
+    }
+
+    .table tbody td {
+      padding: 20px 24px;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--rsr-border);
+    }
+
+    /* Status Badges */
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .status-approved {
+      background: #e6fcf5;
+      color: #0ca678;
+    }
+
+    .status-pending {
+      background: #fff9db;
+      color: #f08c00;
+    }
+
+    /* Upload Form Card */
+    .upload-card {
+      border: 1px solid var(--rsr-border);
+      border-radius: 16px;
+      padding: 32px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    }
+
+    .form-label {
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid var(--rsr-border);
+    }
+
+    .form-control:focus {
+      border-color: var(--rsr-blue);
+      box-shadow: 0 0 0 4px rgba(0, 82, 204, 0.05);
+    }
+
+    /* Buttons */
+    .btn-download {
+      border: 1px solid var(--rsr-border);
+      border-radius: 8px;
+      font-weight: 600;
+      color: var(--rsr-text);
+      transition: all 0.2s;
+    }
+
+    .btn-download:hover {
+      background: var(--rsr-light);
+      border-color: var(--rsr-blue);
+    }
+
+    .btn-upload {
+      background-color: var(--rsr-blue);
+      color: white;
+      border-radius: 10px;
+      font-weight: 700;
+      padding: 12px 28px;
+      border: none;
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../partials/anti-cache') %>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="/dashboard">
+          <i class="fa-solid fa-paper-plane me-2"></i> RSR AVIATION
+        </a>
+        <div class="ms-auto">
+          <a href="/dashboard" class="btn btn-outline-dark btn-sm rounded-pill px-3">Back to Dashboard</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="page-header">
+      <div class="container">
+        <p class="text-primary fw-bold small mb-1" style="letter-spacing: 0.1em;">RECORDS & COMPLIANCE</p>
+        <h1 class="fw-bold mb-0">My Documents</h1>
+        <p class="text-muted mt-2">Access and manage your aviation certifications and records.</p>
+      </div>
+    </header>
+
+    <div class="container pb-5">
+
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Document Name</th>
+              <th>File Type</th>
+              <th>Status</th>
+              <th>Uploaded At</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (documents.length===0) { %>
+              <tr>
+                <td colspan="5" class="text-center py-5 text-muted small">
+                  No documents found. Please upload your certifications below.
+                </td>
+              </tr>
+              <% } else { %>
+                <% documents.forEach(function(doc) { %>
+                  <tr>
+                    <td>
+                      <div class="fw-bold text-dark">
+                        <%= doc.name %>
+                      </div>
+                    </td>
+                    <td><span class="text-muted small fw-bold">
+                        <%= doc.fileType.toUpperCase() %>
+                      </span></td>
+                    <td>
+                      <span
+                        class="status-badge <%= doc.status === 'Approved' ? 'status-approved' : 'status-pending' %>">
+                        <%= doc.status %>
+                      </span>
+                    </td>
+                    <td class="text-muted small">
+                      <%= doc.uploadedAt.toLocaleString() %>
+                    </td>
+                    <td class="text-end">
+                      <a href="/documents/download/<%= doc._id %>" class="btn btn-sm btn-download">
+                        <i class="fa-solid fa-download me-2"></i>Download
+                      </a>
+                    </td>
+                  </tr>
+                  <% }) %>
+                    <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6">
+          <!-- Upload Card -->
+          <div class="upload-card mb-4">
+            <h4 class="fw-bold mb-4"><i class="fa-solid fa-cloud-arrow-up me-2 text-primary"></i>Upload New Document
+            </h4>
+            <form action="/documents/upload" method="POST" enctype="multipart/form-data">
+              <div class="mb-3">
+                <label for="name" class="form-label">Document Name</label>
+                <input type="text" name="name" id="name" class="form-control"
+                  placeholder="e.g. Flight Certification 2026" required>
+              </div>
+              <div class="mb-4">
+                <label for="document" class="form-label">Select File</label>
+                <input type="file" name="document" id="document" class="form-control" accept=".pdf,.jpg,.jpeg,.png"
+                  required>
+                <div class="form-text small">Accepted formats: PDF, JPG, PNG (Max 5MB)</div>
+              </div>
+              <button type="submit" class="btn btn-upload shadow-sm w-100">Upload to Cloud</button>
+            </form>
+          </div>
+
+
+          <!-- Profile Photo Card -->
+          <div class="upload-card mb-4">
+            <h4 class="fw-bold mb-4"><i class="fa-solid fa-camera me-2 text-primary"></i>Profile Photo</h4>
+
+            <% if (employee && employee.profilePhoto && employee.profilePhoto.data) { %>
+              <div id="photo-display-mode">
+                <div class="text-center mb-3">
+                  <div class="mb-3">
+                    <img
+                      src="data:<%= employee.profilePhoto.contentType %>;base64,<%= employee.profilePhoto.data.toString('base64') %>"
+                      class="rounded-circle shadow-sm"
+                      style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                  </div>
+                  <div class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill mb-3">
+                    <i class="fa-solid fa-check-circle me-2"></i>Photo Uploaded
+                  </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary w-100" onclick="togglePhotoEdit()">
+                  <i class="fa-solid fa-pen-to-square me-2"></i>Change Photo
+                </button>
+              </div>
+
+              <div id="photo-edit-mode" style="display: none;">
+                <form action="/documents/upload-photo" method="POST" enctype="multipart/form-data">
+                  <div class="mb-4">
+                    <label for="profilePhoto" class="form-label">Select New Photo</label>
+                    <input type="file" name="profilePhoto" id="profilePhoto" class="form-control"
+                      accept=".jpg,.jpeg,.png" required>
+                    <div class="form-text small">Accepted formats: JPG, PNG (Max 2MB)</div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light border w-100" onclick="togglePhotoEdit()">Cancel</button>
+                    <button type="submit" class="btn btn-upload shadow-sm w-100">Update Photo</button>
+                  </div>
+                </form>
+              </div>
+              <% } else { %>
+                <form action="/documents/upload-photo" method="POST" enctype="multipart/form-data">
+                  <div class="mb-4">
+                    <label for="profilePhoto" class="form-label">Select Photo</label>
+                    <input type="file" name="profilePhoto" id="profilePhoto" class="form-control"
+                      accept=".jpg,.jpeg,.png" required>
+                    <div class="form-text small">Accepted formats: JPG, PNG (Max 2MB)</div>
+                  </div>
+                  <button type="submit" class="btn btn-upload shadow-sm w-100">Upload Profile Photo</button>
+                </form>
+                <% } %>
+          </div>
+
+          <!-- Bank Details Card -->
+          <div class="upload-card">
+            <h4 class="fw-bold mb-4"><i class="fa-solid fa-building-columns me-2 text-success"></i>Bank Details</h4>
+
+            <% if (employee && employee.bankDetails && employee.bankDetails.accountNumber) { %>
+              <div id="bank-display-mode">
+                <div class="alert alert-success border-0 bg-success bg-opacity-10 text-success mb-4 fs-6">
+                  <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-circle-check fs-4 me-3"></i>
+                    <div>
+                      <div class="fw-bold">Details Submitted</div>
+                      <div class="small opacity-75">Your bank details are on file.</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bg-light rounded-3 p-3 border mb-4">
+                  <div class="row g-3">
+                    <div class="col-6">
+                      <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Bank Name</small>
+                      <div class="fw-bold text-dark">
+                        <%= employee.bankDetails.bankName %>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Account Number</small>
+                      <div class="fw-bold text-dark">•••• <%= employee.bankDetails.accountNumber.slice(-4) %>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">IFSC Code</small>
+                      <div class="fw-bold text-dark">
+                        <%= employee.bankDetails.ifscCode %>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Branch</small>
+                      <div class="fw-bold text-dark">
+                        <%= employee.bankDetails.branchName %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button type="button" class="btn btn-outline-success w-100" onclick="toggleBankEdit()">
+                  <i class="fa-solid fa-pen-to-square me-2"></i>Edit Details
+                </button>
+              </div>
+
+              <div id="bank-edit-mode" style="display: none;">
+                <% } %>
+
+                  <div
+                    class="<%= (employee && employee.bankDetails && employee.bankDetails.accountNumber) ? '' : 'd-block' %>">
+                    <% if (employee && employee.bankDetails && employee.bankDetails.accountNumber) { %>
+                      <!-- This form wrapper is only needed when in else block conceptually, but here we render the form always but hide it via the bank-edit-mode div wrapper above if details exist -->
+                      <% } else { %>
+                        <!-- If no details, just show the form directly without wrapper or with a default visible wrapper -->
+                        <% } %>
+
+                          <!-- Note: To simplify the template structure, I will render the form always, but if details exist, it is wrapped in the hidden div opened above. -->
+
+                          <form action="/documents/bank-details" method="POST">
+                            <div class="mb-3">
+                              <label for="accountNumber" class="form-label">Account Number</label>
+                              <input type="text" name="accountNumber" id="accountNumber" class="form-control"
+                                value="<%= employee && employee.bankDetails ? employee.bankDetails.accountNumber : '' %>"
+                                required>
+                            </div>
+                            <div class="mb-3">
+                              <label for="aadharNumber" class="form-label">Aadhar Number</label>
+                              <input type="text" name="aadharNumber" id="aadharNumber" class="form-control"
+                                value="<%= employee && employee.bankDetails ? employee.bankDetails.aadharNumber : '' %>"
+                                placeholder="12-digit number" required>
+                            </div>
+                            <div class="row">
+                              <div class="col-md-6 mb-3">
+                                <label for="ifscCode" class="form-label">IFSC Code</label>
+                                <input type="text" name="ifscCode" id="ifscCode" class="form-control"
+                                  value="<%= employee && employee.bankDetails ? employee.bankDetails.ifscCode : '' %>"
+                                  required>
+                              </div>
+                              <div class="col-md-6 mb-3">
+                                <label for="bankName" class="form-label">Bank Name</label>
+                                <input type="text" name="bankName" id="bankName" class="form-control"
+                                  value="<%= employee && employee.bankDetails ? employee.bankDetails.bankName : '' %>"
+                                  required>
+                              </div>
+                            </div>
+                            <div class="mb-4">
+                              <label for="branchName" class="form-label">Branch Name</label>
+                              <input type="text" name="branchName" id="branchName" class="form-control"
+                                value="<%= employee && employee.bankDetails ? employee.bankDetails.branchName : '' %>"
+                                required>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                              <% if (employee && employee.bankDetails && employee.bankDetails.accountNumber) { %>
+                                <button type="button" class="btn btn-light border w-100"
+                                  onclick="toggleBankEdit()">Cancel</button>
+                                <% } %>
+                                  <button type="submit" class="btn btn-success shadow-sm w-100 fw-bold">Update Bank
+                                    Details</button>
+                            </div>
+                          </form>
+
+                          <% if (employee && employee.bankDetails && employee.bankDetails.accountNumber) { %>
+                  </div> <!-- End bank-edit-mode -->
+                  <% } %>
+              </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 d-none d-lg-block">
+          <div class="p-5 text-center sticky-top" style="top: 100px;">
+            <i class="fa-solid fa-shield-halved text-primary opacity-25" style="font-size: 8rem;"></i>
+            <p class="text-muted mt-4 small px-5">All documents and financial details are stored in a secure encrypted
+              environment compliant with aviation data standards.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="text-center py-5 border-top">
+      <p class="text-muted small">© 2026 RSR Aviation Group • Enterprise Document Management</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      function togglePhotoEdit() {
+        const displayMode = document.getElementById('photo-display-mode');
+        const editMode = document.getElementById('photo-edit-mode');
+
+        if (displayMode.style.display === 'none') {
+          displayMode.style.display = 'block';
+          editMode.style.display = 'none';
+        } else {
+          displayMode.style.display = 'none';
+          editMode.style.display = 'block';
+        }
+      }
+
+      function toggleBankEdit() {
+        const displayMode = document.getElementById('bank-display-mode');
+        const editMode = document.getElementById('bank-edit-mode');
+
+        if (displayMode.style.display === 'none') {
+          displayMode.style.display = 'block';
+          editMode.style.display = 'none';
+        } else {
+          displayMode.style.display = 'none';
+          editMode.style.display = 'block';
+        }
+      }
+    </script>
+</body>
+
+</html>

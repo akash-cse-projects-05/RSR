@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Tasks | RSR Aviation</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-text: #222222;
+      --rsr-text-light: #717171;
+      --rsr-border: #ebebeb;
+      --rsr-bg: #ffffff;
+      --rsr-light: #f7f9fc;
+    }
+
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--rsr-text);
+      letter-spacing: -0.01em;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: #fff !important;
+      border-bottom: 1px solid var(--rsr-border);
+      padding: 1.2rem 0;
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      color: var(--rsr-blue) !important;
+    }
+
+    /* Page Header */
+    .page-header {
+      padding: 60px 0 40px;
+      border-bottom: 1px solid var(--rsr-border);
+      margin-bottom: 40px;
+    }
+
+    /* Professional Table Styling */
+    .task-container {
+      border: 1px solid var(--rsr-border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      background: #fff;
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+
+    .table thead th {
+      background-color: var(--rsr-light);
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--rsr-text-light);
+      border-bottom: 1px solid var(--rsr-border);
+    }
+
+    .table tbody td {
+      padding: 24px 20px;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--rsr-border);
+    }
+
+    /* Status Badges */
+    .badge-status {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .status-pending {
+      background: #fff9db;
+      color: #f08c00;
+    }
+
+    .status-acknowledged {
+      background: #e7f5ff;
+      color: #1971c2;
+    }
+
+    .status-completed {
+      background: #e6fcf5;
+      color: #0ca678;
+    }
+
+    /* Buttons */
+    .btn-action {
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 8px 16px;
+      transition: all 0.2s;
+    }
+
+    .btn-acknowledge {
+      background-color: #fab005;
+      border: none;
+      color: #fff;
+    }
+
+    .btn-complete {
+      background-color: #40c057;
+      border: none;
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../partials/anti-cache') %>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="/dashboard">
+          <i class="fa-solid fa-paper-plane me-2"></i> RSR AVIATION
+        </a>
+        <div class="ms-auto">
+          <a href="/dashboard" class="btn btn-outline-dark btn-sm rounded-pill px-3">Dashboard</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="page-header">
+      <div class="container">
+        <p class="text-primary fw-bold small mb-1" style="letter-spacing: 0.1em;">FLIGHT OPERATIONS</p>
+        <h1 class="fw-bold mb-0">My Tasks</h1>
+        <p class="text-muted mt-2">Manage your active assignments and mission objectives.</p>
+      </div>
+    </header>
+
+    <div class="container pb-5">
+
+      <div class="task-container">
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width: 20%;">Mission Title</th>
+                <th style="width: 30%;">Description</th>
+                <th style="width: 15%;">Due Date</th>
+                <th style="width: 15%;">Current Status</th>
+                <th style="width: 20%; text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (tasks && tasks.length> 0) { %>
+                <% tasks.forEach(function(task) { %>
+                  <tr>
+                    <td>
+                      <div class="fw-bold text-dark">
+                        <%= task.title %>
+                      </div>
+                    </td>
+                    <td class="text-muted small">
+                      <%= task.description %>
+                    </td>
+                    <td>
+                      <div
+                        class="small fw-bold <%= (task.dueDate && new Date(task.dueDate) < new Date()) ? 'text-danger' : '' %>">
+                        <i class="fa-regular fa-calendar me-1"></i>
+                        <%= task.dueDate ? task.dueDate.toDateString() : 'N/A' %>
+                      </div>
+                    </td>
+                    <td>
+                      <% if (task.status==='Pending' ) { %>
+                        <span class="badge-status status-pending">Pending</span>
+                        <% } else if (task.status==='Acknowledged' ) { %>
+                          <span class="badge-status status-acknowledged">Addressed</span>
+                          <% } else if (task.status==='Completed' ) { %>
+                            <span class="badge-status status-completed">Finished</span>
+                            <% } %>
+                    </td>
+                    <td class="text-end">
+                      <% if (task.status==='Pending' ) { %>
+                        <form action="/department/<%= department %>/task/<%= task._id %>/acknowledge" method="POST"
+                          style="display:inline;">
+                          <input type="hidden" name="employeeId" value="<%= employee._id %>" />
+                          <button type="submit" class="btn btn-acknowledge btn-action shadow-sm">
+                            <i class="fa-solid fa-check me-1"></i> Acknowledge
+                          </button>
+                        </form>
+                        <% } else if (task.status==='Acknowledged' ) { %>
+                          <form action="/department/<%= department %>/task/<%= task._id %>/complete" method="POST"
+                            style="display:inline;">
+                            <input type="hidden" name="employeeId" value="<%= employee._id %>" />
+                            <button type="submit" class="btn btn-complete btn-action shadow-sm">
+                              <i class="fa-solid fa-circle-check me-1"></i> Complete Task
+                            </button>
+                          </form>
+                          <% } else if (task.status==='Completed' ) { %>
+                            <span class="text-success fw-bold small"><i class="fa-solid fa-circle-check me-1"></i>
+                              Finalized</span>
+                            <% } %>
+                    </td>
+                  </tr>
+                  <% }); %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="5" class="text-center py-5 text-muted small">No active flight tasks assigned to
+                          your profile.</td>
+                      </tr>
+                      <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mt-4 p-4 rounded-4 border bg-light bg-opacity-50">
+        <p class="small text-muted mb-0">
+          <i class="fa-solid fa-shield-halved me-2 text-primary"></i>
+          <strong>Notice:</strong> Task status updates are logged in real-time. Ensure all mission-critical deadlines
+          are addressed to maintain flight safety standards.
+        </p>
+      </div>
+
+    </div>
+
+    <footer class="text-center py-5 border-top">
+      <p class="text-muted small">© 2026 RSR Aviation Group • Mission Control Center</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

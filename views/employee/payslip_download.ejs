@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payslip Download</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            color: #000;
+            background: #fff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .header-left,
+        .header-right {
+            line-height: 1.5;
+        }
+
+        .header-right {
+            text-align: right;
+        }
+
+        .bold {
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 5px;
+        }
+
+        th,
+        td {
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            /* Image shows subtle borders or just background stripes.
+               Standard implementation usually has borders. 
+               The image shows light gray header background. */
+        }
+
+        th {
+            background-color: #f0f0f0;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .col-half {
+            width: 50%;
+            vertical-align: top;
+            padding: 0;
+            border: none;
+        }
+
+        /* Inner table layout to mimic the split */
+        .split-table {
+            width: 100%;
+            border: 1px solid #ddd;
+        }
+
+        .split-table td {
+            border: 1px solid #eee;
+        }
+
+        .amount-pill {
+            background-color: #666;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 15px;
+            display: inline-block;
+            min-width: 80px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .footer-totals {
+            display: flex;
+            background-color: #f0f0f0;
+            padding: 10px 0;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .total-col {
+            flex: 1;
+            padding: 0 15px;
+        }
+
+        .total-label {
+            text-transform: uppercase;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .total-value-pill {
+            background-color: #555;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .words-section {
+            margin-top: 20px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .words-val {
+            background-color: #666;
+            color: white;
+            padding: 5px 10px;
+            display: inline-block;
+            /* Mimicking the gray block in image */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div><span class="bold">Name:</span>
+                    <%= employee.firstName %>
+                        <%= employee.lastName %>
+                </div>
+                <div><span class="bold">Employee ID:</span>
+                    <%= employee.employeeCode %>
+                </div>
+                <div><span class="bold">Address:</span>
+                    <%= employee.address || 'Flat No. 407, 4th Floor Sagar Apartment, Sagarli, Dombivli (E)-421201' %>
+                </div>
+                <div>THANE-MAHARASHTRA,INDIA</div>
+                <div><span class="bold">Phone:</span>
+                    <%= employee.phone || '9930754309' %>
+                </div>
+                <div><span class="bold">Email:</span>
+                    <%= employee.email %>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="bold">Salary#RSR-<%= payslip._id.toString().slice(-4).toUpperCase() %>
+                </div>
+                <div><span class="bold">Payment Date:</span>
+                    <%= new Date().toLocaleDateString('en-GB') %>
+                </div>
+                <div><span class="bold">Bank:</span>
+                    <%= (employee.bankDetails && employee.bankDetails.bankName) ? employee.bankDetails.bankName
+                        : 'AXIS BANK' %>
+                </div>
+                <div><span class="bold">Account:</span> <span style="background:#555; color:white; padding:0 4px;">
+                        <%= (employee.bankDetails && employee.bankDetails.accountNumber) ?
+                            employee.bankDetails.accountNumber : 'XXXXXXXXXX' %>
+                    </span></div>
+            </div>
+        </div>
+
+        <!-- Calculations -->
+        <% const fmt=(n)=> n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const p = payslip;
+
+            // --- Logic Copied from payslip-print.ejs ---
+            const basic = p.basicSalary || 0;
+            const bonuses = p.bonuses || 0;
+
+            // EARNINGS logic
+            const hasDetailed = ((p.hra||0) + (p.travelAllowance||0) + (p.otherAllowances||0)) > 0;
+            const dispHRA = p.hra || 0;
+            const dispTravel = p.travelAllowance || 0;
+
+            // If breakdown exists, use 'otherAllowances'. If not (Old Record), use 'allowances' total bucket.
+            const dispOther = hasDetailed ? (p.otherAllowances||0) : (p.allowances||0);
+
+            // Total Earnings Calculation
+            const totalEarn = basic +
+            (hasDetailed ? (dispHRA + dispTravel + dispOther) : dispOther) +
+            bonuses;
+
+            // DEDUCTIONS logic
+            const pfVal = p.pf || 0;
+            const ptVal = p.professionalTax || 0;
+            const taxes = p.taxes || 0;
+
+            const otherDeductionDetails = (p.deductionDetails || []).filter(d => d.type !== 'PF' && d.type !== 'PT');
+            const otherDetailsSum = otherDeductionDetails.reduce((a, b) => a + b.amount, 0);
+
+            // Fallback to 'deductions' field if details empty
+            const finalOtherDeductions = otherDeductionDetails.length > 0 ? otherDetailsSum : (p.deductions || 0);
+
+            const totalDed = pfVal + ptVal + taxes + finalOtherDeductions;
+
+            // Net Pay
+            const net = Math.round(totalEarn - totalDed);
+
+            function numberToWords(number) {
+            const units = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine'];
+            const teens =
+            ['Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+            const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+
+            if (!number) return 'Zero';
+            if (number === 0) return 'Zero';
+
+            let words = '';
+
+            if (number >= 1000) {
+            words += numberToWords(Math.floor(number / 1000)) + ' Thousand ';
+            number %= 1000;
+            }
+            if (number >= 100) {
+            words += units[Math.floor(number / 100)] + ' Hundred ';
+            number %= 100;
+            }
+            if (number >= 20) {
+            words += tens[Math.floor(number / 10)] + ' ';
+            number %= 10;
+            }
+            if (number >= 10) {
+            words += teens[number - 10] + ' ';
+            number = 0;
+            }
+            if (number > 0) {
+            words += units[number] + ' ';
+            }
+            return words.trim();
+            }
+            %>
+
+            <!-- Main Split Layout -->
+            <div style="display: flex; gap: 20px;">
+                <!-- EARNINGS -->
+                <div style="flex: 1;">
+                    <table class="split-table">
+                        <thead>
+                            <tr>
+                                <th>Earning</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Basic & DA</td>
+                                <td class="text-end"><span class="amount-pill">
+                                        <%= basic.toLocaleString('en-IN') %>
+                                    </span></td>
+                            </tr>
+                            <tr>
+                                <td>HRA</td>
+                                <td class="text-end"><span class="amount-pill">
+                                        <%= dispHRA.toLocaleString('en-IN') %>
+                                    </span></td>
+                            </tr>
+                            <tr>
+                                <td>Traveling Allowance</td>
+                                <td class="text-end"><span class="amount-pill">
+                                        <%= dispTravel.toLocaleString('en-IN') %>
+                                    </span></td>
+                            </tr>
+                            <tr>
+                                <td>Other Allowance</td>
+                                <td class="text-end"><span class="amount-pill">
+                                        <%= dispOther.toLocaleString('en-IN') %>
+                                    </span></td>
+                            </tr>
+                            <% if (bonuses> 0) { %>
+                                <tr>
+                                    <td>Performance Bonus</td>
+                                    <td class="text-end"><span class="amount-pill">
+                                            <%= bonuses.toLocaleString('en-IN') %>
+                                        </span></td>
+                                </tr>
+                                <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- DEDUCTIONS -->
+                <div style="flex: 1;">
+                    <table class="split-table">
+                        <thead>
+                            <tr>
+                                <th>Deduction</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Professional Tax</td>
+                                <td class="text-end"><span class="amount-pill">
+                                        <%= ptVal.toLocaleString('en-IN') %>
+                                    </span></td>
+                            </tr>
+                            <tr>
+                                <td>PF</td>
+                                <td class="text-end"><span class="amount-pill">
+                                        <%= pfVal.toLocaleString('en-IN') %>
+                                    </span></td>
+                            </tr>
+                            <% if (otherDeductionDetails.length> 0) { %>
+                                <% otherDeductionDetails.forEach(d=> { %>
+                                    <tr>
+                                        <td>
+                                            <%= d.label %>
+                                        </td>
+                                        <td class="text-end"><span class="amount-pill">
+                                                <%= d.amount.toLocaleString('en-IN') %>
+                                            </span></td>
+                                    </tr>
+                                    <% }) %>
+                                        <% } else if (finalOtherDeductions> 0) { %>
+                                            <tr>
+                                                <td>Miscellaneous Deductions</td>
+                                                <td class="text-end"><span class="amount-pill">
+                                                        <%= finalOtherDeductions.toLocaleString('en-IN') %>
+                                                    </span></td>
+                                            </tr>
+                                            <% } %>
+
+                                                <% if (payslip.taxes> 0) { %>
+                                                    <tr>
+                                                        <td>Income Tax</td>
+                                                        <td class="text-end"><span class="amount-pill">
+                                                                <%= payslip.taxes.toLocaleString('en-IN') %>
+                                                            </span></td>
+                                                    </tr>
+                                                    <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer Totals -->
+            <div class="footer-totals">
+                <div class="total-col">
+                    <div class="total-label">TOTAL EARNING</div>
+                    <div class="total-value-pill">
+                        <%= totalEarn.toLocaleString('en-IN') %>
+                    </div>
+                </div>
+                <div class="total-col">
+                    <div class="total-label">TOTAL DEDUCTION</div>
+                    <div class="total-value-pill">
+                        <%= totalDed.toLocaleString('en-IN') %>
+                    </div>
+                </div>
+                <div class="total-col">
+                    <div class="total-label">TOTAL NET SALARY</div>
+                    <div class="total-value-pill">
+                        <%= net.toLocaleString('en-IN') %>
+                    </div>
+                </div>
+            </div>
+
+            <div class="words-section">
+                Amount in Words : <span class="words-val">
+                    <%= numberToWords(net) %> Only
+                </span>
+            </div>
+
+    </div>
+
+    <script>
+        window.print();
+    </script>
+</body>
+
+</html>

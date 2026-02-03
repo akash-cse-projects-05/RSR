@@ -1,0 +1,1281 @@
+[{
+  "_id": {
+    "$oid": "6960a6677fe3b207a72ed02c"
+  },
+  "employeeCode": "RSR1001",
+  "name": "akash",
+  "email": "akashcse04@gmail.com",
+  "status": "Active",
+  "__v": 0,
+  "leaveBalance": 1,
+  "updatedAt": {
+    "$date": "2026-01-20T16:03:00.702Z"
+  },
+  "lopDaysThisMonth": 0
+},
+{
+  "_id": {
+    "$oid": "6960a80d0244855a1872c8a5"
+  },
+  "employeeCode": "RSR1002",
+  "firstName": "AKASH",
+  "lastName": "D",
+  "email": "akashce04@gmail.com",
+  "phoneNumber": "7894561230",
+  "department": "Sales",
+  "designation": "maner",
+  "employmentType": "Full-Time",
+  "joiningDate": {
+    "$date": "2026-01-08T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Hyderabad",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T07:02:37.764Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-09T07:02:37.764Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6960aa946eded70292654555"
+  },
+  "employeeCode": "RSR1007",
+  "firstName": "AKASH",
+  "lastName": "AKASH",
+  "email": "ak@gmail.com",
+  "phoneNumber": "7894561230",
+  "department": "procurement",
+  "designation": "Assistant Manger",
+  "employmentType": "Intern",
+  "joiningDate": {
+    "$date": "2026-01-10T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T07:13:24.205Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-09T07:13:24.205Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6960b42bb849823686f3913e"
+  },
+  "employeeCode": "RSR1003",
+  "firstName": "akashraj",
+  "lastName": "raj",
+  "email": "akashit@gmail.com",
+  "phoneNumber": "7539521788",
+  "department": "Sales",
+  "designation": "MANAGER",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-07T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T07:54:19.710Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-09T07:54:19.710Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6960b561dffb0c4527c90cf9"
+  },
+  "employeeCode": "RSR1004",
+  "firstName": "varsh",
+  "lastName": "a",
+  "email": "var@gmail.com",
+  "phoneNumber": "7894561230",
+  "department": "it",
+  "designation": "developer",
+  "employmentType": "Intern",
+  "joiningDate": {
+    "$date": "2026-01-09T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Navi Mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T07:59:29.266Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-09T07:59:29.266Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6960b649dffb0c4527c90d0f"
+  },
+  "employeeCode": "RSR1005",
+  "firstName": "yogi",
+  "lastName": "D",
+  "email": "yogi@gmail.com",
+  "phoneNumber": "753846190",
+  "department": "IT",
+  "designation": "developer",
+  "employmentType": "Intern",
+  "joiningDate": {
+    "$date": "2026-01-09T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Navi Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T08:03:21.940Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-14T16:49:40.028Z"
+  },
+  "__v": 0,
+  "leaveBalance": 16
+},
+{
+  "_id": {
+    "$oid": "6960b727dffb0c4527c90d28"
+  },
+  "employeeCode": "RSR1006",
+  "firstName": "aks",
+  "lastName": "a",
+  "email": "aks@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "Sales",
+  "designation": "MANger",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-10T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T08:07:03.752Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-09T08:07:03.752Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6960b83bdffb0c4527c90d3c"
+  },
+  "employeeCode": "RSR1008",
+  "firstName": "var",
+  "lastName": "v",
+  "email": "vary@gmail.com",
+  "phoneNumber": "9182736450",
+  "department": "Sales",
+  "designation": "Manager",
+  "employmentType": "Full-Time",
+  "joiningDate": {
+    "$date": "2026-01-09T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T08:11:39.277Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-09T08:11:39.277Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6960d37883076fe95562dc1e"
+  },
+  "employeeCode": "RS1100",
+  "firstName": "RSR",
+  "lastName": "aviation",
+  "email": "rsr@gmail.com",
+  "phoneNumber": "8756491230",
+  "department": "Sales",
+  "designation": "Manger",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-09T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T10:07:52.289Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-09T10:07:52.289Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6960d4cf83076fe95562dc3d"
+  },
+  "employeeCode": "RSR1100",
+  "firstName": "RSR",
+  "lastName": "SR",
+  "email": "rssr@gmail.com",
+  "phoneNumber": "91827364501",
+  "department": "Maintainence",
+  "designation": "Assistant Manager",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-02T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T10:13:35.480Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-09T10:13:35.480Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6960d57d83076fe95562dc51"
+  },
+  "employeeCode": "RSR1112",
+  "firstName": "John",
+  "lastName": "dev",
+  "email": "john@gmail.com",
+  "phoneNumber": "7539521788",
+  "department": "marketing",
+  "designation": "Manager",
+  "employmentType": "Contract",
+  "joiningDate": {
+    "$date": "2026-01-09T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T10:16:29.916Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-15T16:02:51.262Z"
+  },
+  "__v": 0,
+  "leaveBalance": 5
+},
+{
+  "_id": {
+    "$oid": "6960d5e583076fe95562dc61"
+  },
+  "employeeCode": "RSR1113",
+  "firstName": "kevin",
+  "lastName": "peter",
+  "email": "kevin@gmail.com",
+  "phoneNumber": "7539521788",
+  "department": "Ssles",
+  "designation": "developer",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-09T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumabi",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T10:18:13.232Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-14T17:05:09.994Z"
+  },
+  "__v": 0,
+  "leaveBalance": 15
+},
+{
+  "_id": {
+    "$oid": "6960ef876fd1553b96c24122"
+  },
+  "employeeCode": "HR1001",
+  "firstName": "HR",
+  "lastName": "hr",
+  "email": "hr@gmail.com",
+  "phoneNumber": "7894561230",
+  "department": "HR",
+  "designation": "HR ",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T12:07:35.039Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-09T12:07:35.039Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6960f17d6fd1553b96c24134"
+  },
+  "employeeCode": "HR1002",
+  "firstName": "HRSenior",
+  "lastName": "h",
+  "email": "senior@gmail.com",
+  "phoneNumber": "7894561230",
+  "department": "HR",
+  "designation": "Senior",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-10T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Navi Mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-09T12:15:57.837Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-09T12:15:57.837Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6962049e3d1f26f8a5dbe113"
+  },
+  "employeeCode": "RSR2001",
+  "firstName": "morgan",
+  "lastName": "kevin",
+  "email": "morgan@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "Sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T07:49:50.309Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T07:49:50.309Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696206c53d1f26f8a5dbe128"
+  },
+  "employeeCode": "RSR2002",
+  "firstName": "morgan",
+  "lastName": "kevin",
+  "email": "morgn@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "Sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T07:59:01.326Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T07:59:01.326Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696212ae3d1f26f8a5dbe138"
+  },
+  "employeeCode": "RSR2003",
+  "firstName": "morgan",
+  "lastName": "kevin",
+  "email": "mor@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "Sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T08:49:50.422Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T08:49:50.422Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696219763d1f26f8a5dbe15f"
+  },
+  "employeeCode": "RSR2004",
+  "firstName": "morgan",
+  "lastName": "kevin",
+  "email": "or@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "Sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T09:18:46.807Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T09:18:46.807Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69621fa23d1f26f8a5dbe17f"
+  },
+  "employeeCode": "RSR2005",
+  "firstName": "morgan",
+  "lastName": "kevin",
+  "email": "o@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "Sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T09:45:06.167Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T09:45:06.167Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696226bd3d1f26f8a5dbe197"
+  },
+  "employeeCode": "RSR2006",
+  "firstName": "morgan",
+  "lastName": "kevin",
+  "email": "k@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "Sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T10:15:25.953Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T10:15:25.953Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696228053d1f26f8a5dbe1a7"
+  },
+  "employeeCode": "RSR2007",
+  "firstName": "morgan",
+  "lastName": "kevin",
+  "email": "i@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "Sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T10:20:53.071Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T10:20:53.071Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696228f93d1f26f8a5dbe1b7"
+  },
+  "employeeCode": "RSR2008",
+  "firstName": "morgan",
+  "lastName": "kevin",
+  "email": "b@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "Sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T10:24:57.496Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T10:24:57.496Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69622a823d1f26f8a5dbe1d6"
+  },
+  "employeeCode": "RSR3001",
+  "firstName": "parker",
+  "lastName": "peter",
+  "email": "parker@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-15T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T10:31:30.454Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T10:31:30.454Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69622ca73d1f26f8a5dbe1e9"
+  },
+  "employeeCode": "RSR3002",
+  "firstName": "parker",
+  "lastName": "peter",
+  "email": "paker@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-15T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T10:40:39.734Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T10:40:39.734Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69622e863d1f26f8a5dbe200"
+  },
+  "employeeCode": "RSR3003",
+  "firstName": "parker",
+  "lastName": "peter",
+  "email": "aker@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-15T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T10:48:38.565Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T10:48:38.565Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696234e33d1f26f8a5dbe226"
+  },
+  "employeeCode": "RSR3004",
+  "firstName": "parker",
+  "lastName": "peter",
+  "email": "ar@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-15T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T11:15:47.648Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T11:15:47.648Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6962357f3d1f26f8a5dbe23a"
+  },
+  "employeeCode": "RSR3006",
+  "firstName": "parker",
+  "lastName": "peter",
+  "email": "r@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-15T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T11:18:23.932Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T11:18:23.932Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69623be13d1f26f8a5dbe298"
+  },
+  "employeeCode": "RSR4001",
+  "firstName": "par",
+  "lastName": "pete",
+  "email": "bk@gmail.com",
+  "phoneNumber": "1332323e23",
+  "department": "sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-15T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T11:45:37.345Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T11:45:37.345Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69623efa3d1f26f8a5dbe2cb"
+  },
+  "employeeCode": "RSR4002",
+  "firstName": "par",
+  "lastName": "pete",
+  "email": "bkb@gmail.com",
+  "phoneNumber": "1332323e23",
+  "department": "sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-15T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T11:58:50.169Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T11:58:50.169Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696240343d1f26f8a5dbe2e0"
+  },
+  "employeeCode": "RSR2222",
+  "firstName": "Aru",
+  "lastName": "shi",
+  "email": "aru@gmail.com",
+  "phoneNumber": "82712291829",
+  "department": "Business",
+  "designation": "Assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-14T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T12:04:04.019Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T12:04:04.019Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69624b953d1f26f8a5dbe303"
+  },
+  "employeeCode": "RSR4000",
+  "firstName": "parke",
+  "lastName": "D",
+  "email": "p@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "Sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-10T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Hyderabad",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-10T12:52:37.351Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-10T12:52:37.351Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69633a79b3dfa1a4adaeefb7"
+  },
+  "employeeCode": "RSR10067",
+  "firstName": "rsr34",
+  "lastName": "4",
+  "email": "rkr@gmasil.com",
+  "phoneNumber": "1234567890",
+  "department": "sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-11T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Hyderabad",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-11T05:51:53.590Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-11T05:51:53.590Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696484b06b129578cb5f4094"
+  },
+  "employeeCode": "RSR9999",
+  "firstName": "mo",
+  "lastName": "mo",
+  "email": "mo@gmail.com",
+  "phoneNumber": "7894561230",
+  "department": "sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-20T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Navi Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-12T05:20:48.968Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-12T05:20:48.968Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6964f3aa7a1e1324b67d4457"
+  },
+  "employeeCode": "RSR1005432",
+  "firstName": "parker",
+  "lastName": "peter",
+  "email": "cse@gmail.com",
+  "phoneNumber": "1234567890",
+  "department": "sales",
+  "designation": "assistant",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Navi Mumbai",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-12T13:14:18.674Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-12T13:14:18.674Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696527f31a56939cca4b9bbe"
+  },
+  "employeeCode": "RSR10055",
+  "firstName": "RSRSR",
+  "lastName": "RSRSRS",
+  "dob": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "email": "rsrsr@gmail.com",
+  "phoneNumber": "1029384756",
+  "department": "Sales",
+  "designation": "MANAGER",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Navi Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-12T16:57:23.049Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-12T16:57:23.049Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696528941a56939cca4b9bc8"
+  },
+  "employeeCode": "RSR100554",
+  "firstName": "RSRSR",
+  "lastName": "RSRSRS",
+  "dob": {
+    "$date": "2004-01-06T00:00:00.000Z"
+  },
+  "email": "rsrr@gmail.com",
+  "phoneNumber": "1029384756",
+  "department": "Sales",
+  "designation": "MANAGER",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-12T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Navi Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-12T17:00:04.170Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-12T17:00:04.170Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6965e45d94bd75bdcfaef9ab"
+  },
+  "employeeCode": "RSR1313",
+  "firstName": "RSRRSRRR",
+  "lastName": "RR",
+  "dob": {
+    "$date": "1998-01-15T00:00:00.000Z"
+  },
+  "email": "kkrr@gmail.com",
+  "phoneNumber": "13122323232",
+  "department": "Sales",
+  "designation": "emplyee",
+  "employmentType": "Contract",
+  "joiningDate": {
+    "$date": "2026-01-14T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Navi Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-13T06:21:17.760Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-13T06:21:17.760Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6965e49194bd75bdcfaef9b7"
+  },
+  "employeeCode": "RSR13134",
+  "firstName": "RSRRSRRR",
+  "lastName": "RR",
+  "dob": {
+    "$date": "2000-01-13T00:00:00.000Z"
+  },
+  "email": "kkrrr@gmail.com",
+  "phoneNumber": "13122323232",
+  "department": "Sales",
+  "designation": "emplyee",
+  "employmentType": "Contract",
+  "joiningDate": {
+    "$date": "2026-01-14T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Navi Mumbai ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-13T06:22:09.231Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-13T06:22:09.231Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69688164d2788808ed749d1a"
+  },
+  "employeeCode": "HR1",
+  "firstName": "tom",
+  "lastName": "cane",
+  "dob": {
+    "$date": "2026-01-15T00:00:00.000Z"
+  },
+  "email": "tom@gmail.com",
+  "phoneNumber": "987654321",
+  "leaveBalance": 25,
+  "department": "HR",
+  "designation": "MANAGER",
+  "employmentType": "Full-Time",
+  "joiningDate": {
+    "$date": "2026-01-15T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "MUMBAI",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-15T05:55:48.490Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-15T05:55:48.490Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696881bcd2788808ed749d1e"
+  },
+  "employeeCode": "HR2",
+  "firstName": "TEJHAS",
+  "lastName": "K",
+  "dob": {
+    "$date": "2002-03-22T00:00:00.000Z"
+  },
+  "email": "tej@gmail.com",
+  "phoneNumber": "741852963",
+  "leaveBalance": 25,
+  "department": "HR",
+  "designation": "ADMIN",
+  "employmentType": "Full-Time",
+  "joiningDate": {
+    "$date": "2026-01-15T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "MUMBAI ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-15T05:57:16.301Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-15T05:57:16.301Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696882e8d2788808ed749d22"
+  },
+  "employeeCode": "RSR1",
+  "firstName": "James",
+  "lastName": "potts",
+  "dob": {
+    "$date": "2000-12-15T00:00:00.000Z"
+  },
+  "email": "james@gmail.com",
+  "phoneNumber": "7875395146",
+  "leaveBalance": 25,
+  "department": "SALES",
+  "designation": "MANAGER",
+  "employmentType": "Full-Time",
+  "joiningDate": {
+    "$date": "2026-01-14T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "MUMBAI",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-15T06:02:16.815Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-15T06:02:16.815Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69688348d2788808ed749d26"
+  },
+  "employeeCode": "RSR2",
+  "firstName": "Henry",
+  "lastName": "kevin",
+  "dob": {
+    "$date": "2000-09-14T00:00:00.000Z"
+  },
+  "email": "henry@gmail.com",
+  "phoneNumber": "7584961233",
+  "leaveBalance": 5,
+  "department": "SALES",
+  "designation": "STAFF",
+  "employmentType": "Full-Time",
+  "joiningDate": {
+    "$date": "2026-01-20T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "MUMBAI ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-15T06:03:52.977Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-16T10:04:38.114Z"
+  },
+  "__v": 0,
+  "lopCount": 3,
+  "lopDaysThisMonth": 0
+},
+{
+  "_id": {
+    "$oid": "69688467d2788808ed749d2c"
+  },
+  "employeeCode": "RSR3",
+  "firstName": "kevin",
+  "lastName": "peter",
+  "dob": {
+    "$date": "2000-01-20T00:00:00.000Z"
+  },
+  "email": "kevi@gmail.com",
+  "phoneNumber": "7899541265",
+  "leaveBalance": 21,
+  "department": "PROCUREMENT",
+  "designation": "STAFF",
+  "employmentType": "Full-Time",
+  "joiningDate": {
+    "$date": "2026-01-20T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "MUMBAI ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-15T06:08:39.655Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-20T07:54:32.593Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696884ecd2788808ed749d30"
+  },
+  "employeeCode": "RSR4",
+  "firstName": "peter",
+  "lastName": "kevin",
+  "dob": {
+    "$date": "2000-08-14T00:00:00.000Z"
+  },
+  "email": "peter@gmail.com",
+  "phoneNumber": "7894562130",
+  "leaveBalance": 25,
+  "department": "PROCUREMENT",
+  "designation": "MANAGER",
+  "employmentType": "Contract",
+  "joiningDate": {
+    "$date": "2026-01-14T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "MUMBAI ",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-15T06:10:52.227Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-15T06:10:52.227Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "69688557d2788808ed749d34"
+  },
+  "employeeCode": "RSR5",
+  "firstName": "swan",
+  "lastName": "pot",
+  "dob": {
+    "$date": "2007-04-08T00:00:00.000Z"
+  },
+  "email": "swan@gmail.com",
+  "phoneNumber": "2587413697",
+  "leaveBalance": 25,
+  "department": "IT ",
+  "designation": "MANAGER",
+  "employmentType": "Part-Time",
+  "joiningDate": {
+    "$date": "2026-01-14T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "MUMBAI",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-15T06:12:39.011Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-15T06:12:39.011Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "696f361e16712e4b556488be"
+  },
+  "employeeCode": "RSR6",
+  "firstName": "AKASH",
+  "lastName": "D",
+  "dob": {
+    "$date": "2005-07-15T00:00:00.000Z"
+  },
+  "email": "akproejct@gmail.com",
+  "phoneNumber": "8790972461",
+  "leaveBalance": 25,
+  "lopCount": 0,
+  "lopDaysThisMonth": 0,
+  "department": "IT ",
+  "designation": "STAFF",
+  "employmentType": "Full-Time",
+  "joiningDate": {
+    "$date": "2026-01-20T00:00:00.000Z"
+  },
+  "reportingManager": null,
+  "workLocation": "Hyderabad",
+  "status": "Active",
+  "createdByHR": true,
+  "createdAt": {
+    "$date": "2026-01-20T08:00:30.555Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-20T08:00:30.555Z"
+  },
+  "__v": 0
+}]

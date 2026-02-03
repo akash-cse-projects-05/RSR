@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Login | RSR Aviation</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-dark: #091e42;
+      --rsr-border: #ebebeb;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(9, 30, 66, 0.8), rgba(9, 30, 66, 0.9)),
+        url("https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1600&q=80");
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 24px;
+      padding: 48px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--rsr-dark);
+      letter-spacing: -0.02em;
+    }
+
+    .form-label {
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #626f86;
+      margin-bottom: 8px;
+    }
+
+    .input-group-text {
+      background-color: transparent;
+      border-right: none;
+      color: #626f86;
+      border-radius: 12px 0 0 12px;
+      padding-left: 16px;
+    }
+
+    .form-control {
+      height: 52px;
+      border-left: none;
+      border-radius: 0 12px 12px 0;
+      font-weight: 500;
+      border-color: #dee2e6;
+    }
+
+    .form-control:focus {
+      border-color: #dee2e6;
+      box-shadow: none;
+      background-color: #f7f9fc;
+    }
+
+    .btn-hr {
+      background-color: var(--rsr-blue);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      height: 52px;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn-hr:hover {
+      background-color: #0043a8;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0, 82, 204, 0.2);
+    }
+
+    .auth-footer {
+      border-top: 1px solid var(--rsr-border);
+      padding-top: 24px;
+      margin-top: 32px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-card">
+
+    <div class="text-center mb-5">
+      <div class="brand-title mb-1">
+        <i class="fa-solid fa-paper-plane text-primary me-2"></i>
+        RSR AVIATION
+      </div>
+      <p class="text-muted fw-bold small text-uppercase" style="letter-spacing: 0.1em;">HR Terminal Access</p>
+    </div>
+
+
+
+    <form method="POST" action="/hr/hr-login">
+
+      <div class="mb-3">
+        <label class="form-label">HR Identifier</label>
+        <div class="input-group border rounded-3 overflow-hidden">
+          <span class="input-group-text border-0">
+            <i class="fa-solid fa-user-shield"></i>
+          </span>
+          <input type="text" name="username" class="form-control border-0" placeholder="Admin username" required>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">Security Password</label>
+        <div class="input-group border rounded-3 overflow-hidden">
+          <span class="input-group-text border-0">
+            <i class="fa-solid fa-lock"></i>
+          </span>
+          <input type="password" name="password" class="form-control border-0" placeholder="••••••••" required>
+        </div>
+      </div>
+
+      <button class="btn btn-hr w-100 shadow-sm">
+        <i class="fa-solid fa-shield-check me-2"></i>
+        Authenticate Access
+      </button>
+
+    </form>
+
+    <div class="auth-footer text-center">
+      <small class="text-muted d-block mb-1">
+        <i class="fa-solid fa-circle-exclamation me-1 text-warning"></i>
+        Secure Administrative Portal
+      </small>
+      <div class="mb-3">
+        <a href="/auth/login" class="text-primary small text-decoration-none fw-bold">
+          <i class="fa-solid fa-arrow-left me-1"></i> Back to Employee Login
+        </a>
+      </div>
+      <small class="text-muted" style="font-size: 10px;">
+        Unauthorized access attempts are logged and monitored.
+      </small>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,372 @@
+/* ============================================
+   RSR AVIATION HR SOFTWARE - GLOBAL STYLES
+   Dark Blue + White Aviation Theme
+   Mobile-First Responsive Design
+   ============================================ */
+
+:root {
+  /* Aviation Color Palette */
+  --aviation-blue: #003366;
+  --aviation-blue-dark: #00244d;
+  --aviation-blue-light: #0055aa;
+  --soft-blue: #e6f0ff;
+  --pure-white: #ffffff;
+  --off-white: #f8f9fa;
+  --light-gray: #e9ecef;
+  --medium-gray: #6c757d;
+  --dark-gray: #2c3e50;
+  
+  /* Alert Colors */
+  --success-green: #28a745;
+  --warning-amber: #ffc107;
+  --danger-red: #dc3545;
+  --info-blue: #17a2b8;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+/* ============================================
+   TYPOGRAPHY - Airbnb Style
+   ============================================ */
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+               'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--dark-gray);
+  background-color: var(--off-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: var(--aviation-blue);
+  margin-bottom: var(--spacing-md);
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin-bottom: var(--spacing-md);
+  color: var(--dark-gray);
+}
+
+/* ============================================
+   NAVIGATION BAR - Fixed Top
+   ============================================ */
+
+.aviation-navbar {
+  background-color: var(--aviation-blue);
+  box-shadow: var(--shadow-md);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: var(--spacing-md) 0;
+}
+
+.aviation-navbar .navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--pure-white) !important;
+  letter-spacing: 0.5px;
+}
+
+.aviation-navbar .nav-link {
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-weight: 500;
+  padding: var(--spacing-sm) var(--spacing-md) !important;
+  transition: all 0.3s ease;
+  border-radius: var(--radius-sm);
+}
+
+.aviation-navbar .nav-link:hover {
+  color: var(--pure-white) !important;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.aviation-navbar .nav-link.active {
+  color: var(--pure-white) !important;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   CARDS - Aviation Style
+   ============================================ */
+
+.aviation-card {
+  background: var(--pure-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--light-gray);
+  transition: all 0.3s ease;
+}
+
+.aviation-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.aviation-card-header {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--aviation-blue);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--aviation-blue);
+}
+
+.stat-card {
+  background: linear-gradient(135deg, var(--aviation-blue) 0%, var(--aviation-blue-light) 100%);
+  color: var(--pure-white);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.stat-card-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-sm);
+}
+
+.stat-card-label {
+  font-size: 1rem;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ============================================
+   BUTTONS - Aviation Primary Actions
+   ============================================ */
+
+.btn-aviation {
+  background-color: var(--aviation-blue);
+  color: var(--pure-white);
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-aviation:hover {
+  background-color: var(--aviation-blue-dark);
+  color: var(--pure-white);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-aviation-outline {
+  background-color: transparent;
+  color: var(--aviation-blue);
+  border: 2px solid var(--aviation-blue);
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-aviation-outline:hover {
+  background-color: var(--aviation-blue);
+  color: var(--pure-white);
+}
+
+/* ============================================
+   FORMS - Clean Input Fields
+   ============================================ */
+
+.aviation-form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.aviation-form-label {
+  font-weight: 600;
+  color: var(--aviation-blue);
+  margin-bottom: var(--spacing-sm);
+  display: block;
+}
+
+.aviation-form-control {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--light-gray);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: var(--pure-white);
+}
+
+.aviation-form-control:focus {
+  outline: none;
+  border-color: var(--aviation-blue);
+  box-shadow: 0 0 0 3px var(--soft-blue);
+}
+
+/* ============================================
+   TABLES - Data Presentation
+   ============================================ */
+
+.aviation-table {
+  width: 100%;
+  background: var(--pure-white);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.aviation-table thead {
+  background-color: var(--aviation-blue);
+  color: var(--pure-white);
+}
+
+.aviation-table thead th {
+  padding: var(--spacing-md);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+}
+
+.aviation-table tbody tr {
+  border-bottom: 1px solid var(--light-gray);
+  transition: background-color 0.2s ease;
+}
+
+.aviation-table tbody tr:hover {
+  background-color: var(--soft-blue);
+}
+
+.aviation-table tbody td {
+  padding: var(--spacing-md);
+}
+
+/* ============================================
+   STATUS BADGES
+   ============================================ */
+
+.badge-aviation {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-success { background-color: var(--success-green); color: white; }
+.badge-warning { background-color: var(--warning-amber); color: #000; }
+.badge-danger { background-color: var(--danger-red); color: white; }
+.badge-info { background-color: var(--info-blue); color: white; }
+.badge-primary { background-color: var(--aviation-blue); color: white; }
+
+/* ============================================
+   MOBILE RESPONSIVENESS
+   ============================================ */
+
+@media (max-width: 768px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.5rem; }
+  
+  .aviation-card {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .stat-card-value {
+    font-size: 2rem;
+  }
+  
+  .aviation-navbar {
+    padding: var(--spacing-sm) 0;
+  }
+  
+  .aviation-table {
+    font-size: 0.875rem;
+  }
+  
+  .aviation-table thead th,
+  .aviation-table tbody td {
+    padding: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    font-size: 14px;
+  }
+  
+  .btn-aviation,
+  .btn-aviation-outline {
+    width: 100%;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .aviation-card {
+    padding: var(--spacing-sm);
+  }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-aviation { color: var(--aviation-blue) !important; }
+.bg-aviation { background-color: var(--aviation-blue) !important; }
+.border-aviation { border-color: var(--aviation-blue) !important; }
+
+.container-aviation {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.page-header {
+  background: linear-gradient(135deg, var(--aviation-blue) 0%, var(--aviation-blue-light) 100%);
+  color: var(--pure-white);
+  padding: var(--spacing-xl) var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.page-header h1 {
+  color: var(--pure-white);
+  margin-bottom: var(--spacing-sm);
+}
+
+.spacer-top {
+  margin-top: 80px; /* For fixed navbar */
+}

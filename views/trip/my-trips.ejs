@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>My Trips | RSR HRMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <%- include('../partials/anti-cache') %>
+
+        <div class="container py-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <a href="/dashboard" class="text-decoration-none text-muted small fw-bold"><i
+                            class="fa-solid fa-arrow-left me-1"></i> Dashboard</a>
+                    <h2 class="fw-bold text-primary mt-1">My Trips</h2>
+                </div>
+                <a href="/trip/request" class="btn btn-primary fw-bold px-4 shadow-sm"><i
+                        class="fa-solid fa-plus me-2"></i> Request Trip</a>
+            </div>
+
+            <% if(trips.length===0) { %>
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-suitcase-rolling fs-1 mb-3 opacity-50"></i>
+                    <p>No trip history found.</p>
+                </div>
+                <% } %>
+
+                    <div class="row g-4">
+                        <% trips.forEach(trip=> { %>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card h-100 border-0 shadow-sm rounded-4">
+                                    <div class="card-body p-4 position-relative">
+                                        <% if(trip.status==='Approved' ) { %>
+                                            <span
+                                                class="badge bg-success position-absolute top-0 end-0 m-3">Approved</span>
+                                            <% } else if (trip.status==='Pending' ) { %>
+                                                <span
+                                                    class="badge bg-warning text-dark position-absolute top-0 end-0 m-3">Pending</span>
+                                                <% } else if (trip.status==='In Progress' ) { %>
+                                                    <span
+                                                        class="badge bg-primary position-absolute top-0 end-0 m-3 my-pulse">In
+                                                        Progress</span>
+                                                    <% } else if (trip.status==='Completed' ) { %>
+                                                        <span
+                                                            class="badge bg-secondary position-absolute top-0 end-0 m-3">Completed</span>
+                                                        <% } else { %>
+                                                            <span
+                                                                class="badge bg-danger position-absolute top-0 end-0 m-3">Rejected</span>
+                                                            <% } %>
+
+                                                                <h5 class="fw-bold text-dark mb-1">
+                                                                    <%= trip.destination %>
+                                                                </h5>
+                                                                <div class="small text-muted mb-3"><i
+                                                                        class="fa-solid fa-location-dot me-1"></i> From:
+                                                                    <%= trip.source || 'N/A' %>
+                                                                </div>
+
+                                                                <p class="text-muted small mb-3 text-truncate">
+                                                                    <%= trip.purpose %>
+                                                                </p>
+
+                                                                <div class="d-flex gap-3 small text-secondary mb-4">
+                                                                    <div><i class="fa-regular fa-calendar me-1"></i>
+                                                                        <%= new
+                                                                            Date(trip.startDate).toLocaleDateString() %>
+                                                                    </div>
+                                                                    <div><i class="fa-solid fa-arrow-right"></i></div>
+                                                                    <div><i class="fa-regular fa-calendar me-1"></i>
+                                                                        <%= new Date(trip.endDate).toLocaleDateString()
+                                                                            %>
+                                                                    </div>
+                                                                </div>
+
+                                                                <% if(trip.status==='Approved' ) { %>
+                                                                    <button class="btn btn-success w-100 fw-bold"
+                                                                        onclick="startTrip('<%= trip._id %>')">
+                                                                        <i class="fa-solid fa-play me-2"></i> Start Trip
+                                                                    </button>
+                                                                    <% } else if (trip.status==='In Progress' ) { %>
+                                                                        <div class="d-grid gap-2">
+                                                                            <a href="/trip/monitor/<%= trip._id %>"
+                                                                                class="btn btn-warning fw-bold pulse-btn">
+                                                                                <i
+                                                                                    class="fa-solid fa-satellite-dish me-2"></i>
+                                                                                Live Field Monitor
+                                                                            </a>
+                                                                            <form action="/trip/end/<%= trip._id %>"
+                                                                                method="POST">
+                                                                                <button
+                                                                                    class="btn btn-dark w-100 fw-bold"><i
+                                                                                        class="fa-solid fa-flag-checkered me-2"></i>
+                                                                                    End Trip</button>
+                                                                            </form>
+                                                                            <a href="/trip/track/<%= trip._id %>"
+                                                                                class="btn btn-outline-secondary btn-sm"><i
+                                                                                    class="fa-solid fa-file-pen me-1"></i>
+                                                                                View / Edit Report</a>
+                                                                        </div>
+                                                                        <% } else if (trip.status==='Completed' ) { %>
+                                                                            <div class="d-grid gap-2">
+                                                                                <button class="btn btn-secondary w-100"
+                                                                                    disabled>Trip Completed</button>
+                                                                                <a href="/trip/track/<%= trip._id %>"
+                                                                                    class="btn btn-primary fw-bold"><i
+                                                                                        class="fa-solid fa-file-invoice me-2"></i>
+                                                                                    View Report / Edit Logs</a>
+                                                                            </div>
+                                                                            <% } else if (trip.status==='Rejected' &&
+                                                                                trip.rejectionReason) { %>
+                                                                                <div
+                                                                                    class="alert alert-danger py-2 small mb-0">
+                                                                                    <strong>Reason:</strong>
+                                                                                    <%= trip.rejectionReason %>
+                                                                                </div>
+                                                                                <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+        </div>
+
+        <style>
+            .my-pulse {
+                animation: pulse 1.5s infinite;
+            }
+
+            @keyframes pulse {
+                0% {
+                    opacity: 1;
+                }
+
+                50% {
+                    opacity: 0.5;
+                }
+
+                100% {
+                    opacity: 1;
+                }
+            }
+
+            .pulse-btn {
+                animation: pulse-border 2s infinite;
+            }
+
+            @keyframes pulse-border {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+                }
+
+                70% {
+                    box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+                }
+
+                100% {
+                    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+                }
+            }
+        </style>
+        <script>
+            function startTrip(tripId) {
+                if (!confirm("Are you ready to start this trip? Location tracking will begin.")) return;
+
+                if (!navigator.geolocation) {
+                    alert("Geolocation is not supported by your browser");
+                    return;
+                }
+
+                // Show loading state (optional UI improvement)
+
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    fetch('/trip/start/' + tripId, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ lat, lng })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // User Request: "during start... he must also get the map"
+                                // Redirect directly to monitor page instead of reload
+                                window.location.href = '/trip/monitor/' + tripId;
+                            } else {
+                                alert(data.error || "Error starting trip");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert("Network error occurred");
+                        });
+
+                }, error => {
+                    console.error("Geo Error:", error);
+                    alert("Unable to retrieve your location. Please enable GPS.");
+                    // Optional: Allow starting without location if critical? 
+                    // User requirement says "must continuous recorded", implies GPS is mandatory.
+                }, { enableHighAccuracy: true });
+            }
+        </script>
+</body>
+
+</html>

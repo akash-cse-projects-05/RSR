@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Dashboard | RSR Aviation</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-dark: #091e42;
+      --rsr-bg: #f7f9fc;
+      --rsr-border: #ebebeb;
+      --text-main: #222222;
+    }
+
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: var(--rsr-dark) !important;
+      padding: 0.8rem 0;
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-link {
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem !important;
+      opacity: 0.8;
+      transition: 0.2s;
+    }
+
+    .nav-link:hover {
+      opacity: 1;
+      color: #fff !important;
+    }
+
+    /* Header */
+    .page-header {
+      padding: 40px 0;
+      background: #fff;
+      border-bottom: 1px solid var(--rsr-border);
+      margin-bottom: 30px;
+    }
+
+    /* Quick Action Buttons */
+    .action-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    .btn-action {
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.2s;
+      border: 1px solid var(--rsr-border);
+      background: #fff;
+      color: var(--rsr-dark);
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border-color: var(--rsr-blue);
+      color: var(--rsr-blue);
+    }
+
+    .btn-action i {
+      margin-right: 8px;
+    }
+
+    /* Stat Cards */
+    .stat-card {
+      border: 1px solid var(--rsr-border);
+      border-radius: 20px;
+      padding: 24px;
+      background: #fff;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    }
+
+    .stat-card h3 {
+      font-weight: 800;
+      font-size: 2rem;
+      margin-bottom: 4px;
+      letter-spacing: -0.03em;
+    }
+
+    .stat-card p {
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0;
+      color: var(--rsr-text-light);
+    }
+
+    /* Table Styling */
+    .data-card {
+      background: #fff;
+      border: 1px solid var(--rsr-border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .table thead th {
+      background: #f8fafc;
+      padding: 16px 24px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: #64748b;
+      border-bottom: 1px solid var(--rsr-border);
+    }
+
+    .table tbody td {
+      padding: 20px 24px;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--rsr-border);
+      font-size: 0.9rem;
+    }
+
+    /* Status Badges */
+    .badge-rsr {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.7rem;
+    }
+
+    .bg-progress {
+      background: #fff9db;
+      color: #f08c00;
+    }
+
+    .bg-completed {
+      background: #e6fcf5;
+      color: #0ca678;
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../partials/anti-cache') %>
+
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+      <div class="container-fluid px-4">
+        <a class="navbar-brand" href="/hr/dashboard">
+          <i class="fa-solid fa-paper-plane me-2"></i> RSR HRMS
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHR">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarHR">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item"><a class="nav-link text-light" href="/hr/dashboard">Overview</a></li>
+            <li class="nav-item"><a class="nav-link text-light" href="/hr/leaves">Leaves</a></li>
+            <li class="nav-item"><a class="nav-link text-light" href="/hr/attendance-history">History</a></li>
+            <li class="nav-item"><a class="nav-link text-light" href="/employee/add">Recruitment</a></li>
+            <li class="nav-item"><a class="nav-link text-light" href="/regularization/hr">Regularization</a></li>
+          </ul>
+          <div class="d-flex align-items-center">
+            <span class="badge bg-primary me-3 px-3">HR TERMINAL</span>
+            <a href="/logout" class="btn btn-outline-light btn-sm rounded-pill px-3">Logout</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page-header">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h2 class="fw-bold mb-1">HR Commander</h2>
+            <p class="text-muted mb-0">Today's Employees attendance and operational metrics.</p>
+          </div>
+          <div class="text-end">
+            <p class="small fw-bold text-uppercase text-primary mb-0">
+              <%= new Date().toDateString() %>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container pb-5">
+
+      <div class="action-bar">
+        <a href="/hr/users" class="btn-action shadow-sm">
+          <i class="fa-solid fa-users-gear"></i> Manage User Profiles
+        </a>
+        <a href="/notice-board/new" class="btn-action shadow-sm">
+          <i class="fa-solid fa-plus-circle"></i> Create Announcement
+        </a>
+        <a href="/notice-board" class="btn-action shadow-sm">
+          <i class="fa-solid fa-bullhorn"></i> Notice Board
+        </a>
+        <a href="/payslip/hr/payslips" class="btn-action shadow-sm">
+          <i class="fa-solid fa-money-check-dollar"></i> Manage Payslips
+        </a>
+        <a href="/expense/hr/dashboard" class="btn-action shadow-sm text-primary border-primary">
+          <i class="fa-solid fa-map-location-dot"></i> Expense & Tracking
+        </a>
+        <a href="/trip/hr/dashboard" class="btn-action shadow-sm text-success border-success">
+          <i class="fa-solid fa-earth-americas"></i> Trip Management
+        </a>
+
+        <button type="button" class="btn-action shadow-sm text-dark border-dark" data-bs-toggle="modal"
+          data-bs-target="#changePasswordModal">
+          <i class="fa-solid fa-key"></i> Change Password
+        </button>
+      </div>
+
+      <!-- Change Password Modal -->
+      <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form action="/hr/change-my-password" method="POST">
+              <div class="modal-header">
+                <h5 class="modal-title fw-bold">Change My Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label class="form-label">New Password</label>
+                  <input type="password" name="newPassword" class="form-control" placeholder="Minimum 6 characters"
+                    required minlength="6">
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Confirm New Password</label>
+                  <input type="password" name="confirmPassword" class="form-control" required minlength="6">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary fw-bold">Update Password</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <% const records=Array.isArray(todayAttendance) ? todayAttendance : []; const presentCount=records.length; const
+        completedCount=records.filter(r=> r.punchOut).length;
+        const inProgressCount = records.filter(r => !r.punchOut).length;
+        %>
+
+        <div class="row g-4 mb-5">
+          <div class="col-md-4">
+            <div class="stat-card">
+              <h3 class="text-primary">
+                <%= presentCount %>
+              </h3>
+              <p>Total Present</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card">
+              <h3 class="text-warning">
+                <%= inProgressCount %>
+              </h3>
+              <p> Progress</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-card">
+              <h3 class="text-success">
+                <%= completedCount %>
+              </h3>
+              <p> Completed</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="data-card">
+          <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0">Live Attendance Log</h5>
+            <span class="badge bg-light text-dark border"><i class="fa-solid fa-circle text-success me-1"
+                style="font-size: 8px;"></i> Real-time</span>
+          </div>
+
+
+
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>Personnel Name</th>
+                  <th>Employee Code</th>
+                  <th>Punch In</th>
+                  <th>Punch Out</th>
+                  <th>Duty Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (records.length===0) { %>
+                  <tr>
+                    <td colspan="5" class="text-center text-muted py-5">
+                      <i class="fa-solid fa-folder-open mb-3 d-block fs-1"></i>
+                      No attendance records detected for today's shift.
+                    </td>
+                  </tr>
+                  <% } %>
+
+                    <% records.forEach(r=> { %>
+                      <tr>
+                        <td>
+                          <div class="fw-bold text-dark">
+                            <%= r.employeeId?.firstName || "-" %>
+                              <%= r.employeeId?.lastName || "" %>
+                          </div>
+                          <div class="text-muted small" style="font-size: 11px;">
+                            <%= r.employeeId?.department || "General" %>
+                          </div>
+                        </td>
+                        <td class="fw-bold text-muted small">
+                          <%= r.employeeId?.employeeCode || "-" %>
+                        </td>
+                        <td class="small fw-semibold"><i class="fa-solid fa-clock-rotate-left me-2 text-muted"></i>
+                          <%= r.punchIn ? r.punchIn.toLocaleTimeString([], {hour: '2-digit' , minute:'2-digit'}) : "-"
+                            %>
+                        </td>
+                        <td class="small fw-semibold"><i class="fa-solid fa-clock-rotate-left me-2 text-muted"></i>
+                          <%= r.punchOut ? r.punchOut.toLocaleTimeString([], {hour: '2-digit' , minute:'2-digit'}) : "-"
+                            %>
+                        </td>
+                        <td>
+                          <% if (!r.punchOut) { %>
+                            <span class="badge-rsr bg-progress"><i class="fa-solid fa-spinner fa-spin me-1"></i> IN
+                              PROGRESS</span>
+                            <% } else { %>
+                              <span class="badge-rsr bg-completed"><i class="fa-solid fa-check-double me-1"></i>
+                                COMPLETED</span>
+                              <% } %>
+                        </td>
+                      </tr>
+                      <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+    </div>
+
+    <footer class="text-center py-5">
+      <p class="text-muted small">© 2026 RSR Aviation Group • HRMS Control Terminal</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

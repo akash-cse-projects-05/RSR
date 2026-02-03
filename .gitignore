@@ -1,0 +1,8 @@
+# Dependencies
+node_modules/
+
+# Environment Variables
+.env
+
+# Scripts
+scripts/seed-hr.js

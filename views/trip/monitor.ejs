@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Monitor | RSR HRMS</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        :root {
+            --rsr-blue: #0052cc;
+            --rsr-bg: #ffffff;
+            --rsr-light: #f7f9fc;
+            --text-main: #222222;
+            --text-muted: #717171;
+            --border-color: #ebebeb;
+        }
+
+        body {
+            background-color: var(--rsr-bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-main);
+            letter-spacing: -0.01em;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: #fff !important;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.2rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--rsr-blue) !important;
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 40px 0 30px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 40px;
+        }
+
+        /* Cards */
+        .attendance-card {
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            background: #fff;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+        }
+
+        .attendance-card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 24px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        .time-box {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--rsr-blue);
+            letter-spacing: -0.02em;
+        }
+
+        /* Map */
+        #map {
+            height: 400px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Buttons */
+        .btn-main {
+            background-color: var(--rsr-blue);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .btn-main:hover {
+            background-color: #0043a8;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-danger {
+            border: 2px solid #ff4d4f;
+            color: #ff4d4f;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 700;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #ff4d4f;
+            color: #fff;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        /* Pulse Animation for Recording */
+        .recording-pulse {
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/trip/my-trips">
+                <i class="fa-solid fa-arrow-left me-2"></i> RSR TRIP MONITOR
+            </a>
+            <div class="ms-auto">
+                <span class="badge bg-light text-dark border me-2"><i class="fa-solid fa-calendar me-1"></i> Day <%=
+                        dayNumber %></span>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end">
+                <div>
+                    <p class="text-primary fw-bold small mb-1" style="letter-spacing: 0.1em;">LIVE TRACKING</p>
+                    <h1 class="fw-bold mb-0">Field Activity Log</h1>
+                    <p class="text-muted mt-2">
+                        <%= trip.destination %> • <%= trip.purpose %>
+                    </p>
+                </div>
+                <div class="text-end">
+                    <button class="btn btn-outline-dark btn-sm rounded-pill px-3" data-bs-toggle="modal"
+                        data-bs-target="#logsModal"><i class="fa-solid fa-list me-1"></i> View Logs</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container pb-5">
+
+        <% const today=new Date().toISOString().slice(0, 10); let currentLog=trip.dailyLogs.find(l=> l.date === today);
+            let status = currentLog ? currentLog.status : 'Pending';
+            %>
+
+            <div class="row g-4 mb-4">
+                <!-- Map Card -->
+                <div class="col-lg-8">
+                    <div class="attendance-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="fa-solid fa-map-location-dot me-2 text-primary"></i> Live Map</span>
+                            <span id="gpsStatus" class="badge bg-light text-secondary">GPS: Acquiring...</span>
+                        </div>
+                        <div class="card-body">
+                            <div id="map"></div>
+                            <div class="mt-3 d-flex justify-content-between text-muted small">
+                                <span id="currentAddress"><i class="fa-solid fa-location-arrow me-1"></i>
+                                    Locating...</span>
+                                <span>Last Ping: <span id="lastPingTime">Just now</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls Card -->
+                <div class="col-lg-4">
+                    <div class="attendance-card">
+                        <div class="card-header bg-light text-center">Daily Status Control</div>
+                        <div class="card-body text-center d-flex flex-column justify-content-center"
+                            style="min-height: 300px;">
+
+                            <% if (status==='Pending' ) { %>
+                                <!-- START DAY -->
+                                <div class="mb-4">
+                                    <i class="fa-solid fa-mug-hot text-muted" style="font-size: 3rem;"></i>
+                                    <h4 class="fw-bold mt-3">Ready to Start Day <%= dayNumber %>?</h4>
+                                    <p class="text-muted small">Mark your attendance and begin tracking.</p>
+                                </div>
+                                <button class="btn btn-main btn-lg w-100 shadow" onclick="toggleShift(true)">
+                                    <i class="fa-solid fa-play me-2"></i> PUNCH IN (Start Day)
+                                </button>
+
+                                <% } else if (status==='Started' ) { %>
+                                    <!-- IN PROGRESS -->
+                                    <div class="mb-4">
+                                        <span
+                                            class="status-badge bg-success text-white mb-3 d-inline-block recording-pulse">
+                                            <i class="fa-solid fa-circle me-1" style="font-size: 8px;"></i> LIVE
+                                            RECORDING
+                                        </span>
+                                        <div class="time-box" id="elapsedTime">--:--:--</div>
+                                        <p class="text-muted small mt-1">Day Started at <%= new
+                                                Date(currentLog.startTime).toLocaleTimeString() %>
+                                        </p>
+                                    </div>
+
+                                    <button class="btn btn-warning w-100 fw-bold mb-3 shadow-sm"
+                                        onclick="openActivityModal()">
+                                        <i class="fa-solid fa-plus me-2"></i> LOG ACTIVITY
+                                    </button>
+
+                                    <button class="btn btn-outline-danger w-100 fw-bold" onclick="toggleShift(false)">
+                                        <i class="fa-solid fa-stop me-2"></i> PUNCH OUT (End Day)
+                                    </button>
+
+                                    <% } else if (status==='Completed' ) { %>
+                                        <!-- COMPLETED -->
+                                        <div class="mb-4">
+                                            <i class="fa-solid fa-check-circle text-success"
+                                                style="font-size: 3rem;"></i>
+                                            <h4 class="fw-bold mt-3">Day Completed</h4>
+                                            <p class="text-muted small">Great job! See you tomorrow.</p>
+                                        </div>
+                                        <div class="bg-light p-3 rounded-3 text-start small mb-3">
+                                            <strong>Summary:</strong><br>
+                                            <%= currentLog.tasksDone %>
+                                        </div>
+                                        <a href="/trip/my-trips" class="btn btn-dark w-100">Back to My Trips</a>
+                                        <% } %>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <!-- MODALS (Activity, End Day, Logs) - Keeping functional logic -->
+    <!-- Activity Modal -->
+    <div class="modal fade" id="activityModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Log Activity</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="activityNote" class="form-control" rows="3"
+                        placeholder="What are you doing here?"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary w-100" onclick="saveActivity()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- End Day Modal -->
+    <div class="modal fade" id="endDayModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">End Day & Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted"><i class="fa-solid fa-location-dot me-1"></i> <span
+                            id="end-loc-display">Checking...</span></p>
+                    <label class="form-label fw-bold">Daily Summary</label>
+                    <textarea id="endTaskDesc" class="form-control" rows="4"
+                        placeholder="Summary of work done..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-danger w-100" onclick="confirmEndDay()">Confirm Punch Out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log History Modal -->
+    <div class="modal fade" id="logsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Trip Log History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <table class="table table-striped mb-0 small">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Work</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% trip.dailyLogs.forEach(log=> { %>
+                                <tr>
+                                    <td>
+                                        <%= new Date(log.date).toLocaleDateString() %>
+                                    </td>
+                                    <td><span class="badge bg-<%= log.status==='Completed'?'success':'warning' %>">
+                                            <%= log.status %>
+                                        </span></td>
+                                    <td>
+                                        <%= log.tasksDone || '-' %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // CONFIG
+        const TRIP_ID = "<%= trip._id %>";
+        const DEST_LAT = <%= trip.destinationCoordinates ?trip.destinationCoordinates.lat: 'null' %>;
+        const DEST_LNG = <%= trip.destinationCoordinates ?trip.destinationCoordinates.lng: 'null' %>;
+        const FULL_PATH = <% - JSON.stringify(trip.locations || []) %>;
+
+        let map, userMarker, pathPolyline;
+        let currentPos = null;
+
+        // INIT MAP
+        function initMap() {
+            map = L.map('map', { zoomControl: false }).setView([20.5937, 78.9629], 5);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Draw History
+            if (FULL_PATH.length > 0) {
+                const latlngs = FULL_PATH.map(l => [l.lat, l.lng]);
+                pathPolyline = L.polyline(latlngs, { color: '#0052cc', weight: 4 }).addTo(map);
+                map.fitBounds(pathPolyline.getBounds(), { padding: [20, 20] });
+
+                // Markers
+                FULL_PATH.forEach(l => {
+                    if (l.type === 'Activity') {
+                        L.marker([l.lat, l.lng], {
+                            icon: L.divIcon({ className: 'bg-warning text-dark rounded-circle d-flex justify-content-center align-items-center border border-white', html: '<i class="fa-solid fa-note-sticky" style="font-size:10px;"></i>', iconSize: [20, 20] })
+                        }).addTo(map).bindPopup(l.note);
+                    }
+                });
+            } else {
+                pathPolyline = L.polyline([], { color: '#0052cc', weight: 4 }).addTo(map);
+            }
+        }
+
+        // GEOLOCATION & TRACKING
+        async function getAddress(lat, lng) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+                const data = await res.json();
+                return data.display_name || "Unknown Location";
+            } catch (e) { return "Location fetch failed"; }
+        }
+
+        function pingGPS() {
+            if (!navigator.geolocation) return;
+            navigator.geolocation.getCurrentPosition(async position => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                currentPos = { lat, lng };
+
+                // Map Update
+                if (!userMarker) {
+                    userMarker = L.marker([lat, lng], { zIndexOffset: 1000 }).addTo(map);
+                } else {
+                    userMarker.setLatLng([lat, lng]);
+                }
+                pathPolyline.addLatLng([lat, lng]);
+
+                // UI Update
+                document.getElementById('gpsStatus').innerText = "GPS: Active";
+                document.getElementById('gpsStatus').classList.replace('bg-light', 'bg-success');
+                document.getElementById('gpsStatus').classList.replace('text-secondary', 'text-white');
+                document.getElementById('currentAddress').innerText = "Lat: " + lat.toFixed(4) + ", Lng: " + lng.toFixed(4);
+
+                // Server Sync (Passive)
+                fetch(`/trip/log/${TRIP_ID}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'Ping', lat, lng })
+                }).catch(e => { });
+
+            }, () => {
+                document.getElementById('gpsStatus').innerText = "GPS: Error";
+                document.getElementById('gpsStatus').classList.add('bg-danger', 'text-white');
+            }, { enableHighAccuracy: true });
+        }
+
+        function startTracking() {
+            pingGPS();
+            setInterval(pingGPS, 30000); // 30s interval
+        }
+
+        // ACTIONS
+        async function toggleShift(starting) {
+            if (!currentPos) return alert("Waiting for GPS...");
+            const address = await getAddress(currentPos.lat, currentPos.lng);
+
+            if (starting) {
+                if (!confirm("Punch In and Start Day?")) return;
+                const res = await fetch(`/trip/start-day/${TRIP_ID}`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lat: currentPos.lat, lng: currentPos.lng, address })
+                });
+                if (res.ok) window.location.reload();
+            } else {
+                // End Day
+                document.getElementById('end-loc-display').innerText = address;
+                new bootstrap.Modal(document.getElementById('endDayModal')).show();
+            }
+        }
+
+        async function confirmEndDay() {
+            const task = document.getElementById('endTaskDesc').value;
+            if (!task) return alert("Summary required");
+            const address = document.getElementById('end-loc-display').innerText;
+
+            const res = await fetch(`/trip/end-day/${TRIP_ID}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lat: currentPos.lat, lng: currentPos.lng, address, tasksDone: task })
+            });
+            if (res.ok) window.location.reload();
+        }
+
+        // Activity Log
+        const actModal = new bootstrap.Modal(document.getElementById('activityModal'));
+        function openActivityModal() { actModal.show(); }
+
+        async function saveActivity() {
+            const note = document.getElementById('activityNote').value;
+            if (!note) return alert("Note required");
+            const address = await getAddress(currentPos.lat, currentPos.lng);
+
+            const res = await fetch(`/trip/log-activity/${TRIP_ID}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lat: currentPos.lat, lng: currentPos.lng, note, address })
+            });
+            if (res.ok) {
+                alert("Saved!");
+                actModal.hide();
+                // Add marker locally
+                L.marker([currentPos.lat, currentPos.lng], {
+                    icon: L.divIcon({ className: 'bg-warning text-dark rounded-circle d-flex justify-content-center align-items-center border border-white', html: '<i class="fa-solid fa-note-sticky" style="font-size:10px;"></i>', iconSize: [20, 20] })
+                }).addTo(map).bindPopup(note).openPopup();
+            }
+        }
+
+        initMap();
+        startTracking();
+
+        // TIMER
+        <% if (status === 'Started' && currentLog) { %>
+            const startTime = new Date("<%= currentLog.startTime %>");
+            setInterval(() => {
+                const now = new Date();
+                const diff = now - startTime;
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                document.getElementById('elapsedTime').innerText = `${h}h ${m}m ${s}s`;
+            }, 1000);
+        <% } %>
+
+    </script>
+</body>
+
+</html>

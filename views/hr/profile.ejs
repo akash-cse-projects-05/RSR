@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review Profile | RSR HRMS</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-text: #222222;
+      --rsr-text-light: #717171;
+      --rsr-border: #ebebeb;
+      --rsr-bg: #ffffff;
+      --rsr-light: #f7f9fc;
+    }
+
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--rsr-text);
+      letter-spacing: -0.01em;
+    }
+
+    .navbar {
+      background: #fff !important;
+      border-bottom: 1px solid var(--rsr-border);
+      padding: 1rem 0;
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      color: var(--rsr-blue) !important;
+    }
+
+    .page-header {
+      padding: 60px 0 40px;
+      border-bottom: 1px solid var(--rsr-border);
+      margin-bottom: 40px;
+      background: linear-gradient(to right, #ffffff, #f8f9fa);
+    }
+
+    .profile-card {
+      border: 1px solid var(--rsr-border);
+      border-radius: 20px;
+      padding: 30px;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .info-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--rsr-text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-weight: 600;
+      color: var(--rsr-text);
+      margin-bottom: 20px;
+    }
+
+    .table-container {
+      border: 1px solid var(--rsr-border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    .table thead th {
+      background-color: var(--rsr-light);
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--rsr-text-light);
+    }
+
+    .table tbody td {
+      padding: 18px 20px;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--rsr-border);
+    }
+
+    .status-pill {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 800;
+    }
+
+    .pill-approved {
+      background: #e6fcf5;
+      color: #0ca678;
+    }
+
+    .pill-rejected {
+      background: #fff5f5;
+      color: #ff6b6b;
+    }
+
+    .pill-pending {
+      background: #fff9db;
+      color: #f08c00;
+    }
+
+    .btn-action {
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 8px 16px;
+      transition: all 0.2s;
+    }
+
+    .status-form-box {
+      background: var(--rsr-light);
+      padding: 24px;
+      border-radius: 16px;
+      border: 1px solid var(--rsr-border);
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../partials/anti-cache') %>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="/hr/dashboard">
+          <i class="fa-solid fa-user-check me-2"></i> RSR HRMS
+        </a>
+        <div class="ms-auto">
+          <a href="/hr/users" class="btn btn-outline-dark btn-sm rounded-pill px-3">Back to Directory</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="page-header">
+      <div class="container d-flex justify-content-between align-items-end">
+        <div>
+          <p class="text-primary fw-bold small mb-1" style="letter-spacing: 0.1em;">ADMINISTRATIVE REVIEW</p>
+          <h1 class="fw-bold mb-0">Profile: <%= user.username %>
+          </h1>
+        </div>
+        <div class="badge <%= (locals.status === 'CLOSED') ? 'bg-dark' : 'bg-primary' %> px-4 py-2 rounded-pill">
+          FILE STATUS: <%= locals.status || 'OPEN' %>
+        </div>
+      </div>
+    </header>
+
+    <div class="container pb-5">
+      <div class="row g-4">
+
+        <div class="col-lg-4">
+          <div class="profile-card">
+            <h5 class="fw-bold mb-4">Employee Information</h5>
+
+            <div class="info-label">Full Name</div>
+            <div class="info-value">
+              <%= employee ? employee.firstName + ' ' + employee.lastName : 'Not Provided' %>
+            </div>
+
+            <div class="info-label">Department & Role</div>
+            <div class="info-value">
+              <%= employee ? employee.department : 'N/A' %> • <%= employee ? employee.designation : 'N/A' %>
+            </div>
+
+            <div class="info-label">Corporate Email</div>
+            <div class="info-value text-primary">
+              <%= employee ? employee.email : 'N/A' %>
+            </div>
+
+            <div class="info-label">Joining Date</div>
+            <div class="info-value">
+              <%= employee && employee.dateOfJoining ? employee.dateOfJoining.toLocaleDateString('en-GB') : 'Pending' %>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-8">
+          <div class="profile-card">
+            <h5 class="fw-bold mb-4">Document Verification</h5>
+            <div class="table-container">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>File Name</th>
+                    <th>Status</th>
+                    <th>Uploaded</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% documents.forEach(function(doc) { %>
+                    <tr>
+                      <td>
+                        <div class="fw-bold small">
+                          <%= doc.name %>
+                        </div>
+                        <div class="text-muted" style="font-size: 10px;">
+                          <%= (doc.fileType || 'File' ).toUpperCase() %>
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          class="status-pill <%= doc.status === 'APPROVED' ? 'pill-approved' : doc.status === 'REJECTED' ? 'pill-rejected' : 'pill-pending' %>">
+                          <%= doc.status %>
+                        </span>
+                      </td>
+                      <td class="text-muted small">
+                        <%= doc.uploadedAt.toLocaleDateString() %>
+                      </td>
+                      <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                          <a href="/documents/download/<%= doc._id %>" class="btn btn-light border btn-action">
+                            <i class="fa-solid fa-download"></i>
+                          </a>
+                          <% if(doc.status==='PENDING' ) { %>
+                            <form action="/hr/profile/<%= user._id %>/document/<%= doc._id %>/approve" method="POST">
+                              <button type="submit" class="btn btn-success btn-action">Approve</button>
+                            </form>
+                            <form action="/hr/profile/<%= user._id %>/document/<%= doc._id %>/reject" method="POST">
+                              <button type="submit" class="btn btn-danger btn-action">Reject</button>
+                            </form>
+                            <% } %>
+                        </div>
+                      </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="status-form-box mt-4">
+              <h6 class="fw-bold mb-3">Update File Status</h6>
+              <form action="/hr/profile/<%= user._id %>/status" method="POST" class="d-flex gap-3">
+                <select name="status" class="form-select shadow-sm">
+                  <option value="OPEN" <%=(locals.status==='OPEN' || !locals.status) ? 'selected' : '' %>>OPEN (Needs
+                    Action)</option>
+                  <option value="CLOSED" <%=(locals.status==='CLOSED' ) ? 'selected' : '' %>>CLOSED (Verified)</option>
+                </select>
+                <button type="submit" class="btn btn-primary px-4 fw-bold"
+                  style="background-color: var(--rsr-blue); border-radius: 10px;">
+                  Update Status
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <footer class="text-center py-5 border-top">
+      <p class="text-muted small">© 2026 RSR HRMS • Corporate Compliance Terminal</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

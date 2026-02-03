@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%= department %> Department Dashboard | RSR Aviation
+  </title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-text: #222222;
+      --rsr-text-light: #717171;
+      --rsr-border: #ebebeb;
+      --rsr-bg: #ffffff;
+      --rsr-light: #f7f9fc;
+    }
+
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--rsr-text);
+      letter-spacing: -0.01em;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: #fff !important;
+      border-bottom: 1px solid var(--rsr-border);
+      padding: 1rem 0;
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      color: var(--rsr-blue) !important;
+    }
+
+    /* Page Header */
+    .page-header {
+      padding: 60px 0 40px;
+      border-bottom: 1px solid var(--rsr-border);
+      margin-bottom: 40px;
+      background: linear-gradient(to right, #ffffff, #f0f7ff);
+    }
+
+    /* Card Styling */
+    .section-card {
+      border: 1px solid var(--rsr-border);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      background: #fff;
+      margin-bottom: 30px;
+      overflow: hidden;
+    }
+
+    .card-header-rsr {
+      padding: 20px 24px;
+      background-color: var(--rsr-light);
+      border-bottom: 1px solid var(--rsr-border);
+      font-weight: 700;
+      color: var(--rsr-text);
+    }
+
+    /* List Items */
+    .list-group-item {
+      padding: 16px 24px;
+      border-left: none;
+      border-right: none;
+      border-color: var(--rsr-border);
+    }
+
+    /* Form Controls */
+    .form-control,
+    .form-select {
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid var(--rsr-border);
+    }
+
+    .form-control:focus {
+      border-color: var(--rsr-blue);
+      box-shadow: none;
+    }
+
+    /* Badges */
+    .badge-rsr {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    /* Buttons */
+    .btn-main {
+      background-color: var(--rsr-blue);
+      color: white;
+      border-radius: 10px;
+      font-weight: 700;
+      padding: 12px 24px;
+      border: none;
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../partials/anti-cache') %>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="/dashboard">
+          <i class="fa-solid fa-paper-plane me-2"></i> RSR AVIATION
+        </a>
+        <div class="ms-auto">
+          <a href="/dashboard" class="btn btn-outline-dark btn-sm rounded-pill px-3">Back to Home</a>
+        </div>
+      </div>
+    </nav>
+
+    <header class="page-header">
+      <div class="container">
+        <p class="text-primary fw-bold small mb-1" style="letter-spacing: 0.1em;">DEPARTMENT HUB</p>
+        <h1 class="fw-bold mb-0">
+          <%= department %> Department
+        </h1>
+        <p class="text-muted mt-2">Team monitoring, task allocation, and operational broadcasts.</p>
+      </div>
+    </header>
+
+    <div class="container pb-5">
+      <div class="row">
+
+        <div class="col-lg-4">
+          <div class="section-card">
+            <div class="card-header-rsr">Team Members</div>
+            <div class="list-group list-group-flush">
+              <% employees.forEach(emp=> { %>
+                <div class="list-group-item d-flex align-items-center">
+                  <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-2 me-3"><i
+                      class="fa-solid fa-user"></i></div>
+                  <div>
+                    <div class="fw-bold small">
+                      <%= emp.firstName %>
+                        <%= emp.lastName %>
+                    </div>
+                    <div class="text-muted small" style="font-size: 11px;">
+                      <%= emp.designation %>
+                    </div>
+                  </div>
+                </div>
+                <% }) %>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <div class="card-header-rsr">Latest Announcements</div>
+            <div class="list-group list-group-flush">
+              <% if (announcements && announcements.length> 0) { %>
+                <% announcements.forEach(a=> { %>
+                  <div class="list-group-item">
+                    <div class="fw-bold small text-primary mb-1">
+                      <%= a.title %>
+                    </div>
+                    <div class="text-muted" style="font-size: 12px;">
+                      <%= a.message %>
+                    </div>
+                    <div class="text-muted mt-2" style="font-size: 10px;">
+                      <%= new Date(a.date).toLocaleDateString() %>
+                    </div>
+                  </div>
+                  <% }) %>
+                    <% } else { %>
+                      <div class="p-4 text-center text-muted small">No announcements yet.</div>
+                      <% } %>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-8">
+
+          <% if (employee && (employee.designation==='MANAGER' || employee.designation==='Manager' ) ) { %>
+            <div class="section-card shadow-sm border-primary border-opacity-25">
+              <div class="card-header-rsr" style="background: #f0f7ff; color: var(--rsr-blue);">
+                <i class="fa-solid fa-shield-halved me-2"></i> Manager Controls
+              </div>
+              <div class="p-4">
+                <h6 class="fw-bold mb-3">Allot Mission / Training</h6>
+                <form method="POST" action="/department/<%= department %>/task" class="mb-5">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <input type="text" name="title" placeholder="Mission Title" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                      <select name="type" class="form-select" required>
+                        <option value="Work">Standard Mission (Work)</option>
+                        <option value="Training">Certification (Training)</option>
+                      </select>
+                    </div>
+                    <div class="col-12">
+                      <textarea name="description" placeholder="Technical Description" class="form-control"
+                        rows="2"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                      <select name="assignedTo" class="form-select" required>
+                        <option value="" disabled selected>Assign to Crew Member</option>
+                        <% employees.filter(e=> e.designation === 'STAFF').forEach(staff => { %>
+                          <option value="<%= staff._id %>">
+                            <%= staff.firstName %>
+                              <%= staff.lastName %>
+                          </option>
+                          <% }) %>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <input type="date" name="dueDate" class="form-control" />
+                    </div>
+                    <div class="col-12">
+                      <button type="submit" class="btn btn-main w-100">Allot Task</button>
+                    </div>
+                  </div>
+                </form>
+
+                <h6 class="fw-bold mb-3 mt-4">Work From Home</h6>
+                <div class="mb-5">
+                  <p class="text-muted small mb-2">Authorize remote work for team members.</p>
+                  <a href="/department/<%= department %>/wfh-allotment" class="btn btn-primary w-100 shadow-sm">
+                    <i class="fa-solid fa-house-laptop me-2"></i> Allot Work From Home
+                  </a>
+                </div>
+
+                <h6 class="fw-bold mb-3">Broadcast Announcement</h6>
+                <form method="POST" action="/department/<%= department %>/announcement">
+                  <input type="text" name="title" placeholder="Topic" class="form-control mb-3" required />
+                  <textarea name="message" placeholder="Message to team..." class="form-control mb-3" rows="2"
+                    required></textarea>
+                  <button type="submit" class="btn btn-outline-dark rounded-pill px-4 btn-sm">Post Update</button>
+                </form>
+              </div>
+            </div>
+            <% } %>
+
+              <div class="section-card">
+                <div class="card-header-rsr d-flex justify-content-between">
+                  <span>Active Tasks</span>
+                  <span class="badge bg-secondary badge-rsr">
+                    <%= tasks.length %>
+                  </span>
+                </div>
+                <div class="list-group list-group-flush">
+                  <% tasks.forEach(task=> { %>
+                    <div class="list-group-item">
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                          <span class="badge bg-light text-primary border mb-2" style="font-size: 10px;">
+                            <%= task.type.toUpperCase() %>
+                          </span>
+                          <div class="fw-bold">
+                            <%= task.title %>
+                          </div>
+                          <div class="text-muted small mb-3">
+                            <%= task.description %>
+                          </div>
+
+                          <div class="d-flex gap-3 align-items-center">
+                            <span class="small text-muted"><i class="fa-solid fa-user-gear me-1"></i>
+                              <% const assignedEmp=employees.find(e=> e._id.toString() === task.assignedTo.toString());
+                                if (assignedEmp) { %> <%= assignedEmp.firstName %>
+                                  <%= assignedEmp.lastName %>
+                                    <% } %>
+                            </span>
+                            <span
+                              class="badge badge-rsr <%= task.status === 'Completed' ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning' %>">
+                              <%= task.status %>
+                            </span>
+                          </div>
+                        </div>
+
+                        <div class="text-end">
+                          <% if (employee && employee._id.toString()===task.assignedTo.toString() &&
+                            task.status==='Pending' ) { %>
+                            <form method="POST" action="/department/<%= department %>/task/<%= task._id %>/acknowledge">
+                              <button type="submit" class="btn btn-sm btn-main px-3">Acknowledge</button>
+                            </form>
+                            <% } %>
+                              <% if (employee && employee._id.toString()===task.assignedTo.toString() &&
+                                task.status==='Acknowledged' ) { %>
+                                <form method="POST" action="/department/<%= department %>/task/<%= task._id %>/complete"
+                                  class="d-flex gap-1">
+                                  <input type="text" name="comments" placeholder="Note"
+                                    class="form-control form-control-sm w-auto" />
+                                  <button type="submit" class="btn btn-sm btn-success px-3">Finish</button>
+                                </form>
+                                <% } %>
+                        </div>
+                      </div>
+                      <% if (task.comments) { %>
+                        <div class="mt-2 small text-muted bg-light p-2 rounded">Note: <%= task.comments %>
+                        </div>
+                        <% } %>
+                    </div>
+                    <% }) %>
+                </div>
+              </div>
+
+              <a id="leave"></a>
+              <div class="section-card" id="leave-section">
+                <div class="card-header-rsr border-bottom-0">Leave Requests</div>
+                <div class="list-group list-group-flush">
+                  <% leaves.forEach(leave=> {
+                    const leaveEmp = employees.find(e => e._id.toString() === leave.employeeId.toString());
+                    %>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <div class="fw-bold small">
+                          <%= leaveEmp ? leaveEmp.firstName + ' ' + leaveEmp.lastName : 'Unknown' %>
+                        </div>
+                        <div class="text-muted small" style="font-size: 11px;">Status: <span class="fw-bold">
+                            <%= leave.status %>
+                          </span></div>
+                      </div>
+
+                      <% if ( (employee && employee.designation==='MANAGER' && leave.department===employee.department &&
+                        leaveEmp && leaveEmp.designation==='STAFF' ) || (employee && employee.department==='HR' ) ) { %>
+                        <form method="POST" action="/department/<%= department %>/leave/<%= leave._id %>"
+                          class="d-flex gap-2">
+                          <button name="action" value="approve"
+                            class="btn btn-success btn-sm rounded-pill px-3">Approve</button>
+                          <button name="action" value="reject"
+                            class="btn btn-outline-danger btn-sm rounded-pill px-3">Reject</button>
+                        </form>
+                        <% } %>
+                    </div>
+                    <% }) %>
+                </div>
+              </div>
+        </div>
+
+        <a id="resignation"></a>
+        <div class="section-card" id="resignation-section">
+          <div class="card-header-rsr border-bottom-0 text-danger bg-danger bg-opacity-10">
+            <i class="fa-solid fa-user-xmark me-2"></i> Resignation Requests
+          </div>
+          <div class="list-group list-group-flush">
+            <% const pendingResignations=employees.filter(e=> e.resignationStatus === 'Pending'); %>
+              <% if (pendingResignations.length===0) { %>
+                <div class="p-4 text-center text-muted small">No pending resignation requests.</div>
+                <% } else { %>
+                  <% pendingResignations.forEach(emp=> { %>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <div class="fw-bold">
+                          <%= emp.firstName %>
+                            <%= emp.lastName %>
+                        </div>
+                        <div class="text-muted small">
+                          Applied: <%= emp.resignationDate ? emp.resignationDate.toLocaleDateString() : 'Unknown' %>
+                        </div>
+                        <div class="small fst-italic text-secondary mt-1">
+                          Reason: "<%= emp.resignationReason || 'Not stated' %>"
+                        </div>
+                      </div>
+                      <% if (employee && employee.designation==='MANAGER' ) { %>
+                        <form method="POST" action="/department/<%= department %>/resignation/<%= emp._id %>"
+                          class="d-flex gap-2">
+                          <button name="action" value="approve" class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                            onclick="return confirm('Approve this resignation? The employee status will be updated.');">Accept</button>
+                          <button name="action" value="reject"
+                            class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                            onclick="return confirm('Reject this resignation?');">Reject</button>
+                        </form>
+                        <% } %>
+                    </div>
+                    <% }) %>
+                      <% } %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    </div>
+
+    <footer class="text-center py-5 border-top">
+      <p class="text-muted small">© 2026 RSR Aviation Group • Precision Operations Control</p>
+    </footer>
+
+    <script>
+      window.onload = function () {
+        if (window.location.hash) {
+          var el = document.getElementById(window.location.hash.substring(1) + '-section');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+    </script>
+</body>
+
+</html>
