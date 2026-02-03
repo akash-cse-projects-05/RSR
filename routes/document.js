@@ -12,7 +12,7 @@ router.post('/upload', upload.single('document'), async (req, res) => {
     // Use Document model to find the overall status document
     const statusDoc = await Document.findOne({ name: '__OVERALL_STATUS__' });
     if (statusDoc && statusDoc.overallStatus === 'CLOSED') {
-      return res.status(403).send('Document submission is closed.');
+      return res.redirect('/documents?error=submission_closed');
     }
     const doc = new Document({
       user: req.session.userId,
@@ -23,7 +23,7 @@ router.post('/upload', upload.single('document'), async (req, res) => {
     await doc.save();
     res.redirect('/documents');
   } catch (err) {
-    res.status(500).send('Upload failed');
+    res.redirect('/documents?error=upload_failed');
   }
 });
 
@@ -31,7 +31,7 @@ router.post('/upload', upload.single('document'), async (req, res) => {
 router.post('/upload-photo', upload.single('profilePhoto'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).send('No file uploaded.');
+      return res.redirect('/documents?error=no_file');
     }
 
     await Employee.findByIdAndUpdate(req.session.employeeId, {
@@ -44,7 +44,7 @@ router.post('/upload-photo', upload.single('profilePhoto'), async (req, res) => 
     res.redirect('/documents');
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error uploading photo');
+    res.redirect('/documents?error=photo_error');
   }
 });
 
@@ -59,7 +59,7 @@ router.get('/', async (req, res) => {
     const employee = await Employee.findById(req.session.employeeId);
     res.render('documents/document', { documents: docs, employee });
   } catch (err) {
-    res.status(500).send('Error loading documents');
+    res.redirect('/dashboard?error=docs_load_error');
   }
 });
 
@@ -83,7 +83,7 @@ router.post('/bank-details', async (req, res) => {
     res.redirect('/documents');
   } catch (err) {
     console.error(err);
-    res.status(500).send('Error updating bank details');
+    res.redirect('/documents?error=bank_update_error');
   }
 });
 
@@ -95,7 +95,7 @@ router.get('/download/:docId', async (req, res) => {
     res.set('Content-Disposition', `attachment; filename="${doc.name}"`);
     res.send(doc.file);
   } catch (err) {
-    res.status(404).send('Document not found');
+    res.redirect('/documents?error=not_found');
   }
 });
 

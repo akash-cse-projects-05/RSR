@@ -147,7 +147,7 @@ router.get("/leaves", hrAuth, async (req, res) => {
 
 //   } catch (err) {
 //     console.error(err);
-//     res.send("Leave action error");
+//     res.redirect('/hr/dashboard?error=leave_action_error');
 //   }
 // });
 router.post("/leave-action/:id", hrAuth, async (req, res) => {
@@ -157,17 +157,17 @@ router.post("/leave-action/:id", hrAuth, async (req, res) => {
     const leave = await Leave.findById(req.params.id);
 
     if (!leave) {
-      return res.send("Leave not found");
+      return res.redirect('/hr/dashboard?error=leave_not_found');
     }
 
     // Prevent status change if already approved or rejected
     if (leave.status === "APPROVED" || leave.status === "REJECTED") {
-      return res.send("Leave status already finalized and cannot be changed.");
+      return res.redirect('/hr/dashboard?error=already_finalized');
     }
 
     const employee = await Employee.findById(leave.employeeId);
     if (!employee) {
-      return res.send("Employee not found");
+      return res.redirect('/hr/dashboard?error=employee_not_found');
     }
 
     // Handle APPROVED status
@@ -222,7 +222,7 @@ router.post("/leave-action/:id", hrAuth, async (req, res) => {
       } else {
         // Regular leave - deduct from leave balance
         if (employee.leaveBalance < leave.totalDays) {
-          return res.send("Insufficient leave balance");
+          return res.redirect('/hr/dashboard?error=insufficient_balance');
         }
         const newBalance = employee.leaveBalance - leave.totalDays;
         await Employee.updateOne(
@@ -317,7 +317,7 @@ router.post("/leave-action/:id", hrAuth, async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.send("Leave action error: " + err.message);
+    res.redirect('/hr/dashboard?error=leave_action_error');
   }
 });
 /* ==========================
@@ -473,10 +473,10 @@ router.post('/change-my-password', hrAuth, async (req, res) => {
     const { newPassword, confirmPassword } = req.body;
 
     if (newPassword !== confirmPassword) {
-      return res.send('<script>alert("Passwords do not match"); window.history.back();</script>');
+      return res.redirect('back');
     }
     if (!newPassword || newPassword.length < 6) {
-      return res.send('<script>alert("Password must be at least 6 characters"); window.history.back();</script>');
+      return res.redirect('back');
     }
 
     const user = await User.findById(req.session.userId); // Change OWN password
@@ -485,7 +485,7 @@ router.post('/change-my-password', hrAuth, async (req, res) => {
     user.password = newPassword;
     await user.save();
 
-    res.send(`<script>alert('Your password has been updated successfully.'); window.location.href='/hr/dashboard';</script>`);
+    res.redirect('/hr/dashboard?passwordUpdated=true');
   } catch (err) {
     console.error(err);
     res.status(500).send("Error updating password");

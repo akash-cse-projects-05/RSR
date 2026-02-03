@@ -174,7 +174,7 @@ router.post('/:department/leave/:leaveId', async (req, res) => {
 
   // Check if already processed
   if (leave.status === 'APPROVED' || leave.status === 'REJECTED') {
-    return res.send(`<script>alert('This leave request has already been processed as ${leave.status} and cannot be modified.'); window.location.href='/department/${req.params.department}/leave';</script>`);
+    return res.redirect(`/department/${req.params.department}/leave?error=already_processed`);
   }
 
   let emailSubject = '';

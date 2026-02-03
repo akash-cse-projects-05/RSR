@@ -31,7 +31,7 @@ router.post("/request", async (req, res) => {
   if (count >= 3) return res.status(400).send("Regularization limit reached.");
 
   await Regularization.create({ employeeId, date, reason });
-  res.send("Regularization request submitted.");
+  res.redirect('/regularization/hr');
 });
 
 // (Optional) HR can approve/reject requests
@@ -64,7 +64,7 @@ router.post("/review/:id", async (req, res) => {
       }
     }
   }
-  res.send("Status updated.");
+  res.redirect('/regularization/hr');
 });
 
 

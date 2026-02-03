@@ -23,7 +23,7 @@ router.get("/apply", async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.send("Error loading leave page");
+    res.redirect('/dashboard');
   }
 });
 
@@ -179,7 +179,7 @@ router.post("/apply", async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.send("Leave apply error");
+    res.redirect('/leave/apply?error=application_failed');
   }
 });
 
@@ -201,7 +201,7 @@ router.get("/my-leaves", async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.send("Error loading leave history");
+    res.redirect('/dashboard');
   }
 });
 
@@ -212,11 +212,11 @@ router.post("/approve/:leaveId", async (req, res) => {
     const leave = await Leave.findById(req.params.leaveId);
 
     if (!leave) {
-      return res.send("Leave not found");
+      return res.redirect('back');
     }
 
     if (leave.status === "APPROVED") {
-      return res.send("Already approved");
+      return res.redirect('back');
     }
 
     const employee = await Employee.findById(leave.employeeId);
@@ -271,7 +271,7 @@ router.post("/approve/:leaveId", async (req, res) => {
       // Regular leave - deduct from leave balance
       console.log("Before deduction:", employee.leaveBalance);
       if (employee.leaveBalance < leave.totalDays) {
-        return res.send("Insufficient leave balance");
+        return res.redirect('/leave/apply?error=insufficient_balance');
       }
       // Only update leaveBalance field to avoid validation errors
       const newBalance = employee.leaveBalance - leave.totalDays;
@@ -344,11 +344,11 @@ router.post("/approve/:leaveId", async (req, res) => {
       console.error("Error sending approval email:", emailErr);
     }
 
-    res.send(message);
+    res.redirect('back');
 
   } catch (err) {
     console.error(err);
-    res.send("Error approving leave: " + err.message);
+    res.redirect('back');
   }
 });
 

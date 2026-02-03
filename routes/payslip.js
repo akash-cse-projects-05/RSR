@@ -232,6 +232,31 @@ router.get('/hr/payslips/:employeeId', async (req, res) => {
   }
 });
 
+// HR: Update Salary Structure
+router.post('/hr/update-structure/:employeeId', async (req, res) => {
+  try {
+    const {
+      salary, hra, travelAllowance, otherAllowances,
+      pf, professionalTax, incomeTax
+    } = req.body;
+
+    await Employee.findByIdAndUpdate(req.params.employeeId, {
+      salary: Number(salary) || 0,
+      hra: Number(hra) || 0,
+      travelAllowance: Number(travelAllowance) || 0,
+      otherAllowances: Number(otherAllowances) || 0,
+      pf: Number(pf) || 0,
+      professionalTax: Number(professionalTax) || 0,
+      incomeTax: Number(incomeTax) || 0
+    });
+
+    res.redirect(`/payslip/hr/payslips/${req.params.employeeId}?structureUpdated=true`);
+  } catch (err) {
+    console.error(err);
+    res.redirect(`/payslip/hr/payslips/${req.params.employeeId}?error=update_failed`);
+  }
+});
+
 // HR: Bulk Generate Payslips (Automated)
 router.post('/bulk-generate', async (req, res) => {
   const { month, year } = req.body;
@@ -241,7 +266,7 @@ router.post('/bulk-generate', async (req, res) => {
   const currentMonth = now.getMonth() + 1;
 
   if (parseInt(year) > currentYear || (parseInt(year) === currentYear && parseInt(month) > currentMonth)) {
-    return res.send(`<script>alert('Error: Not allowed to generate payslips for future months.'); window.location.href='/payslip/hr/payslips';</script>`);
+    return res.redirect('/payslip/hr/payslips?error=future_date');
   }
 
   let generatedCount = 0;
@@ -375,7 +400,7 @@ router.post('/bulk-generate', async (req, res) => {
     }
   }
 
-  res.send(`<script>alert('Successfully generated ${generatedCount} payslips for ${month}/${year}.'); window.location.href='/payslip/hr/payslips';</script>`);
+  res.redirect(`/payslip/hr/payslips?success=true&count=${generatedCount}`);
 });
 
 module.exports = router;

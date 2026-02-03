@@ -19,7 +19,7 @@ router.post("/add", async (req, res) => {
     password: "temp123"
   });
 
-  res.send(`<script>alert('Employee added successfully! System login created.'); window.location.href='/hr/dashboard';</script>`);
+  res.redirect('/hr/dashboard');
 });
 
 
@@ -78,21 +78,21 @@ router.get('/photo/:id', async (req, res) => {
 router.get("/edit/:id", async (req, res) => {
   try {
     const employee = await Employee.findById(req.params.id);
-    if (!employee) return res.send("Employee not found");
+    if (!employee) return res.redirect('/hr/users?error=not_found');
     res.render("employee/edit", { employee });
   } catch (err) {
     console.error(err);
-    res.send("Error loading edit page");
+    res.redirect('/hr/users?error=load_failed');
   }
 });
 
 router.post("/edit/:id", async (req, res) => {
   try {
     await Employee.findByIdAndUpdate(req.params.id, req.body);
-    res.send(`<script>alert('Employee details updated successfully!'); window.location.href='/hr/users';</script>`);
+    res.redirect('/hr/users');
   } catch (err) {
     console.error(err);
-    res.send("Error updating employee");
+    res.redirect('/hr/users?error=update_failed');
   }
 });
 

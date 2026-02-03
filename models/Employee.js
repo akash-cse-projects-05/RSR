@@ -89,6 +89,10 @@ const employeeSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    incomeTax: {
+      type: Number,
+      default: 0
+    },
 
     department: {
       type: String,
