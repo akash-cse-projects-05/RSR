@@ -35,10 +35,7 @@ const employeeSchema = new mongoose.Schema(
       unique: true,
       lowercase: true
     },
-    status: {
-      type: String,
-      required: false
-    },
+
 
     phoneNumber: {
       type: String,
