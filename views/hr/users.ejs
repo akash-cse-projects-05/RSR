@@ -184,12 +184,19 @@
                           user.employeeId.salary.toLocaleString() : '0' %></span>
                     </td>
                     <td class="text-end">
-                      <a href="/employee/edit/<%= user.employeeId._id %>" class="btn btn-profile shadow-sm me-1">
-                        <i class="fa-solid fa-pen"></i> Edit
-                      </a>
-                      <a href="/hr/profile/<%= user._id %>" class="btn btn-profile shadow-sm">
-                        <i class="fa-regular fa-id-card me-2"></i>Manage Profile
-                      </a>
+                      <% if (user.employeeId) { %>
+                        <a href="/employee/edit/<%= user.employeeId._id %>" class="btn btn-profile shadow-sm me-1">
+                          <i class="fa-solid fa-pen"></i> Edit
+                        </a>
+                        <% } else { %>
+                          <button class="btn btn-profile shadow-sm me-1" disabled title="No Employee Record Linked">
+                            <i class="fa-solid fa-pen"></i> Edit
+                          </button>
+                          <% } %>
+                            <a href="/hr/profile/<%= user._id %>" class="btn btn-profile shadow-sm">
+                              <i class="fa-regular fa-id-card me-2"></i>Manage Profile
+                            </a>
+
                     </td>
                   </tr>
                   <% }) %>
