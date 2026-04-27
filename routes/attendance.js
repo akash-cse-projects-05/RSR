@@ -30,7 +30,7 @@ router.get("/", async (req, res) => {
 // Punch In
 router.post("/punch-in", async (req, res) => {
   try {
-    const { lat, lng } = req.body;
+    const { lat, lng, address } = req.body;
     const today = new Date().toISOString().slice(0, 10);
 
     // OFFICE COORDINATES (RSR Aviation Head Office)
@@ -61,9 +61,10 @@ router.post("/punch-in", async (req, res) => {
     const distance = getDistanceInMeters(lat, lng, OFFICE_LAT, OFFICE_LNG);
     console.log(`Punch-In Attempt. Dist: ${distance.toFixed(2)}m`);
 
-    if (distance > ALLOWED_RADIUS_METERS) {
-      return res.json({ success: false, message: `You are ${Math.round(distance)}m away from office. Must be within ${ALLOWED_RADIUS_METERS}m.` });
-    }
+    // We no longer block the punch-in based on distance, allowing remote/outside radius punches
+    // if (distance > ALLOWED_RADIUS_METERS) {
+    //   return res.json({ success: false, message: `You are ${Math.round(distance)}m away from office. Must be within ${ALLOWED_RADIUS_METERS}m.` });
+    // }
 
     await Attendance.create({
       employeeId: req.session.employeeId,
@@ -71,7 +72,8 @@ router.post("/punch-in", async (req, res) => {
       punchIn: new Date(),
       punchInLocation: {
         lat: lat || null,
-        lng: lng || null
+        lng: lng || null,
+        address: address || null
       }
     });
 

@@ -18,7 +18,8 @@ const attendenceSchema = new mongoose.Schema(
 
     punchInLocation: {
       lat: Number,
-      lng: Number
+      lng: Number,
+      address: String
     },
 
     punchOutLocation: {

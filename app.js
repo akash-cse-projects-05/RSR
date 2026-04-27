@@ -36,7 +36,7 @@ app.use(express.json());
 
 app.use(
   session({
-    secret: "rsr_hrms_secret",
+    secret: process.env.SESSION_SECRET || "rsr_hrms_secret",
     resave: false,
     saveUninitialized: false
   })
@@ -52,7 +52,7 @@ app.use(preventCache); // Prevent caching for all routes (or move inside specifi
 
 
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server started at http://localhost:${PORT}`);
