@@ -83,7 +83,7 @@ router.post("/hr-login", async (req, res) => {
   } catch (err) {
     require('fs').appendFileSync('error.log', err.stack + '\n');
     console.error(err);
-    res.status(500).send("HR login error");
+    res.render("hr/login", { error: "Database connection failed or timed out. Please check your network and try again." });
   }
 });
 
@@ -115,7 +115,7 @@ router.get("/dashboard", hrAuth, async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).send("HR dashboard error");
+    res.render("hr/login", { error: "Failed to load HR dashboard. Database connection might be unstable." });
   }
 });
 

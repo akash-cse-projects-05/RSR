@@ -34,7 +34,7 @@ router.post("/login", async (req, res) => {
     res.redirect("/dashboard");
   } catch (err) {
     console.error(err);
-    res.status(500).send("Server Error");
+    res.render("auth/login", { error: "System connection error. Please check your internet and try again." });
   }
 });
 
@@ -69,7 +69,7 @@ router.post("/change-password", async (req, res) => {
     res.redirect("/dashboard?passwordUpdated=true");
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error updating password");
+    res.render("auth/change-password", { error: "An error occurred while updating your password. Please try again." });
   }
 });
 
@@ -173,7 +173,7 @@ router.post("/reset-password/:token", async (req, res) => {
     res.render("auth/login", { error: "Success! Your password has been changed." });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error resetting password");
+    res.render("auth/reset-password", { error: "Error resetting password. Please try again.", token: req.params.token });
   }
 });
 

@@ -13,7 +13,6 @@ const Regularization = require("./models/Regularization.js");
 const { requireAuth, preventCache } = require("./middleware/auth");
 
 
-
 const app = express();
 const dbURI = process.env.MONGODB_URI;
 
@@ -245,7 +244,7 @@ app.get("/dashboard", requireAuth, async (req, res) => {
 
   } catch (error) {
     console.error("Dashboard Error:", error);
-    res.status(500).send("Internal Server Error");
+    res.render("auth/login", { error: "Failed to load dashboard data. Please try again." });
   }
 });
 
