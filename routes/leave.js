@@ -54,6 +54,9 @@ router.post("/apply", async (req, res) => {
     // Validate Leave Balance
     if (leaveType !== 'LOP') {
       if (employee.leaveBalance <= 0 || employee.leaveBalance < totalDays) {
+        if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+          return res.status(400).json({ error: "Your leaves are finished / Insufficient balance. You can only apply for LOP." });
+        }
         return res.render("leave/apply", {
           employee,
           error: "Your leaves are finished / Insufficient balance. You can only apply for LOP."
@@ -175,10 +178,16 @@ router.post("/apply", async (req, res) => {
       // We do not block the response if email fails, just log it.
     }
 
+    if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+      return res.json({ success: true, message: "Leave request submitted successfully" });
+    }
     res.redirect("/leave/my-leaves");
 
   } catch (err) {
     console.error(err);
+    if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+      return res.status(500).json({ error: "Application failed: " + err.message });
+    }
     res.redirect('/leave/apply?error=application_failed');
   }
 });
@@ -197,10 +206,17 @@ router.get("/my-leaves", async (req, res) => {
       employeeId: req.session.employeeId
     }).sort({ createdAt: -1 });
 
+    if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+      return res.json(leaves);
+    }
+
     res.render("leave/my-leaves", { leaves });
 
   } catch (err) {
     console.error(err);
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: "Failed to retrieve leaves history" });
+    }
     res.redirect('/dashboard');
   }
 });

@@ -20,20 +20,42 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ username });
 
     if (!user) {
+      if (req.headers.accept?.includes('application/json')) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
       return res.render("auth/login", { error: "Invalid credentials" });
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      if (req.headers.accept?.includes('application/json')) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
       return res.render("auth/login", { error: "Invalid credentials" });
     }
 
     req.session.userId = user._id; // User model ID
     req.session.employeeId = user.employeeId; // Linked Employee ID
 
+    // Check Employee Status
+    const employee = await Employee.findById(user.employeeId);
+    if (!employee || employee.status !== "Active") {
+      req.session.destroy();
+      if (req.headers.accept?.includes('application/json')) {
+        return res.status(403).json({ error: "Access Denied: Your account is inactive. Please contact HR." });
+      }
+      return res.render("auth/login", { error: "Access Denied: Your account is inactive. Please contact HR." });
+    }
+
+    if (req.headers.accept?.includes('application/json')) {
+      return res.json({ success: true, employeeId: employee._id, employeeName: employee.firstName });
+    }
     res.redirect("/dashboard");
   } catch (err) {
     console.error(err);
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: "System connection error" });
+    }
     res.render("auth/login", { error: "System connection error. Please check your internet and try again." });
   }
 });
@@ -46,29 +68,41 @@ router.get("/change-password", (req, res) => {
 
 // Process Change Password
 router.post("/change-password", async (req, res) => {
-  if (!req.session.userId) return res.redirect("/auth/login");
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
+
+  if (!req.session.userId) {
+    if (isJson) return res.status(401).json({ error: "Unauthorized" });
+    return res.redirect("/auth/login");
+  }
 
   const { currentPassword, newPassword, confirmPassword } = req.body;
 
   if (newPassword !== confirmPassword) {
+    if (isJson) return res.status(400).json({ error: "New passwords do not match" });
     return res.render("auth/change-password", { error: "New passwords do not match" });
   }
 
   try {
     const user = await User.findById(req.session.userId);
-    if (!user) return res.redirect("/auth/login");
+    if (!user) {
+      if (isJson) return res.status(401).json({ error: "Unauthorized" });
+      return res.redirect("/auth/login");
+    }
 
     const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) {
+      if (isJson) return res.status(400).json({ error: "Incorrect current password" });
       return res.render("auth/change-password", { error: "Incorrect current password" });
     }
 
     user.password = newPassword; // Will be hashed by pre-save hook
     await user.save();
 
+    if (isJson) return res.json({ success: true, message: "Password updated successfully" });
     res.redirect("/dashboard?passwordUpdated=true");
   } catch (err) {
     console.error(err);
+    if (isJson) return res.status(500).json({ error: "An error occurred while updating your password." });
     res.render("auth/change-password", { error: "An error occurred while updating your password. Please try again." });
   }
 });

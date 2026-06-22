@@ -6,20 +6,34 @@ const Document = require("../models/Documents");
 
 // SHOW ADD EMPLOYEE PAGE (NEW)
 router.get("/add", (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
+  if (isJson) {
+    return res.json({ success: true });
+  }
   res.render("employee/add.ejs");
 });
 
 // HR add employee (FORM SUBMIT)
 router.post("/add", async (req, res) => {
-  const employee = await Employee.create(req.body);
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
+  try {
+    const employee = await Employee.create(req.body);
 
-  await User.create({
-    employeeId: employee._id,
-    username: employee.employeeCode,
-    password: "temp123"
-  });
+    await User.create({
+      employeeId: employee._id,
+      username: employee.employeeCode,
+      password: "temp123"
+    });
 
-  res.redirect('/hr/dashboard');
+    if (isJson) {
+      return res.json({ success: true, employee });
+    }
+    res.redirect('/hr/dashboard');
+  } catch (err) {
+    console.error(err);
+    if (isJson) return res.status(500).json({ error: "Failed to create employee: " + err.message });
+    res.status(500).send("Failed to create employee");
+  }
 });
 
 
@@ -31,10 +45,16 @@ router.post("/add", async (req, res) => {
 // });
 
 router.get('/profile', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
   try {
     // Fetch user
     const user = await User.findById(req.session.userId)
       .populate('employeeId'); // Populates employee details
+
+    if (!user) {
+      if (isJson) return res.status(404).json({ error: "User profile not found" });
+      return res.status(404).send("User profile not found");
+    }
 
     // Fetch documents related to this user
     const documents = await Document.find({ user: req.session.userId });
@@ -47,6 +67,15 @@ router.get('/profile', async (req, res) => {
       status: 'APPROVED'
     }).sort({ appliedAt: -1 });
 
+    if (isJson) {
+      return res.json({
+        user,
+        employee: user.employeeId,
+        documents,
+        lopLeaves
+      });
+    }
+
     res.render('employee/profile', {
       user,
       employee: user.employeeId, // Populated employee details
@@ -55,6 +84,7 @@ router.get('/profile', async (req, res) => {
     });
   } catch (err) {
     console.error(err);
+    if (isJson) return res.status(500).json({ error: 'Error loading profile' });
     res.status(500).send('Error loading profile');
   }
 });
@@ -76,22 +106,35 @@ router.get('/photo/:id', async (req, res) => {
 });
 
 router.get("/edit/:id", async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
   try {
     const employee = await Employee.findById(req.params.id);
-    if (!employee) return res.redirect('/hr/users?error=not_found');
+    if (!employee) {
+      if (isJson) return res.status(404).json({ error: "Employee not found" });
+      return res.redirect('/hr/users?error=not_found');
+    }
+    if (isJson) {
+      return res.json({ employee });
+    }
     res.render("employee/edit", { employee });
   } catch (err) {
     console.error(err);
+    if (isJson) return res.status(500).json({ error: "Load failed" });
     res.redirect('/hr/users?error=load_failed');
   }
 });
 
 router.post("/edit/:id", async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   try {
-    await Employee.findByIdAndUpdate(req.params.id, req.body);
+    const employee = await Employee.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (isJson) {
+      return res.json({ success: true, employee });
+    }
     res.redirect('/hr/users');
   } catch (err) {
     console.error(err);
+    if (isJson) return res.status(500).json({ error: "Update failed" });
     res.redirect('/hr/users?error=update_failed');
   }
 });
@@ -101,9 +144,13 @@ const nodemailer = require('nodemailer');
 
 // Handle Resignation Application
 router.post('/resign', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   try {
     const employee = await Employee.findById(req.session.employeeId);
-    if (!employee) return res.status(404).send('Employee not found');
+    if (!employee) {
+      if (isJson) return res.status(404).json({ error: 'Employee not found' });
+      return res.status(404).send('Employee not found');
+    }
 
     employee.resignationStatus = 'Pending';
     employee.resignationDate = new Date();
@@ -139,22 +186,29 @@ router.post('/resign', async (req, res) => {
       });
     }
 
+    if (isJson) {
+      return res.json({ success: true, message: "Resignation submitted successfully", employee });
+    }
     res.redirect('/employee/profile');
   } catch (err) {
     console.error(err);
+    if (isJson) return res.status(500).json({ error: 'Error processing resignation' });
     res.status(500).send('Error processing resignation');
   }
 });
 
 // Handle Resignation Revocation
 router.post('/revoke-resignation', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   try {
     const employee = await Employee.findById(req.session.employeeId);
-    if (!employee) return res.status(404).send('Employee not found');
+    if (!employee) {
+      if (isJson) return res.status(404).json({ error: 'Employee not found' });
+      return res.status(404).send('Employee not found');
+    }
 
     if (employee.resignationStatus === 'Pending') {
       employee.resignationStatus = 'Revoked'; // Or null if you prefer simply clearing it. Storing 'Revoked' keeps history.
-      // employee.resignationDate = null; // Optional: Keep date for record
       await employee.save();
 
       // Notify Manager of Revocation
@@ -165,9 +219,13 @@ router.post('/revoke-resignation', async (req, res) => {
       });
     }
 
+    if (isJson) {
+      return res.json({ success: true, message: "Resignation revoked successfully", employee });
+    }
     res.redirect('/employee/profile');
   } catch (err) {
     console.error(err);
+    if (isJson) return res.status(500).json({ error: 'Error revoking resignation' });
     res.status(500).send('Error revoking resignation');
   }
 });

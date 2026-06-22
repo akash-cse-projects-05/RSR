@@ -50,6 +50,16 @@ router.get('/', async (req, res) => {
       return emp.joiningDate && new Date(emp.joiningDate) >= thirtyDaysAgo;
     }).sort((a, b) => new Date(b.joiningDate) - new Date(a.joiningDate));
 
+    if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+      return res.json({
+        announcements,
+        notifications,
+        todaysBirthdays,
+        upcomingBirthdays,
+        newJoiners
+      });
+    }
+
     res.render('notice-board', {
       announcements,
       notifications,
@@ -60,6 +70,9 @@ router.get('/', async (req, res) => {
     });
   } catch (err) {
     console.error(err);
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: "Server Error" });
+    }
     res.status(500).send('Server Error');
   }
 });
@@ -76,19 +89,29 @@ router.get('/new', (req, res) => {
 // HR: Post Announcement or Notification
 router.post('/new', async (req, res) => {
   if (!req.session || req.session.role !== 'HR') {
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
     return res.status(403).send('Unauthorized');
   }
 
   const { type, title, message } = req.body;
   try {
+    let created;
     if (type === 'announcement') {
-      await Announcement.create({ title, message });
+      created = await Announcement.create({ title, message });
     } else if (type === 'notification') {
-      await Notification.create({ title, message });
+      created = await Notification.create({ title, message });
+    }
+    if (req.headers.accept?.includes('application/json')) {
+      return res.json({ success: true, notice: created });
     }
     res.redirect('/notice-board');
   } catch (e) {
     console.error(e);
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: "Error creating notice" });
+    }
     res.status(500).send("Error creating notice");
   }
 });

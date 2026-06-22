@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const session = require("express-session");
+const flash = require("connect-flash");
 const Attendance = require("./models/Attendence.js");
 const Employee = require("./models/Employee.js");
 const documentRoutes = require('./routes/document');
@@ -41,6 +42,16 @@ app.use(
   })
 );
 
+app.use(flash());
+
+// Global variables for flash messages
+app.use((req, res, next) => {
+  res.locals.success_msg = req.flash('success_msg');
+  res.locals.error_msg = req.flash('error_msg');
+  res.locals.error = req.flash('error'); // For passport errors if any
+  next();
+});
+
 app.use(preventCache); // Prevent caching for all routes (or move inside specific routes if public assets need caching)
 
 
@@ -53,7 +64,7 @@ app.use(preventCache); // Prevent caching for all routes (or move inside specifi
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server started at http://localhost:${PORT}`);
 });
 
@@ -225,6 +236,20 @@ app.get("/dashboard", requireAuth, async (req, res) => {
     /* =========================
        SEND DATA TO DASHBOARD
     ========================= */
+    if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+      return res.json({
+        attendance: attendance || null,
+        employee,
+        employees,
+        workingDays,
+        daysPresent,
+        leavesTaken,
+        attendancePercentage,
+        announcements,
+        notifications
+      });
+    }
+
     res.render("dashboard", {
       attendance: attendance || null,
       employee,
@@ -244,6 +269,9 @@ app.get("/dashboard", requireAuth, async (req, res) => {
 
   } catch (error) {
     console.error("Dashboard Error:", error);
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: "Failed to load dashboard data" });
+    }
     res.render("auth/login", { error: "Failed to load dashboard data. Please try again." });
   }
 });

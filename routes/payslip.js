@@ -138,8 +138,33 @@ router.post('/generate', async (req, res) => {
 router.get('/employee/:employeeId', async (req, res) => {
   try {
     const payslips = await Payslip.find({ employee: req.params.employeeId }).sort({ year: -1, month: -1 });
+    if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+      return res.json({ payslips });
+    }
     res.render('employee/payslips', { payslips });
   } catch (err) {
+    res.status(500).send('Error loading payslips');
+  }
+});
+
+// Employee: View own payslips (session-based)
+router.get('/employee-payslips', async (req, res) => {
+  try {
+    if (!req.session.employeeId) {
+      if (req.headers.accept?.includes('application/json')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      return res.redirect('/auth/login');
+    }
+    const payslips = await Payslip.find({ employee: req.session.employeeId }).sort({ year: -1, month: -1 });
+    if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+      return res.json({ payslips });
+    }
+    res.render('employee/payslips', { payslips });
+  } catch (err) {
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: 'Error loading payslips' });
+    }
     res.status(500).send('Error loading payslips');
   }
 });
@@ -205,8 +230,14 @@ router.get('/hr/payslips', async (req, res) => {
       ];
     }
     const employees = await Employee.find(query);
+    if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+      return res.json({ employees });
+    }
     res.render('hr/payslips', { employees, searchQuery: req.query.search });
   } catch (err) {
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: 'Error loading employees' });
+    }
     res.status(500).send('Error loading employees');
   }
 });
@@ -221,6 +252,10 @@ router.get('/hr/payslips/:employeeId', async (req, res) => {
     const totalLopDays = employee.lopCount || 0;
     const monthlyLopDays = employee.lopDaysThisMonth || 0;
 
+    if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+      return res.json({ employee, payslips, totalLopDays, monthlyLopDays });
+    }
+
     res.render('hr/manage-payslip', {
       employee,
       payslips,
@@ -228,6 +263,9 @@ router.get('/hr/payslips/:employeeId', async (req, res) => {
       monthlyLopDays
     });
   } catch (err) {
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: 'Error loading payslips' });
+    }
     res.status(500).send('Error loading payslips');
   }
 });
@@ -250,9 +288,15 @@ router.post('/hr/update-structure/:employeeId', async (req, res) => {
       incomeTax: Number(incomeTax) || 0
     });
 
+    if (req.headers.accept?.includes('application/json')) {
+      return res.json({ success: true });
+    }
     res.redirect(`/payslip/hr/payslips/${req.params.employeeId}?structureUpdated=true`);
   } catch (err) {
     console.error(err);
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: 'Update failed' });
+    }
     res.redirect(`/payslip/hr/payslips/${req.params.employeeId}?error=update_failed`);
   }
 });
@@ -400,6 +444,9 @@ router.post('/bulk-generate', async (req, res) => {
     }
   }
 
+  if (req.headers.accept?.includes('application/json')) {
+    return res.json({ success: true, count: generatedCount });
+  }
   res.redirect(`/payslip/hr/payslips?success=true&count=${generatedCount}`);
 });
 

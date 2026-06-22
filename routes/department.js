@@ -8,23 +8,35 @@ const Payslip = require('../models/Payslip'); // Import Payslip model
 
 // Employee: View training tasks and update progress
 router.get('/:department/training/:employeeId', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
   const department = req.params.department;
   const employeeId = req.params.employeeId;
   const employee = await Employee.findById(employeeId);
   if (!employee || employee.department !== department) {
+    if (isJson) return res.status(403).json({ error: 'Not authorized' });
     return res.status(403).send('Not authorized');
   }
   const tasks = await Task.find({ department, assignedTo: employeeId, type: 'Training' });
+  if (isJson) {
+    return res.json({ department, employee, tasks });
+  }
   res.render('employee/training', { department, employee, tasks });
 });
 
 // Employee: Update training progress
 router.post('/:department/training/:taskId/progress', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   const { progress } = req.body;
   const task = await Task.findById(req.params.taskId);
-  if (!task) return res.status(404).send('Task not found');
+  if (!task) {
+    if (isJson) return res.status(404).json({ error: 'Task not found' });
+    return res.status(404).send('Task not found');
+  }
   task.progress = Math.max(0, Math.min(100, parseInt(progress, 10)));
   await task.save();
+  if (isJson) {
+    return res.json({ success: true, message: 'Training progress updated successfully', task });
+  }
   res.redirect(`/department/${task.department}/training/${task.assignedTo}`);
 });
 
@@ -57,6 +69,7 @@ router.get('/:department/leave', async (req, res) => {
 
 // Department dashboard: show all employees in department
 router.get('/:department', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
   const department = req.params.department;
   const userId = req.session.userId;
   console.log('Dashboard access attempt. Session userId:', userId); // Debug log
@@ -74,6 +87,16 @@ router.get('/:department', async (req, res) => {
     const tasks = await Task.find({ department });
     const leaves = await Leave.find({ department });
     const announcements = await Announcement.find({ department });
+    if (isJson) {
+      return res.json({
+        employee,
+        employees,
+        tasks,
+        leaves,
+        department,
+        announcements
+      });
+    }
     res.render('department/dashboard', {
       employee,
       employees,
@@ -84,22 +107,27 @@ router.get('/:department', async (req, res) => {
     });
   } catch (err) {
     console.error('Error loading dashboard:', err);
+    if (isJson) return res.status(500).json({ error: 'Error loading dashboard' });
     res.status(500).send('Error loading dashboard');
   }
 });
 
 // Manager: allot task/training to staff
 router.post('/:department/task', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   const { title, description, assignedTo, startDate, deadline, type, resources } = req.body;
   if (!title || !description || !assignedTo || !startDate || !deadline || !type) {
-    return res.status(400).send('Missing required fields');
+    if (isJson) return res.status(400).json({ error: 'Missing required fields' });
+    req.flash('error_msg', 'Missing required fields. Please fill in all fields before deploying the mission.');
+    return res.redirect(`/department/${req.params.department}/task`);
   }
   const manager = await Employee.findOne({ department: req.params.department, designation: 'MANAGER' });
   if (!manager) {
+    if (isJson) return res.status(403).json({ error: 'No manager found in department' });
     return res.status(403).send('No manager found in department');
   }
   try {
-    await Task.create({
+    const task = await Task.create({
       title,
       description,
       type,
@@ -110,46 +138,64 @@ router.post('/:department/task', async (req, res) => {
       deadline,
       resources: resources ? [resources] : []
     });
+    if (isJson) {
+      return res.json({ success: true, message: 'Mission successfully deployed', task });
+    }
+    req.flash('success_msg', 'Mission successfully deployed to personnel.');
     res.redirect(`/department/${manager.department}`);
   } catch (err) {
     console.error('Error creating task:', err);
-    res.status(500).send('Error creating task');
+    if (isJson) return res.status(500).json({ error: 'Failed to create task' });
+    req.flash('error_msg', 'Failed to create task. Please check the logs.');
+    res.redirect(`/department/${req.params.department}/task`);
   }
 });
 
 // Staff: view all tasks assigned to them
 router.get('/:department/mytasks/:employeeId', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
   const department = req.params.department;
   const employeeId = req.params.employeeId;
   const employee = await Employee.findById(employeeId);
   if (!employee || employee.department !== department) {
+    if (isJson) return res.status(403).json({ error: 'Not authorized' });
     return res.status(403).send('Not authorized');
   }
   const tasks = await Task.find({ department, assignedTo: employeeId });
+  if (isJson) {
+    return res.json({ department, employee, tasks });
+  }
   res.render('department/mytasks', { department, employee, tasks });
 });
 
 // Staff: acknowledge a task
 router.post('/:department/task/:taskId/acknowledge', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   const { employeeId } = req.body;
   const employee = await Employee.findById(employeeId);
   const task = await Task.findById(req.params.taskId);
   if (!employee || !task || task.assignedTo.toString() !== employee._id.toString()) {
+    if (isJson) return res.status(403).json({ error: 'Not authorized' });
     return res.status(403).send('Not authorized');
   }
   task.status = 'Acknowledged';
   task.acknowledged = true;
   task.acknowledgedAt = new Date();
   await task.save();
+  if (isJson) {
+    return res.json({ success: true, message: 'Task acknowledged successfully', task });
+  }
   res.redirect(`/department/${req.params.department}/mytasks/${employeeId}`);
 });
 
 // Staff: complete a task
 router.post('/:department/task/:taskId/complete', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   const { employeeId, comments } = req.body;
   const employee = await Employee.findById(employeeId);
   const task = await Task.findById(req.params.taskId);
   if (!employee || !task || task.assignedTo.toString() !== employee._id.toString()) {
+    if (isJson) return res.status(403).json({ error: 'Not authorized' });
     return res.status(403).send('Not authorized');
   }
   task.status = 'Completed';
@@ -157,6 +203,9 @@ router.post('/:department/task/:taskId/complete', async (req, res) => {
   task.completedAt = new Date();
   task.comments = comments || '';
   await task.save();
+  if (isJson) {
+    return res.json({ success: true, message: 'Task completed successfully', task });
+  }
   res.redirect(`/department/${req.params.department}/mytasks/${employeeId}`);
 });
 
@@ -164,16 +213,19 @@ const nodemailer = require('nodemailer');
 
 // Manager: approve/reject leave for staff in department
 router.post('/:department/leave/:leaveId', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   const { action, rejectionReason } = req.body; // 'approve' or 'reject'
   const leave = await Leave.findById(req.params.leaveId);
   const manager = await Employee.findOne({ department: req.params.department, designation: 'MANAGER' });
 
   if (!manager || !leave || leave.department !== manager.department) {
+    if (isJson) return res.status(403).json({ error: 'Not authorized' });
     return res.status(403).send('Not authorized');
   }
 
   // Check if already processed
   if (leave.status === 'APPROVED' || leave.status === 'REJECTED') {
+    if (isJson) return res.status(400).json({ error: 'Leave already processed' });
     return res.redirect(`/department/${req.params.department}/leave?error=already_processed`);
   }
 
@@ -323,30 +375,52 @@ router.post('/:department/leave/:leaveId', async (req, res) => {
     }
   }
 
+  if (isJson) return res.json({ success: true, message: `Leave successfully actioned: ${leave.status}`, leave });
   return res.redirect(`/department/${manager.department}`);
 });
 
 // Manager: post announcement
 router.post('/:department/announcement', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   const manager = await Employee.findOne({ department: req.params.department, designation: 'MANAGER' });
   if (!manager) {
-    return res.status(403).send('Not authorized');
+    if (isJson) return res.status(403).json({ error: 'Authorization Error: No manager found for this department.' });
+    req.flash('error_msg', 'Authorization Error: No manager found for this department.');
+    return res.redirect(`/department/${req.params.department}`);
   }
-  await Announcement.create({
+  if (!req.body.title || !req.body.message) {
+    if (isJson) return res.status(400).json({ error: 'Announcement failed: Title and Message are required.' });
+    req.flash('error_msg', 'Announcement failed: Title and Message are required.');
+    return res.redirect(`/department/${req.params.department}/announcement`);
+  }
+  const announcement = await Announcement.create({
     title: req.body.title,
     message: req.body.message,
     department: manager.department
   });
+  if (isJson) {
+    return res.json({ success: true, message: 'Announcement successfully posted to the department board.', announcement });
+  }
+  req.flash('success_msg', 'Announcement successfully posted to the department board.');
   res.redirect(`/department/${manager.department}`);
 });
 
 // Manager: Allot WFH
 router.post('/:department/allot-wfh', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   const { employeeId, startDate, endDate, reason } = req.body;
   const manager = await Employee.findOne({ department: req.params.department, designation: 'MANAGER' });
 
   if (!manager) {
-    return res.status(403).send('Not authorized');
+    if (isJson) return res.status(403).json({ error: 'Authorization Error: No manager found for this department.' });
+    req.flash('error_msg', 'Authorization Error: No manager found for this department.');
+    return res.redirect(`/department/${req.params.department}`);
+  }
+
+  if (!employeeId || !startDate || !endDate || !reason) {
+    if (isJson) return res.status(400).json({ error: 'Missing required fields for WFH allotment.' });
+    req.flash('error_msg', 'Missing required fields for WFH allotment.');
+    return res.redirect(`/department/${req.params.department}/wfh-allotment`);
   }
 
   try {
@@ -360,10 +434,17 @@ router.post('/:department/allot-wfh', async (req, res) => {
       };
       await employee.save();
       console.log(`WFH Allotted to ${employee.firstName} from ${startDate} to ${endDate}`);
+      if (isJson) {
+        return res.json({ success: true, message: `WFH successfully allotted to ${employee.firstName}`, employee });
+      }
+      req.flash('success_msg', `WFH successfully allotted to ${employee.firstName}.`);
+    } else {
+      if (isJson) return res.status(404).json({ error: 'Employee not found' });
     }
     res.redirect(`/department/${manager.department}`);
   } catch (err) {
     console.error("Error allotting WFH:", err);
+    if (isJson) return res.status(500).json({ error: 'Error allotting WFH' });
     res.status(500).send("Error allotting WFH");
   }
 });
@@ -383,14 +464,21 @@ router.get('/:department/wfh-allotment', async (req, res) => {
 
 // Manager: Process Resignation
 router.post('/:department/resignation/:employeeId', async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   const { action } = req.body;
   const manager = await Employee.findOne({ department: req.params.department, designation: 'MANAGER' });
 
-  if (!manager) return res.status(403).send('Not authorized');
+  if (!manager) {
+    if (isJson) return res.status(403).json({ error: 'Not authorized' });
+    return res.status(403).send('Not authorized');
+  }
 
   try {
     const employee = await Employee.findById(req.params.employeeId);
-    if (!employee) return res.status(404).send('Employee not found');
+    if (!employee) {
+      if (isJson) return res.status(404).json({ error: 'Employee not found' });
+      return res.status(404).send('Employee not found');
+    }
 
     if (action === 'approve') {
       employee.resignationStatus = 'Approved';
@@ -412,7 +500,6 @@ router.post('/:department/resignation/:employeeId', async (req, res) => {
 
     } else if (action === 'reject') {
       employee.resignationStatus = 'Rejected';
-      // employee.resignationDate = null; // Optional to clear date
 
       // Notify Employee
       if (employee.email) {
@@ -430,10 +517,14 @@ router.post('/:department/resignation/:employeeId', async (req, res) => {
     }
 
     await employee.save();
+    if (isJson) {
+      return res.json({ success: true, message: `Resignation successfully ${action}d`, employee });
+    }
     res.redirect(`/department/${manager.department}`);
 
   } catch (err) {
     console.error(err);
+    if (isJson) return res.status(500).json({ error: 'Error processing resignation' });
     res.status(500).send('Error processing resignation');
   }
 });

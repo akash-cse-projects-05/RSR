@@ -5,8 +5,10 @@ const Attendance = require("../models/Attendence");
 
 // ================= GET ATTENDANCE PAGE =================
 router.get("/", async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
   try {
     if (!req.session.employeeId) {
+      if (isJson) return res.status(401).json({ error: "Unauthorized" });
       return res.redirect("/auth/login");
     }
 
@@ -17,12 +19,17 @@ router.get("/", async (req, res) => {
       date: today
     });
 
+    if (isJson) {
+      return res.json({ attendance: attendance || null });
+    }
+
     res.render("attendance/today", {
       attendance: attendance || null
     });
 
   } catch (err) {
     console.error(err);
+    if (isJson) return res.status(500).json({ error: "Error loading attendance data" });
     res.status(500).send("Error loading attendance page");
   }
 });
@@ -52,6 +59,16 @@ router.post("/punch-in", async (req, res) => {
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
       return R * c;
+    }
+
+    // Check if already punched in
+    const existing = await Attendance.findOne({
+      employeeId: req.session.employeeId,
+      date: today
+    });
+
+    if (existing) {
+      return res.json({ success: false, message: "Already marked attendance for today" });
     }
 
     if (!lat || !lng) {

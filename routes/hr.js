@@ -12,6 +12,10 @@ const Document = require('../models/Documents');
 ========================== */
 function hrAuth(req, res, next) {
   if (!req.session.userId || req.session.role !== "HR") {
+    const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
+    if (isJson) {
+      return res.status(401).json({ error: "Unauthorized. HR session required." });
+    }
     return res.redirect("/hr/hr-login");
   }
   next();
@@ -40,6 +44,9 @@ router.post("/hr-login", async (req, res) => {
       req.session.employeeId = '000000000000000000000000';
       req.session.role = "HR";
       console.log("✅ Hardcoded System Admin logged in");
+      if (req.headers.accept?.includes('application/json')) {
+        return res.json({ success: true, role: 'HR', employeeName: 'System Admin' });
+      }
       return res.redirect("/hr/dashboard");
     }
 
@@ -47,12 +54,18 @@ router.post("/hr-login", async (req, res) => {
     const user = await User.findOne({ username });
 
     if (!user) {
+      if (req.headers.accept?.includes('application/json')) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
       return res.render("hr/login", { error: "Invalid credentials" });
     }
 
     // 2. Verify password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      if (req.headers.accept?.includes('application/json')) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
       return res.render("hr/login", { error: "Invalid credentials" });
     }
 
@@ -63,11 +76,17 @@ router.post("/hr-login", async (req, res) => {
     });
 
     if (!employee) {
+      if (req.headers.accept?.includes('application/json')) {
+        return res.status(401).json({ error: "Employee record not found or inactive" });
+      }
       return res.render("hr/login", { error: "Employee record not found or inactive" });
     }
 
     // 4. Role validation
     if (employee.department !== "HR") {
+      if (req.headers.accept?.includes('application/json')) {
+        return res.status(403).json({ error: "Access denied: Not an HR" });
+      }
       return res.render("hr/login", { error: "Access denied: Not an HR" });
     }
 
@@ -78,11 +97,17 @@ router.post("/hr-login", async (req, res) => {
 
     console.log("✅ HR logged in:", employee.employeeCode);
 
+    if (req.headers.accept?.includes('application/json')) {
+      return res.json({ success: true, role: 'HR', employeeName: employee.firstName, employeeId: employee._id });
+    }
     res.redirect("/hr/dashboard");
 
   } catch (err) {
     require('fs').appendFileSync('error.log', err.stack + '\n');
     console.error(err);
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: "Database connection failed" });
+    }
     res.render("hr/login", { error: "Database connection failed or timed out. Please check your network and try again." });
   }
 });
@@ -104,6 +129,17 @@ router.get("/dashboard", hrAuth, async (req, res) => {
     const inProgress = todayAttendance.filter(a => !a.punchOut).length;
     const absent = Math.max(totalEmployees - present, 0);
 
+    if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+      return res.json({
+        totalEmployees,
+        present,
+        completed,
+        inProgress,
+        absent,
+        todayAttendance
+      });
+    }
+
     res.render("hr/dashboard", {
       totalEmployees,
       present,
@@ -115,6 +151,9 @@ router.get("/dashboard", hrAuth, async (req, res) => {
 
   } catch (err) {
     console.error(err);
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: "Failed to load HR dashboard" });
+    }
     res.render("hr/login", { error: "Failed to load HR dashboard. Database connection might be unstable." });
   }
 });
@@ -135,10 +174,17 @@ router.get("/leaves", hrAuth, async (req, res) => {
       .populate("employeeId")
       .sort({ appliedAt: -1 });
 
+    if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+      return res.json({ leaves });
+    }
+
     res.render("hr/leaves", { leaves });
 
   } catch (err) {
     console.error(err);
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: "Leave dashboard error" });
+    }
     res.status(500).send("Leave dashboard error");
   }
 });
@@ -323,10 +369,16 @@ router.post("/leave-action/:id", hrAuth, async (req, res) => {
       console.error("HR Email error:", emailErr);
     }
 
+    if (req.headers.accept?.includes('application/json')) {
+      return res.json({ success: true, leave });
+    }
     res.redirect("/hr/leaves");
 
   } catch (err) {
     console.error(err);
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ error: "Leave action error" });
+    }
     res.redirect('/hr/dashboard?error=leave_action_error');
   }
 });
@@ -440,65 +492,156 @@ router.get("/attendance-history", hrAuth, async (req, res) => {
 //hr report 
 
 // List all users
-router.get('/users', async (req, res) => {
-  const users = await User.find().populate('employeeId');
-  res.render('hr/users', { users });
+router.get('/users', hrAuth, async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
+  console.log(`[Backend] GET /hr/users called. isJson: ${isJson}, query:`, req.query);
+  try {
+    const users = await User.find().populate('employeeId');
+    console.log(`[Backend] GET /hr/users - Found ${users.length} users in DB.`);
+    if (isJson) {
+      return res.json({ success: true, users });
+    }
+    res.render('hr/users', { users });
+  } catch (err) {
+    console.error(err);
+    if (isJson) return res.status(500).json({ error: "Failed to load user list" });
+    res.status(500).send("Error fetching users");
+  }
 });
 
 // HR views a user's profile
-router.get('/profile/:userId', async (req, res) => {
-  const user = await User.findById(req.params.userId).populate('employeeId');
-  const documents = await Document.find({ user: req.params.userId, name: { $ne: '__OVERALL_STATUS__' } });
-  const statusDoc = await Document.findOne({ name: '__OVERALL_STATUS__' });
-  res.render('hr/profile', {
-    user,
-    employee: user.employeeId,
-    documents,
-    status: statusDoc?.overallStatus || 'OPEN'
-  });
+router.get('/profile/:userId', hrAuth, async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
+  try {
+    const user = await User.findById(req.params.userId).populate('employeeId');
+    if (!user) {
+      if (isJson) return res.status(404).json({ error: "User not found" });
+      return res.status(404).send('User not found');
+    }
+    const documents = await Document.find({ user: req.params.userId, name: { $ne: '__OVERALL_STATUS__' } });
+    const statusDoc = await Document.findOne({ name: '__OVERALL_STATUS__' });
+    if (isJson) {
+      return res.json({
+        success: true,
+        user,
+        employee: user.employeeId,
+        documents,
+        status: statusDoc?.overallStatus || 'OPEN'
+      });
+    }
+    res.render('hr/profile', {
+      user,
+      employee: user.employeeId,
+      documents,
+      status: statusDoc?.overallStatus || 'OPEN'
+    });
+  } catch (err) {
+    console.error(err);
+    if (isJson) return res.status(500).json({ error: "Failed to load user profile" });
+    res.status(500).send("Error loading profile");
+  }
 });
 
 
 // HR updates overall status
-router.post('/profile/:userId/status', async (req, res) => {
-  let statusDoc = await Document.findOne({ name: '__OVERALL_STATUS__' });
-  if (!statusDoc) statusDoc = new Document({ name: '__OVERALL_STATUS__' });
-  statusDoc.overallStatus = req.body.status;
-  await statusDoc.save();
-  res.redirect(`/hr/profile/${req.params.userId}`);
+router.post('/profile/:userId/status', hrAuth, async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
+  try {
+    let statusDoc = await Document.findOne({ name: '__OVERALL_STATUS__' });
+    if (!statusDoc) statusDoc = new Document({ name: '__OVERALL_STATUS__' });
+    statusDoc.overallStatus = req.body.status;
+    await statusDoc.save();
+    if (isJson) {
+      return res.json({ success: true, status: statusDoc.overallStatus });
+    }
+    res.redirect(`/hr/profile/${req.params.userId}`);
+  } catch (err) {
+    console.error(err);
+    if (isJson) return res.status(500).json({ error: "Failed to update status" });
+    res.redirect(`/hr/profile/${req.params.userId}?error=status_update_failed`);
+  }
 });
 
 // HR approves/rejects a document
-router.post('/profile/:userId/document/:docId/:action', async (req, res) => {
-  const status = req.params.action === 'approve' ? 'APPROVED' : 'REJECTED';
-  await Document.findByIdAndUpdate(req.params.docId, { status });
-  res.redirect(`/hr/profile/${req.params.userId}`);
+router.post('/profile/:userId/document/:docId/:action', hrAuth, async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
+  try {
+    const status = req.params.action === 'approve' ? 'APPROVED' : 'REJECTED';
+    const doc = await Document.findByIdAndUpdate(req.params.docId, { status }, { new: true });
+    if (isJson) {
+      return res.json({ success: true, document: doc });
+    }
+    res.redirect(`/hr/profile/${req.params.userId}`);
+  } catch (err) {
+    console.error(err);
+    if (isJson) return res.status(500).json({ error: "Failed to update document status" });
+    res.redirect(`/hr/profile/${req.params.userId}?error=document_update_failed`);
+  }
 });
 
 
 
 // HR changes THEIR OWN password
 router.post('/change-my-password', hrAuth, async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   try {
     const { newPassword, confirmPassword } = req.body;
 
     if (newPassword !== confirmPassword) {
+      if (isJson) return res.status(400).json({ error: "New passwords do not match" });
       return res.redirect('back');
     }
     if (!newPassword || newPassword.length < 6) {
+      if (isJson) return res.status(400).json({ error: "Password must be at least 6 characters" });
       return res.redirect('back');
     }
 
     const user = await User.findById(req.session.userId); // Change OWN password
-    if (!user) return res.status(404).send('User not found');
+    if (!user) {
+      if (isJson) return res.status(404).json({ error: "User not found" });
+      return res.status(404).send('User not found');
+    }
 
     user.password = newPassword;
     await user.save();
 
+    if (isJson) return res.json({ success: true, message: "Password updated successfully" });
     res.redirect('/hr/dashboard?passwordUpdated=true');
   } catch (err) {
     console.error(err);
+    if (isJson) return res.status(500).json({ error: "Error updating password" });
     res.status(500).send("Error updating password");
+  }
+});
+
+// HR toggles employee status (Active/Inactive)
+router.post('/toggle-status/:employeeId', hrAuth, async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
+  try {
+    const employee = await Employee.findById(req.params.employeeId);
+    if (!employee) {
+      if (isJson) return res.status(404).json({ error: 'Employee not found' });
+      return res.status(404).send('Employee not found');
+    }
+
+    // Prevent HR from deactivating themselves
+    if (employee._id.toString() === req.session.employeeId.toString()) {
+      if (isJson) return res.status(400).json({ error: 'Cannot deactivate yourself' });
+      return res.redirect('/hr/users?error=cannot_deactivate_self');
+    }
+
+    employee.status = (employee.status === 'Active') ? 'Inactive' : 'Active';
+    await employee.save();
+
+    console.log(`User ${employee.employeeCode} status changed to ${employee.status} by HR`);
+    if (isJson) {
+      return res.json({ success: true, status: employee.status });
+    }
+    res.redirect('/hr/users');
+  } catch (err) {
+    console.error(err);
+    if (isJson) return res.status(500).json({ error: "Error updating status" });
+    res.status(500).send("Error updating status");
   }
 });
 

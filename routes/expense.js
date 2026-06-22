@@ -49,9 +49,15 @@ router.get('/my-expenses', requireAuth, async (req, res) => {
         const employeeId = req.session.employeeId;
         const expenses = await Expense.find({ employeeId }).sort({ createdAt: -1 });
         const employee = await Employee.findById(employeeId); // For layout
+        if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+            return res.json({ expenses, employee });
+        }
         res.render('expense/my-expenses', { expenses, employee });
     } catch (err) {
         console.error(err);
+        if (req.headers.accept?.includes('application/json')) {
+            return res.status(500).json({ error: "Server Error" });
+        }
         res.status(500).send("Server Error");
     }
 });
@@ -98,9 +104,15 @@ router.post('/apply', requireAuth, upload.single('receipt'), async (req, res) =>
             });
         }
 
+        if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+            return res.json({ success: true, expense });
+        }
         res.redirect('/expense/my-expenses');
     } catch (err) {
         console.error("Expense Error:", err);
+        if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+            return res.status(500).json({ error: "Error submitting expense: " + err.message });
+        }
         res.status(500).send("Error submitting expense: " + err.message);
     }
 });
@@ -136,7 +148,12 @@ router.post('/check-in', requireAuth, async (req, res) => {
 // 5. HR Expense Dashboard & Map
 router.get('/hr/dashboard', requireAuth, async (req, res) => {
     // Check if HR
-    if (req.session.role !== 'HR') return res.redirect('/dashboard');
+    if (req.session.role !== 'HR') {
+        if (req.headers.accept?.includes('application/json')) {
+            return res.status(403).json({ error: "Access denied" });
+        }
+        return res.redirect('/dashboard');
+    }
 
     try {
         const pendingExpenses = await Expense.find({ status: 'Pending' })
@@ -149,23 +166,39 @@ router.get('/hr/dashboard', requireAuth, async (req, res) => {
             'lastKnownLocation.lat': { $ne: null }
         }).select('firstName lastName department designation lastKnownLocation');
 
+        if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+            return res.json({ pendingExpenses, employeesOnMap });
+        }
         res.render('hr/expense-map', { pendingExpenses, employeesOnMap });
 
     } catch (err) {
         console.error(err);
+        if (req.headers.accept?.includes('application/json')) {
+            return res.status(500).json({ error: "HR Expense Error" });
+        }
         res.status(500).send("HR Expense Error");
     }
 });
 
 // 6. HR Approve/Reject
 router.post('/hr/action/:id', requireAuth, async (req, res) => {
-    if (req.session.role !== 'HR') return res.redirect('/dashboard');
+    if (req.session.role !== 'HR') {
+        if (req.headers.accept?.includes('application/json')) {
+            return res.status(403).json({ error: "Access denied" });
+        }
+        return res.redirect('/dashboard');
+    }
 
     try {
         const { status, reason } = req.body;
         const expense = await Expense.findById(req.params.id);
 
-        if (!expense) return res.status(404).send("Expense not found");
+        if (!expense) {
+            if (req.headers.accept?.includes('application/json')) {
+                return res.status(404).json({ error: "Expense not found" });
+            }
+            return res.status(404).send("Expense not found");
+        }
 
         expense.status = status; // Approved or Rejected
         if (status === 'Rejected') {
@@ -175,10 +208,16 @@ router.post('/hr/action/:id', requireAuth, async (req, res) => {
 
         await expense.save();
 
+        if (req.headers.accept?.includes('application/json')) {
+            return res.json({ success: true, expense });
+        }
         res.redirect('/expense/hr/dashboard');
 
     } catch (err) {
         console.error(err);
+        if (req.headers.accept?.includes('application/json')) {
+            return res.status(500).json({ error: "Action Error" });
+        }
         res.status(500).send("Action Error");
     }
 });

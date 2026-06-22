@@ -37,9 +37,15 @@ router.post('/request', requireAuth, async (req, res) => {
         }
 
         await Trip.create(newTrip);
+        if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+            return res.json({ success: true, trip: newTrip });
+        }
         res.redirect('/trip/my-trips');
     } catch (err) {
         console.error(err);
+        if (req.headers.accept?.includes('application/json')) {
+            return res.status(500).json({ error: "Error creating trip: " + err.message });
+        }
         res.status(500).send("Error creating trip");
     }
 });
@@ -49,8 +55,14 @@ router.get('/my-trips', requireAuth, async (req, res) => {
     try {
         const trips = await Trip.find({ employeeId: req.session.employeeId }).sort({ createdAt: -1 });
         const employee = await Employee.findById(req.session.employeeId);
+        if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+            return res.json({ trips, employee });
+        }
         res.render('trip/my-trips', { trips, employee });
     } catch (err) {
+        if (req.headers.accept?.includes('application/json')) {
+            return res.status(500).json({ error: "Server Error" });
+        }
         res.status(500).send("Server Error");
     }
 });
@@ -121,9 +133,15 @@ router.post('/end/:id', requireAuth, async (req, res) => {
             trip.status = 'Completed';
             await trip.save();
         }
+        if (req.headers.accept?.includes('application/json')) {
+            return res.json({ success: true });
+        }
         res.redirect('/trip/my-trips');
     } catch (err) {
         console.error(err);
+        if (req.headers.accept?.includes('application/json')) {
+            return res.status(500).json({ error: "Error ending trip" });
+        }
         res.status(500).send("Error ending trip");
     }
 });
@@ -132,7 +150,12 @@ router.post('/end/:id', requireAuth, async (req, res) => {
 
 // 4. HR Dashboard (List Trips)
 router.get('/hr/dashboard', requireAuth, async (req, res) => {
-    if (req.session.role !== 'HR') return res.redirect('/dashboard');
+    if (req.session.role !== 'HR') {
+        if (req.headers.accept?.includes('application/json')) {
+            return res.status(403).json({ error: "Access denied" });
+        }
+        return res.redirect('/dashboard');
+    }
     try {
         // Pending Trips
         const pendingTrips = await Trip.find({ status: 'Pending' }).populate('employeeId');
@@ -151,37 +174,63 @@ router.get('/hr/dashboard', requireAuth, async (req, res) => {
             .limit(20)
             .populate('employeeId');
 
+        if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+            return res.json({ pendingTrips, activeTrips, completedTrips });
+        }
         res.render('hr/trip-dashboard', { pendingTrips, activeTrips, completedTrips });
     } catch (err) {
         console.error(err);
+        if (req.headers.accept?.includes('application/json')) {
+            return res.status(500).json({ error: "HR Error" });
+        }
         res.status(500).send("HR Error");
     }
 });
 
 // 5. HR Action (Approve/Reject)
 router.post('/hr/action/:id', requireAuth, async (req, res) => {
-    if (req.session.role !== 'HR') return res.redirect('/dashboard');
+    if (req.session.role !== 'HR') {
+        if (req.headers.accept?.includes('application/json')) {
+            return res.status(403).json({ error: "Access denied" });
+        }
+        return res.redirect('/dashboard');
+    }
     try {
         const { status, reason } = req.body;
         const trip = await Trip.findById(req.params.id);
-        if (!trip) return res.status(404).send("Trip not found");
+        if (!trip) {
+            if (req.headers.accept?.includes('application/json')) {
+                return res.status(404).json({ error: "Trip not found" });
+            }
+            return res.status(404).send("Trip not found");
+        }
 
         trip.status = status;
         if (reason) trip.rejectionReason = reason;
         trip.hrActionBy = req.session.employeeId;
 
         await trip.save();
+        if (req.headers.accept?.includes('application/json')) {
+            return res.json({ success: true, trip });
+        }
         res.redirect('/trip/hr/dashboard');
     } catch (err) {
+        if (req.headers.accept?.includes('application/json')) {
+            return res.status(500).json({ error: "Action Error" });
+        }
         res.status(500).send("Action Error");
     }
 });
 
 // 6. View Route Map (HR & Manager)
 router.get('/track/:id', requireAuth, async (req, res) => {
+    const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
     try {
         const trip = await Trip.findById(req.params.id).populate('employeeId');
-        if (!trip) return res.status(404).send("Trip not found");
+        if (!trip) {
+            if (isJson) return res.status(404).json({ error: "Trip not found" });
+            return res.status(404).send("Trip not found");
+        }
 
         const viewer = await Employee.findById(req.session.employeeId);
 
@@ -191,12 +240,18 @@ router.get('/track/:id', requireAuth, async (req, res) => {
         const isOwner = trip.employeeId._id.toString() === req.session.employeeId;
 
         if (!isHR && !isManager && !isOwner) {
+            if (isJson) return res.status(403).json({ error: "Access Denied" });
             return res.status(403).send("Access Denied");
+        }
+
+        if (isJson) {
+            return res.json({ trip, isOwner });
         }
 
         res.render('hr/trip-map', { trip, isOwner });
     } catch (err) {
         console.error(err);
+        if (isJson) return res.status(500).json({ error: "Map Error" });
         res.status(500).send("Map Error");
     }
 });

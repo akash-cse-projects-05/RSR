@@ -107,6 +107,45 @@
       font-weight: 600;
       font-size: 0.75rem;
     }
+
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-active {
+      background-color: #e6fffa;
+      color: #047481;
+    }
+
+    .status-inactive {
+      background-color: #fff5f5;
+      color: #c53030;
+    }
+
+    .btn-terminate {
+      color: #dc3545;
+      border-color: #f8d7da;
+    }
+
+    .btn-terminate:hover {
+      background-color: #dc3545;
+      color: #fff;
+    }
+
+    .btn-restore {
+      color: #28a745;
+      border-color: #d4edda;
+    }
+
+    .btn-restore:hover {
+      background-color: #28a745;
+      color: #fff;
+    }
   </style>
 </head>
 
@@ -141,6 +180,7 @@
                 <th>Employee Name</th>
                 <th>System Username</th>
                 <th>Department</th>
+                <th>Status</th>
                 <th>Salary</th>
                 <th class="text-end">Actions</th>
               </tr>
@@ -180,6 +220,15 @@
                           <% } %>
                     </td>
                     <td>
+                      <% if (user.employeeId) { %>
+                        <span class="status-badge <%= user.employeeId.status === 'Active' ? 'status-active' : 'status-inactive' %>">
+                          <%= user.employeeId.status %>
+                        </span>
+                        <% } else { %>
+                          <span class="status-badge status-inactive">No Record</span>
+                          <% } %>
+                    </td>
+                    <td>
                       <span class="fw-bold text-dark">₹<%= (user.employeeId && user.employeeId.salary) ?
                           user.employeeId.salary.toLocaleString() : '0' %></span>
                     </td>
@@ -196,6 +245,18 @@
                             <a href="/hr/profile/<%= user._id %>" class="btn btn-profile shadow-sm">
                               <i class="fa-regular fa-id-card me-2"></i>Manage Profile
                             </a>
+
+                            <% if (user.employeeId) { %>
+                              <form action="/hr/toggle-status/<%= user.employeeId._id %>" method="POST"
+                                style="display:inline;"
+                                onsubmit="return confirm('Are you sure you want to <%= user.employeeId.status === 'Active' ? 'TERMINATE access for' : 'RESTORE access for' %> this user?')">
+                                <button type="submit"
+                                  class="btn btn-profile shadow-sm ms-1 <%= user.employeeId.status === 'Active' ? 'btn-terminate' : 'btn-restore' %>">
+                                  <i class="fa-solid <%= user.employeeId.status === 'Active' ? 'fa-user-slash' : 'fa-user-check' %>"></i>
+                                  <%= user.employeeId.status==='Active' ? 'Terminate' : 'Restore' %>
+                                </button>
+                              </form>
+                              <% } %>
 
                     </td>
                   </tr>
