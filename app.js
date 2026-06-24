@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 const Attendance = require("./models/Attendence.js");
 const Employee = require("./models/Employee.js");
@@ -38,7 +39,17 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET || "rsr_hrms_secret",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+      ttl: 24 * 60 * 60, // Sessions expire in 24 hours
+      autoRemove: 'native'
+    }),
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+      httpOnly: true,
+      secure: false // set to true if using HTTPS
+    }
   })
 );
 
@@ -62,11 +73,28 @@ app.use(preventCache); // Prevent caching for all routes (or move inside specifi
 
 
 
-const PORT = process.env.PORT || 5000;
+const requestedPort = Number(process.env.PORT) || 3000;
+const fallbackPorts = [requestedPort, 3000, 3001, 5000];
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server started at http://localhost:${PORT}`);
-});
+const startServer = (port, index = 0) => {
+  const server = app.listen(port, "0.0.0.0", () => {
+    console.log(`Server started at http://localhost:${port}`);
+  });
+
+  server.on("error", (err) => {
+    if (err.code === "EADDRINUSE" && index < fallbackPorts.length - 1) {
+      const nextPort = fallbackPorts[index + 1];
+      console.error(`Port ${port} is already in use. Trying ${nextPort}...`);
+      startServer(nextPort, index + 1);
+      return;
+    }
+
+    console.error("Server startup error:", err);
+    process.exit(1);
+  });
+};
+
+startServer(requestedPort);
 
 
 
