@@ -65,11 +65,11 @@ async function request(path, options = {}) {
 /* ==========================================================================
    AUTHENTICATION
    ========================================================================== */
-export async function login(username, password, isHR = false) {
+export async function login(tenantId, username, password, isHR = false) {
   const endpoint = isHR ? '/hr/hr-login' : '/auth/login';
   const data = await request(endpoint, {
     method: 'POST',
-    body: JSON.stringify({ username, password })
+    body: JSON.stringify({ tenantId, username, password })
   });
   return data;
 }

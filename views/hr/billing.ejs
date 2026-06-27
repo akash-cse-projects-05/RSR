@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Billing & Subscriptions | HRMS Admin</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-blue-hover: #0043a8;
+      --rsr-blue-light: #eef2ff;
+      --rsr-dark: #091e42;
+      --rsr-bg: #f7f9fc;
+      --rsr-border: #ebebeb;
+      --text-main: #222222;
+      --rsr-text-light: #626f86;
+    }
+
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: var(--rsr-dark) !important;
+      padding: 0.8rem 0;
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-link {
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem !important;
+      opacity: 0.8;
+      transition: 0.2s;
+    }
+
+    .nav-link:hover {
+      opacity: 1;
+      color: #fff !important;
+    }
+
+    /* Header */
+    .page-header {
+      padding: 40px 0;
+      background: #fff;
+      border-bottom: 1px solid var(--rsr-border);
+      margin-bottom: 30px;
+    }
+
+    /* Billing Panel Cards */
+    .billing-card {
+      background: #fff;
+      border: 1px solid var(--rsr-border);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+      height: 100%;
+    }
+
+    .plan-badge {
+      background: var(--rsr-blue-light);
+      color: var(--rsr-blue);
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+
+    .stat-number {
+      font-weight: 800;
+      font-size: 3.5rem;
+      line-height: 1;
+      color: var(--rsr-dark);
+      letter-spacing: -0.05em;
+    }
+
+    .stat-label {
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      color: var(--rsr-text-light);
+      margin-top: 8px;
+    }
+
+    /* Plan interactive selector cards */
+    .plan-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 20px;
+      margin-bottom: 24px;
+    }
+
+    .plan-card {
+      border: 2px solid var(--rsr-border);
+      border-radius: 16px;
+      padding: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+      background: #fafbfc;
+    }
+
+    .plan-card:hover {
+      border-color: var(--rsr-blue);
+      transform: translateY(-1px);
+      background: #ffffff;
+    }
+
+    .plan-card.selected {
+      border-color: var(--rsr-blue);
+      background: var(--rsr-blue-light);
+      box-shadow: 0 0 0 1px var(--rsr-blue);
+    }
+
+    .plan-details {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .plan-icon-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--rsr-border);
+      color: var(--rsr-text-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .plan-card.selected .plan-icon-badge {
+      background: var(--rsr-blue);
+      color: #ffffff;
+    }
+
+    .plan-meta h6 {
+      font-weight: 800;
+      margin-bottom: 1px;
+      font-size: 0.95rem;
+      color: var(--rsr-dark);
+    }
+
+    .plan-meta p {
+      font-size: 0.75rem;
+      color: var(--rsr-text-light);
+      margin-bottom: 0;
+    }
+
+    .plan-pricing {
+      text-align: right;
+    }
+
+    .plan-price {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--rsr-dark);
+    }
+
+    .plan-check {
+      display: none;
+      color: var(--rsr-blue);
+      font-size: 1.1rem;
+      margin-left: 12px;
+    }
+
+    .plan-card.selected .plan-check {
+      display: block;
+    }
+
+    .btn-renew-rsr {
+      background: var(--rsr-blue);
+      color: #ffffff;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 700;
+      width: 100%;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 82, 204, 0.15);
+    }
+
+    .btn-renew-rsr:hover {
+      background: var(--rsr-blue-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 82, 204, 0.25);
+    }
+
+    .btn-renew-rsr:disabled {
+      background: #a5adba;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    .alert-success-custom {
+      background-color: #e6f4ea;
+      border: 1px solid #c3e6cb;
+      color: #137333;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .alert-danger-custom {
+      background-color: #fff1f0;
+      border: 1px solid #ffd4d0;
+      color: #d85140;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../partials/anti-cache') %>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand" href="/hr/dashboard">
+        <i class="fa-solid fa-paper-plane me-2"></i> HRMS
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHR">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarHR">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link text-light" href="/hr/dashboard">Overview</a></li>
+          <li class="nav-item"><a class="nav-link text-light" href="/hr/leaves">Leaves</a></li>
+          <li class="nav-item"><a class="nav-link text-light" href="/hr/attendance-history">History</a></li>
+          <li class="nav-item"><a class="nav-link text-light" href="/employee/add">Recruitment</a></li>
+          <li class="nav-item"><a class="nav-link text-light" href="/regularization/hr">Regularization</a></li>
+          <li class="nav-item"><a class="nav-link text-light active" href="/hr/billing">Billing</a></li>
+        </ul>
+        <div class="d-flex align-items-center">
+          <span class="badge bg-primary me-3 px-3">HR TERMINAL</span>
+          <a href="/logout" class="btn btn-outline-light btn-sm rounded-pill px-3">Logout</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="container">
+      <div>
+        <h2 class="fw-bold mb-1">Billing & Subscription</h2>
+        <p class="text-muted mb-0">Manage your subscription, renew packages, and track billing identifiers.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container pb-5">
+    
+    <% if (success) { %>
+      <div class="alert alert-success-custom d-flex align-items-center">
+        <i class="fa-solid fa-circle-check me-3 fs-5"></i>
+        <div><%= success %></div>
+      </div>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="alert alert-danger-custom d-flex align-items-center">
+        <i class="fa-solid fa-circle-exclamation me-3 fs-5"></i>
+        <div><%= error %></div>
+      </div>
+    <% } %>
+
+    <div class="row g-4">
+      
+      <!-- Current Subscription Status -->
+      <div class="col-lg-6">
+        <div class="billing-card d-flex flex-column justify-content-between">
+          <div>
+            <span class="plan-badge"><%= tenant.subscriptionPlan %> Plan</span>
+            <h4 class="fw-bold text-dark mb-4">Workspace Active Status</h4>
+            
+            <div class="row g-3 mb-4">
+              <div class="col-6">
+                <div class="stat-number <%= daysRemaining <= 5 ? 'text-danger' : 'text-success' %>">
+                  <%= daysRemaining %>
+                </div>
+                <div class="stat-label">Days Remaining</div>
+              </div>
+              <div class="col-6 border-start ps-4">
+                <div class="stat-number text-dark" style="font-size: 2rem; margin-top: 15px;">
+                  <%= tenant.paymentStatus === 'paid' ? 'Active' : 'Unpaid' %>
+                </div>
+                <div class="stat-label">Payment Status</div>
+              </div>
+            </div>
+
+            <div class="pt-3 border-top">
+              <p class="small text-muted mb-2">
+                <strong>Workspace Slug:</strong> <code class="text-primary"><%= tenant.tenantId %></code>
+              </p>
+              <p class="small text-muted mb-2">
+                <strong>Registered Email:</strong> <%= tenant.adminEmail %>
+              </p>
+              <p class="small text-muted mb-0">
+                <strong>Subscription Expiry:</strong> 
+                <%= tenant.subscriptionExpiry ? new Date(tenant.subscriptionExpiry).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : 'N/A' %>
+              </p>
+            </div>
+          </div>
+          
+          <div class="pt-4 mt-4 border-top">
+            <h6 class="fw-bold mb-3"><i class="fa-solid fa-file-invoice me-2 text-primary"></i> Latest Transaction Reference</h6>
+            <div class="bg-light p-3 rounded-3 small">
+              <div class="mb-1"><strong>Order ID:</strong> <code class="text-secondary"><%= tenant.razorpayOrderId || 'N/A' %></code></div>
+              <div><strong>Payment ID:</strong> <code class="text-secondary"><%= tenant.razorpayPaymentId || 'N/A' %></code></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscription Renewal Options -->
+      <div class="col-lg-6">
+        <div class="billing-card">
+          <h4 class="fw-bold text-dark mb-2">Renew or Upgrade Plan</h4>
+          <p class="text-muted small">Select your target pricing tier and complete the Razorpay payment to extend your workspace access by another 30 days.</p>
+          
+          <form id="renewal-form" method="POST" action="/hr/billing/renew">
+            <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+            <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+            <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+            <input type="hidden" name="selectedPlan" id="selectedPlan" value="<%= tenant.subscriptionPlan %>">
+
+            <div class="plan-selector">
+              <!-- Starter Card -->
+              <div class="plan-card <%= tenant.subscriptionPlan === 'Starter' ? 'selected' : '' %>" data-plan="Starter" data-price="999">
+                <div class="plan-details">
+                  <div class="plan-icon-badge">
+                    <i class="fa-solid fa-rocket"></i>
+                  </div>
+                  <div class="plan-meta">
+                    <h6>Starter Plan</h6>
+                    <p>Up to 15 employees</p>
+                  </div>
+                </div>
+                <div class="plan-pricing">
+                  <span class="plan-price">₹999</span>
+                  <span class="plan-duration">/ month</span>
+                </div>
+                <i class="fa-solid fa-circle-check plan-check"></i>
+              </div>
+
+              <!-- Growth Card -->
+              <div class="plan-card <%= tenant.subscriptionPlan === 'Growth' ? 'selected' : '' %>" data-plan="Growth" data-price="2499">
+                <div class="plan-details">
+                  <div class="plan-icon-badge">
+                    <i class="fa-solid fa-bolt"></i>
+                  </div>
+                  <div class="plan-meta">
+                    <h6>Growth Plan</h6>
+                    <p>Up to 50 employees</p>
+                  </div>
+                </div>
+                <div class="plan-pricing">
+                  <span class="plan-price">₹2,499</span>
+                  <span class="plan-duration">/ month</span>
+                </div>
+                <i class="fa-solid fa-circle-check plan-check"></i>
+              </div>
+
+              <!-- Enterprise Card -->
+              <div class="plan-card <%= tenant.subscriptionPlan === 'Enterprise' ? 'selected' : '' %>" data-plan="Enterprise" data-price="4999">
+                <div class="plan-details">
+                  <div class="plan-icon-badge">
+                    <i class="fa-solid fa-crown"></i>
+                  </div>
+                  <div class="plan-meta">
+                    <h6>Enterprise Plan</h6>
+                    <p>Unlimited employees</p>
+                  </div>
+                </div>
+                <div class="plan-pricing">
+                  <span class="plan-price">₹4,999</span>
+                  <span class="plan-duration">/ month</span>
+                </div>
+                <i class="fa-solid fa-circle-check plan-check"></i>
+              </div>
+            </div>
+
+            <!-- Get pricing value to show in button -->
+            <% 
+              let currentPrice = '999';
+              if (tenant.subscriptionPlan === 'Growth') currentPrice = '2499';
+              else if (tenant.subscriptionPlan === 'Enterprise') currentPrice = '4999';
+            %>
+            <button type="submit" class="btn-renew-rsr" id="btn-renew">
+              <i class="fa-solid fa-credit-card me-2"></i> Pay ₹<%= parseInt(currentPrice).toLocaleString('en-IN') %> & Renew Subscription
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Razorpay SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const form = document.getElementById('renewal-form');
+      const planCards = document.querySelectorAll('.plan-card');
+      const selectedPlanInput = document.getElementById('selectedPlan');
+      const renewBtn = document.getElementById('btn-renew');
+
+      let currentPlan = '<%= tenant.subscriptionPlan %>';
+
+      // Plan selection handler
+      planCards.forEach(card => {
+        card.addEventListener('click', () => {
+          planCards.forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+
+          currentPlan = card.getAttribute('data-plan');
+          const currentPrice = card.getAttribute('data-price');
+
+          selectedPlanInput.value = currentPlan;
+          
+          const displayPrice = parseInt(currentPrice).toLocaleString('en-IN');
+          renewBtn.innerHTML = `<i class="fa-solid fa-credit-card me-2"></i> Pay ₹${displayPrice} & Renew Subscription`;
+        });
+      });
+
+      // Submit form and trigger Razorpay Checkout
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const originalBtnText = renewBtn.innerHTML;
+        renewBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Preparing Payment gateway...`;
+        renewBtn.disabled = true;
+
+        try {
+          // 1. Fetch Razorpay Order
+          const res = await fetch('/auth/create-order', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ plan: currentPlan })
+          });
+
+          const data = await res.json();
+          if (!data.success) {
+            throw new Error(data.error || 'Failed to initialize payment.');
+          }
+
+          // 2. Open Razorpay Pop-up
+          const options = {
+            key: data.key_id,
+            amount: data.amount,
+            currency: 'INR',
+            name: 'HRMS SaaS Hub',
+            description: `Extend Subscription - ${data.planName}`,
+            order_id: data.order_id,
+            handler: function (response) {
+              document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+              document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+              document.getElementById('razorpay_signature').value = response.razorpay_signature;
+
+              renewBtn.innerHTML = `<i class="fa-solid fa-cog fa-spin me-2"></i> Confirming transaction with database...`;
+              form.submit();
+            },
+            prefill: {
+              name: 'HR Manager',
+              email: '<%= tenant.adminEmail %>'
+            },
+            theme: {
+              color: '#0052cc'
+            },
+            modal: {
+              ondismiss: function () {
+                renewBtn.innerHTML = originalBtnText;
+                renewBtn.disabled = false;
+              }
+            }
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.open();
+
+        } catch (err) {
+          console.error('[Renewal Checkout Error]:', err);
+          alert('Renewal initialization failed: ' + err.message);
+          renewBtn.innerHTML = originalBtnText;
+          renewBtn.disabled = false;
+        }
+      });
+
+    })();
+  </script>
+</body>
+
+</html>

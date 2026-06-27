@@ -151,11 +151,11 @@
 
     <nav class="navbar navbar-expand-lg sticky-top">
       <div class="container">
-        <a class="navbar-brand" href="/dashboard">
+        <a class="navbar-brand" href="<%= employee ? '/dashboard' : '/hr/dashboard' %>">
           <i class="fa-solid fa-paper-plane me-2"></i> HRMS
         </a>
         <div class="ms-auto">
-          <a href="/dashboard" class="btn btn-outline-dark btn-sm rounded-pill px-3">Back to Dashboard</a>
+          <a href="<%= employee ? '/dashboard' : '/hr/dashboard' %>" class="btn btn-outline-dark btn-sm rounded-pill px-3">Back to Dashboard</a>
         </div>
       </div>
     </nav>

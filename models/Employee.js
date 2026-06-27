@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const createTenantModelProxy = require("../utils/tenantModel");
 
 const employeeSchema = new mongoose.Schema(
   {
@@ -82,6 +83,18 @@ const employeeSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    bonuses: {
+      type: Number,
+      default: 0
+    },
+    reimbursements: {
+      type: Number,
+      default: 0
+    },
+    deductions: {
+      type: Number,
+      default: 0
+    },
     pf: {
       type: Number,
       default: 0
@@ -140,10 +153,6 @@ const employeeSchema = new mongoose.Schema(
     /* ======================
        HR / AUDIT INFO
     ====================== */
-    // remainingLeaves: {
-    //     type: Number,
-    //     default: 25
-    //   },
     createdByHR: {
       type: Boolean,
       default: true
@@ -211,7 +220,4 @@ const employeeSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Employee", employeeSchema);
-
-
-
+module.exports = createTenantModelProxy("Employee", employeeSchema);

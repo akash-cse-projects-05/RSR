@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const createTenantModelProxy = require("../utils/tenantModel");
 
 const notificationSchema = new mongoose.Schema({
   title: String,
@@ -6,4 +7,4 @@ const notificationSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Notification', notificationSchema);
+module.exports = createTenantModelProxy('Notification', notificationSchema);

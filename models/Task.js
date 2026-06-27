@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const createTenantModelProxy = require("../utils/tenantModel");
 
 const TaskSchema = new mongoose.Schema({
   title: {
@@ -70,4 +71,4 @@ const TaskSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Task', TaskSchema);
+module.exports = createTenantModelProxy('Task', TaskSchema);

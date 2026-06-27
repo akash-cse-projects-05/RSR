@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const createTenantModelProxy = require("../utils/tenantModel");
 
 const PayslipSchema = new mongoose.Schema({
   employee: {
@@ -87,4 +88,4 @@ const PayslipSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Payslip', PayslipSchema);
+module.exports = createTenantModelProxy('Payslip', PayslipSchema);

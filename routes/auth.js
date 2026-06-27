@@ -10,20 +10,50 @@ router.get("/login", (req, res) => {
   if (req.session.userId) {
     return res.redirect("/dashboard");
   }
-  res.render("auth/login");
+  res.render("auth/login", {
+    company: req.query.company || "",
+    success_msg: req.query.success || "",
+    error: req.query.error || ""
+  });
 });
 
 router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+  const { tenantId, username, password } = req.body;
+  const lowercaseTenantId = tenantId ? tenantId.toLowerCase().trim() : "";
 
   try {
-    const user = await User.findOne({ username });
+    if (!lowercaseTenantId) {
+      if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+        return res.status(400).json({ error: "Please enter your Company ID" });
+      }
+      return res.render("auth/login", { error: "Please enter your Company ID", company: "" });
+    }
+
+    req.session.tenantId = lowercaseTenantId;
+
+    const { getTenantConnection } = require("../utils/tenantManager");
+    let tenantConn;
+    try {
+      tenantConn = await getTenantConnection(lowercaseTenantId);
+    } catch (dbErr) {
+      req.session.tenantId = undefined;
+      const errorMsg = `Company ID '${tenantId}' not found or inactive.`;
+      if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+        return res.status(404).json({ error: errorMsg });
+      }
+      return res.render("auth/login", { error: errorMsg, company: tenantId });
+    }
+
+    const UserModel = tenantConn.model("User", User.schema);
+    const EmployeeModel = tenantConn.model("Employee", Employee.schema);
+
+    const user = await UserModel.findOne({ username });
 
     if (!user) {
       if (req.headers.accept?.includes('application/json')) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
-      return res.render("auth/login", { error: "Invalid credentials" });
+      return res.render("auth/login", { error: "Invalid credentials", company: tenantId });
     }
 
     const isMatch = await user.comparePassword(password);
@@ -31,24 +61,24 @@ router.post("/login", async (req, res) => {
       if (req.headers.accept?.includes('application/json')) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
-      return res.render("auth/login", { error: "Invalid credentials" });
+      return res.render("auth/login", { error: "Invalid credentials", company: tenantId });
     }
 
     req.session.userId = user._id; // User model ID
     req.session.employeeId = user.employeeId; // Linked Employee ID
 
     // Check Employee Status
-    const employee = await Employee.findById(user.employeeId);
+    const employee = await EmployeeModel.findById(user.employeeId);
     if (!employee || employee.status !== "Active") {
       req.session.destroy();
       if (req.headers.accept?.includes('application/json')) {
         return res.status(403).json({ error: "Access Denied: Your account is inactive. Please contact HR." });
       }
-      return res.render("auth/login", { error: "Access Denied: Your account is inactive. Please contact HR." });
+      return res.render("auth/login", { error: "Access Denied: Your account is inactive. Please contact HR.", company: tenantId });
     }
 
     if (req.headers.accept?.includes('application/json')) {
-      return res.json({ success: true, employeeId: employee._id, employeeName: employee.firstName });
+      return res.json({ success: true, employeeId: employee._id, employeeName: employee.firstName, tenantId: lowercaseTenantId });
     }
     res.redirect("/dashboard");
   } catch (err) {

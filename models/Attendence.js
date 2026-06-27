@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const createTenantModelProxy = require("../utils/tenantModel");
 
 const attendenceSchema = new mongoose.Schema(
   {
@@ -47,12 +48,9 @@ const attendenceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// one attendance per employee per day
 attendenceSchema.index(
   { employeeId: 1, date: 1 },
   { unique: true }
 );
 
-module.exports =
-  mongoose.models.Attendence ||
-  mongoose.model("Attendence", attendenceSchema);
+module.exports = createTenantModelProxy("Attendence", attendenceSchema);

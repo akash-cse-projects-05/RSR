@@ -5,28 +5,31 @@ import { login } from '../api';
 import { FontAwesome5 } from '@expo/vector-icons';
 
 export default function LoginScreen({ onLoginSuccess }) {
+  const [tenantId, setTenantId] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isHR, setIsHR] = useState(false);
   const [loading, setLoading] = useState(false);
   
   // Focus states to emulate input-group highlight
+  const [tenantIdFocused, setTenantIdFocused] = useState(false);
   const [usernameFocused, setUsernameFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
 
   // Refs to focus inputs when tapping the wrappers
+  const tenantIdInputRef = useRef(null);
   const usernameInputRef = useRef(null);
   const passwordInputRef = useRef(null);
 
   const handleLogin = async () => {
-    if (!username.trim() || !password) {
-      Alert.alert('Validation Error', 'Please enter both username and password.');
+    if (!tenantId.trim() || !username.trim() || !password) {
+      Alert.alert('Validation Error', 'Please enter Company ID, username, and password.');
       return;
     }
 
     setLoading(true);
     try {
-      const data = await login(username.trim(), password, isHR);
+      const data = await login(tenantId.trim().toLowerCase(), username.trim(), password, isHR);
       const userPayload = {
         role: isHR ? 'HR' : 'EMPLOYEE',
         username: username.trim(),
@@ -75,6 +78,37 @@ export default function LoginScreen({ onLoginSuccess }) {
         </View>
 
         {/* Input Fields */}
+        <View style={styles.inputGroup}>
+          <Text style={[styles.label, { color: labelColor }]}>Company ID</Text>
+          <TouchableOpacity 
+            activeOpacity={1}
+            onPress={() => tenantIdInputRef.current?.focus()}
+            style={[
+              styles.inputWrapper, 
+              { borderColor: tenantIdFocused ? '#0052cc' : inputBorder },
+              tenantIdFocused && styles.inputWrapperFocused
+            ]}
+          >
+            <FontAwesome5 
+              name="building" 
+              size={18} 
+              color={subtextColor} 
+              style={styles.inputIcon} 
+            />
+            <TextInput
+              ref={tenantIdInputRef}
+              style={styles.input}
+              value={tenantId}
+              onChangeText={setTenantId}
+              placeholder="e.g. acme"
+              placeholderTextColor={inputPlaceholderColor}
+              autoCapitalize="none"
+              onFocus={() => setTenantIdFocused(true)}
+              onBlur={() => setTenantIdFocused(false)}
+            />
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.inputGroup}>
           <Text style={[styles.label, { color: labelColor }]}>
             {isHR ? 'HR Identifier' : 'Employee Code'}

@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Company & Billing | HRMS SaaS Engine</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --rsr-blue: #0052cc;
+      --rsr-blue-hover: #0043a8;
+      --rsr-blue-light: #eef2ff;
+      --rsr-dark: #091e42;
+      --rsr-text: #222222;
+      --rsr-text-light: #626f86;
+      --rsr-border: #ebebeb;
+      --rsr-bg: #f8faff;
+      --rsr-card-shadow: 0 20px 40px rgba(9, 30, 66, 0.05);
+    }
+
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--rsr-text);
+      letter-spacing: -0.02em;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .split-container {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* Left Panel: Glowing Gradients & SaaS Features */
+    .split-left {
+      flex: 1.1;
+      background: linear-gradient(135deg, #091e42 0%, #0052cc 100%);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .split-left::before {
+      content: '';
+      position: absolute;
+      top: -10%;
+      right: -10%;
+      width: 70%;
+      height: 70%;
+      background: radial-gradient(circle, rgba(0, 82, 204, 0.45) 0%, rgba(0, 0, 0, 0) 70%);
+      filter: blur(80px);
+      z-index: 1;
+    }
+
+    .split-left::after {
+      content: '';
+      position: absolute;
+      bottom: -15%;
+      left: -15%;
+      width: 70%;
+      height: 70%;
+      background: radial-gradient(circle, rgba(9, 30, 66, 0.65) 0%, rgba(0, 0, 0, 0) 70%);
+      filter: blur(80px);
+      z-index: 1;
+    }
+
+    .split-left-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      font-weight: 800;
+      font-size: 1.8rem;
+      letter-spacing: -0.04em;
+      color: #ffffff;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .brand-logo:hover {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .feature-tag-light {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      display: inline-block;
+    }
+
+    .features-list {
+      margin-top: 40px;
+    }
+
+    .feature-item {
+      transition: transform 0.3s ease;
+    }
+
+    .feature-item:hover {
+      transform: translateX(5px);
+    }
+
+    .feature-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: #ffffff;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(4px);
+    }
+
+    /* Right Panel: Wizard form layout */
+    .split-right {
+      flex: 0.9;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.02);
+      z-index: 2;
+    }
+
+    .form-wrapper {
+      width: 100%;
+      max-width: 540px;
+    }
+
+    .form-header h2 {
+      font-weight: 800;
+      font-size: 2.2rem;
+      color: var(--rsr-dark);
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+    }
+
+    .form-header p {
+      color: var(--rsr-text-light);
+      font-size: 1rem;
+      margin-bottom: 24px;
+    }
+
+    /* Wizard Progress Steps */
+    .step-indicator {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .step-indicator::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--rsr-border);
+      z-index: 1;
+    }
+
+    .step-indicator-bar {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      height: 2px;
+      background: var(--rsr-blue);
+      z-index: 1;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .step-node {
+      position: relative;
+      z-index: 2;
+      background: #ffffff;
+      border: 2px solid var(--rsr-border);
+      color: var(--rsr-text-light);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .step-node.active {
+      border-color: var(--rsr-blue);
+      color: var(--rsr-blue);
+      background: var(--rsr-blue-light);
+      box-shadow: 0 0 0 4px rgba(0, 82, 204, 0.15);
+    }
+
+    .step-node.completed {
+      border-color: var(--rsr-blue);
+      color: #ffffff;
+      background: var(--rsr-blue);
+    }
+
+    .step-label {
+      position: absolute;
+      top: 48px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      text-align: center;
+      transform: translateX(-35%);
+    }
+
+    .step-label.active {
+      color: var(--rsr-dark);
+    }
+
+    /* Wizard steps visibility */
+    .wizard-step {
+      display: none;
+    }
+
+    .wizard-step.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-section-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--rsr-blue);
+      letter-spacing: 0.05em;
+      margin-top: 24px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rsr-border);
+      margin-left: 16px;
+    }
+
+    .form-label {
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      color: var(--rsr-dark);
+      display: block;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--rsr-text-light);
+      transition: color 0.2s ease;
+      pointer-events: none;
+    }
+
+    .form-control-custom {
+      width: 100%;
+      padding: 12px 16px 12px 46px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      line-height: 1.5;
+      background-color: #fafbfc;
+      border: 1px solid var(--rsr-border);
+      border-radius: 12px;
+      color: var(--rsr-text);
+      transition: all 0.2s ease;
+    }
+
+    .form-control-custom:focus {
+      background-color: #ffffff;
+      border-color: var(--rsr-blue);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(0, 82, 204, 0.10);
+    }
+
+    .form-control-custom:focus + .input-icon {
+      color: var(--rsr-blue);
+    }
+
+    .form-control-custom::placeholder {
+      color: #a5adba;
+      font-weight: 400;
+    }
+
+    /* Interactive Plan Cards styling */
+    .plan-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .plan-card {
+      border: 2px solid var(--rsr-border);
+      border-radius: 16px;
+      padding: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+      position: relative;
+      background: #fafbfc;
+    }
+
+    .plan-card:hover {
+      border-color: var(--rsr-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 82, 204, 0.05);
+      background: #ffffff;
+    }
+
+    .plan-card.selected {
+      border-color: var(--rsr-blue);
+      background: var(--rsr-blue-light);
+      box-shadow: 0 0 0 1px var(--rsr-blue);
+    }
+
+    .plan-details {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .plan-icon-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--rsr-border);
+      color: var(--rsr-text-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.2s ease;
+    }
+
+    .plan-card.selected .plan-icon-badge {
+      background: var(--rsr-blue);
+      color: #ffffff;
+    }
+
+    .plan-meta h5 {
+      font-weight: 800;
+      margin-bottom: 2px;
+      font-size: 1rem;
+      color: var(--rsr-dark);
+    }
+
+    .plan-meta p {
+      font-size: 0.8rem;
+      color: var(--rsr-text-light);
+      margin-bottom: 0;
+    }
+
+    .plan-pricing {
+      text-align: right;
+    }
+
+    .plan-price {
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--rsr-dark);
+    }
+
+    .plan-duration {
+      font-size: 0.75rem;
+      color: var(--rsr-text-light);
+      display: block;
+    }
+
+    .plan-check {
+      display: none;
+      color: var(--rsr-blue);
+      font-size: 1.2rem;
+    }
+
+    .plan-card.selected .plan-check {
+      display: block;
+    }
+
+    .btn-wizard {
+      background: var(--rsr-blue);
+      color: #ffffff;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 700;
+      width: 100%;
+      margin-top: 16px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 82, 204, 0.15);
+    }
+
+    .btn-wizard:hover {
+      background: var(--rsr-blue-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 82, 204, 0.25);
+    }
+
+    .btn-wizard:active {
+      transform: translateY(1px);
+    }
+
+    .btn-back-rsr {
+      background: transparent;
+      color: var(--rsr-text-light);
+      border: 1px solid var(--rsr-border);
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 700;
+      width: 100%;
+      margin-top: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-back-rsr:hover {
+      background: #fafbfc;
+      color: var(--rsr-dark);
+      border-color: #a5adba;
+    }
+
+    .alert-danger-custom {
+      background-color: #fff1f0;
+      border: 1px solid #ffd4d0;
+      color: #d85140;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 0.9rem;
+      color: var(--rsr-text-light);
+    }
+
+    /* Validation states custom styling */
+    .was-validated .form-control-custom:invalid {
+      border-color: #d85140;
+      background-color: #fff8f8;
+    }
+
+    .was-validated .form-control-custom:valid {
+      border-color: #24a148;
+      background-color: #f6ffed;
+    }
+
+    .was-validated .form-control-custom:invalid:focus {
+      box-shadow: 0 0 0 4px rgba(216, 81, 64, 0.1);
+    }
+
+    .was-validated .form-control-custom:valid:focus {
+      box-shadow: 0 0 0 4px rgba(36, 161, 72, 0.1);
+    }
+
+    @media (max-width: 992px) {
+      .split-container {
+        flex-direction: column;
+      }
+
+      .split-left {
+        padding: 40px 30px;
+        min-height: auto;
+      }
+
+      .split-right {
+        padding: 40px 20px;
+      }
+      
+      .features-list {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="split-container">
+    
+    <!-- Left Column: Branding and Benefits (Desktop only) -->
+    <div class="split-left">
+      <div class="split-left-content">
+        
+        <div class="brand-header">
+          <a href="/" class="brand-logo">
+            <i class="fa-solid fa-building-user me-2"></i> HRMS
+          </a>
+        </div>
+
+        <div class="middle-content my-auto py-5">
+          <span class="feature-tag-light mb-3">Enterprise SaaS Engine</span>
+          <h1 class="display-5 fw-800 text-white mb-4" style="line-height: 1.15; letter-spacing: -0.04em;">Launch Your Dedicated HRMS Workspace.</h1>
+          <p class="lead text-white-50 mb-5" style="max-width: 480px;">Setup your company's instance in seconds. Experience absolute database isolation, dedicated portals, and automated operations.</p>
+          
+          <div class="features-list">
+            <div class="feature-item d-flex align-items-start mb-4">
+              <div class="feature-icon-wrapper me-3">
+                <i class="fa-solid fa-database"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-1 text-white">Database Isolation</h5>
+                <p class="text-white-50 small mb-0">Every registered company receives a secure, physically isolated database for absolute privacy and compliance.</p>
+              </div>
+            </div>
+            
+            <div class="feature-item d-flex align-items-start mb-4">
+              <div class="feature-icon-wrapper me-3">
+                <i class="fa-solid fa-bolt"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-1 text-white">Instant Provisioning</h5>
+                <p class="text-white-50 small mb-0">Your workspace is created and seeded with administrative default catalogs instantly.</p>
+              </div>
+            </div>
+
+            <div class="feature-item d-flex align-items-start">
+              <div class="feature-icon-wrapper me-3">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <div>
+                <h5 class="fw-bold mb-1 text-white">Self-Service Portals</h5>
+                <p class="text-white-50 small mb-0">Pre-configured dashboards for both HR Administration and Employee Self-Service.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          <p class="text-white-50 small mb-0">© 2026 HRMS • Built for Professional Excellence</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right Column: Registration Form -->
+    <div class="split-right">
+      <div class="form-wrapper">
+        
+        <div class="form-header">
+          <h2 class="text-dark">Create Company</h2>
+          <p>Register your workspace credentials to deploy your custom cloud instance.</p>
+        </div>
+
+        <!-- Wizard Progress Step Nodes -->
+        <div class="step-indicator">
+          <div class="step-indicator-bar" id="indicator-bar"></div>
+          <div class="step-node active" id="step-node-1">
+            1
+            <div class="step-label active" id="step-label-1">Workspace</div>
+          </div>
+          <div class="step-node" id="step-node-2">
+            2
+            <div class="step-label" id="step-label-2">Billing</div>
+          </div>
+        </div>
+
+        <% if (typeof error !== "undefined" && error) { %>
+          <div class="alert alert-danger-custom d-flex align-items-center">
+            <i class="fa-solid fa-circle-exclamation me-3 fs-5"></i>
+            <div><%= error %></div>
+          </div>
+        <% } %>
+
+        <form id="registration-form" method="POST" action="/auth/register-company" class="needs-validation" novalidate>
+          
+          <!-- Hidden Razorpay Fields -->
+          <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+          <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+          <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+          <input type="hidden" name="selectedPlan" id="selectedPlan" value="Starter">
+
+          <!-- STEP 1: Workspace & HR Credentials -->
+          <div class="wizard-step active" id="step-1-container">
+            <div class="form-section-title">
+              <i class="fa-solid fa-building me-2"></i> Company Information
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="companyName">Company Name</label>
+                <div class="input-wrapper">
+                  <input type="text" id="companyName" name="companyName" class="form-control-custom" placeholder="e.g. Acme Corp" required autocomplete="organization">
+                  <i class="fa-solid fa-building input-icon"></i>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="tenantId">Company Slug (Tenant ID)</label>
+                <div class="input-wrapper">
+                  <input type="text" id="tenantId" name="tenantId" class="form-control-custom" placeholder="e.g. acme" pattern="^[a-z0-9-]+$" required autocomplete="off">
+                  <i class="fa-solid fa-link input-icon"></i>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-text small text-muted mt-1 px-1">
+                  Only lowercase letters, numbers, and dashes.
+                  <span class="d-block mt-1">Tenant Database instance: <strong id="slug-preview" class="text-primary">acme</strong>.db</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section-title">
+              <i class="fa-solid fa-user-shield me-2"></i> HR Administrator Account
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="adminFirstName">HR First Name</label>
+                <div class="input-wrapper">
+                  <input type="text" id="adminFirstName" name="adminFirstName" class="form-control-custom" placeholder="e.g. Aditi" required autocomplete="given-name">
+                  <i class="fa-solid fa-user input-icon"></i>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="adminLastName">HR Last Name</label>
+                <div class="input-wrapper">
+                  <input type="text" id="adminLastName" name="adminLastName" class="form-control-custom" placeholder="e.g. Dwivedi" required autocomplete="family-name">
+                  <i class="fa-solid fa-user input-icon"></i>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="adminEmail">HR Email Address</label>
+                <div class="input-wrapper">
+                  <input type="email" id="adminEmail" name="adminEmail" class="form-control-custom" placeholder="e.g. hr@acme.com" required autocomplete="email">
+                  <i class="fa-solid fa-envelope input-icon"></i>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="adminCode">Admin Employee Code</label>
+                <div class="input-wrapper">
+                  <input type="text" id="adminCode" name="adminCode" class="form-control-custom" placeholder="e.g. HR001" required autocomplete="off">
+                  <i class="fa-solid fa-id-badge input-icon"></i>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="adminPassword">HR Administrator Password</label>
+                <div class="input-wrapper">
+                  <input type="password" id="adminPassword" name="adminPassword" class="form-control-custom" placeholder="••••••••" minlength="6" required autocomplete="new-password">
+                  <i class="fa-solid fa-lock input-icon"></i>
+                </div>
+                <div class="form-text small text-muted mt-1 px-1">At least 6 characters. Secure your dashboard administration credentials.</div>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-wizard" id="btn-next-step">
+              Next: Select Pricing Plan <i class="fa-solid fa-arrow-right ms-2"></i>
+            </button>
+          </div>
+
+          <!-- STEP 2: Subscription Billing & Checkout -->
+          <div class="wizard-step" id="step-2-container">
+            <div class="form-section-title">
+              <i class="fa-solid fa-credit-card me-2"></i> Select Subscription Plan
+            </div>
+
+            <div class="plan-selector">
+              <!-- Starter Card -->
+              <div class="plan-card selected" data-plan="Starter" data-price="999">
+                <div class="plan-details">
+                  <div class="plan-icon-badge">
+                    <i class="fa-solid fa-rocket"></i>
+                  </div>
+                  <div class="plan-meta">
+                    <h5>Starter Plan</h5>
+                    <p>Up to 15 employees • Core HR modules</p>
+                  </div>
+                </div>
+                <div class="plan-pricing">
+                  <span class="plan-price">₹999</span>
+                  <span class="plan-duration">/ month</span>
+                </div>
+                <i class="fa-solid fa-circle-check plan-check"></i>
+              </div>
+
+              <!-- Growth Card -->
+              <div class="plan-card" data-plan="Growth" data-price="2499">
+                <div class="plan-details">
+                  <div class="plan-icon-badge">
+                    <i class="fa-solid fa-bolt"></i>
+                  </div>
+                  <div class="plan-meta">
+                    <h5>Growth Plan</h5>
+                    <p>Up to 50 employees • Priority Support</p>
+                  </div>
+                </div>
+                <div class="plan-pricing">
+                  <span class="plan-price">₹2,499</span>
+                  <span class="plan-duration">/ month</span>
+                </div>
+                <i class="fa-solid fa-circle-check plan-check"></i>
+              </div>
+
+              <!-- Enterprise Card -->
+              <div class="plan-card" data-plan="Enterprise" data-price="4999">
+                <div class="plan-details">
+                  <div class="plan-icon-badge">
+                    <i class="fa-solid fa-crown"></i>
+                  </div>
+                  <div class="plan-meta">
+                    <h5>Enterprise Plan</h5>
+                    <p>Unlimited employees • 24/7 Support Manager</p>
+                  </div>
+                </div>
+                <div class="plan-pricing">
+                  <span class="plan-price">₹4,999</span>
+                  <span class="plan-duration">/ month</span>
+                </div>
+                <i class="fa-solid fa-circle-check plan-check"></i>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-wizard" id="btn-pay-deploy">
+              <i class="fa-solid fa-credit-card me-2"></i> Pay ₹999 & Deploy
+            </button>
+
+            <button type="button" class="btn btn-back-rsr" id="btn-back-step">
+              <i class="fa-solid fa-arrow-left me-2"></i> Back to Workspace
+            </button>
+          </div>
+
+        </form>
+
+        <div class="footer-text">
+          Already have a registered company?
+          <div class="mt-2">
+            <a href="/auth/login" class="text-decoration-none fw-bold" style="color: var(--rsr-blue);">
+              <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Sign In to Portal
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Razorpay Checkout SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script>
+    (() => {
+      'use strict';
+      
+      const form = document.getElementById('registration-form');
+      const step1 = document.getElementById('step-1-container');
+      const step2 = document.getElementById('step-2-container');
+      
+      const node1 = document.getElementById('step-node-1');
+      const node2 = document.getElementById('step-node-2');
+      
+      const label1 = document.getElementById('step-label-1');
+      const label2 = document.getElementById('step-label-2');
+      
+      const bar = document.getElementById('indicator-bar');
+      const nextBtn = document.getElementById('btn-next-step');
+      const backBtn = document.getElementById('btn-back-step');
+      const payBtn = document.getElementById('btn-pay-deploy');
+      
+      const planCards = document.querySelectorAll('.plan-card');
+      const selectedPlanInput = document.getElementById('selectedPlan');
+      
+      let currentPlan = 'Starter';
+      let currentPrice = '999';
+
+      // Dynamic slug preview update
+      const tenantInput = document.getElementById('tenantId');
+      const slugPreview = document.getElementById('slug-preview');
+      tenantInput.addEventListener('input', () => {
+        const val = tenantInput.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+        slugPreview.textContent = val || 'acme';
+      });
+
+      // Wizard Navigation: Step 1 -> Step 2
+      nextBtn.addEventListener('click', () => {
+        // Trigger HTML5 Validation check on Step 1 fields
+        const fields = step1.querySelectorAll('input');
+        let allValid = true;
+        fields.forEach(field => {
+          if (!field.checkValidity()) {
+            allValid = false;
+          }
+        });
+
+        if (!allValid) {
+          form.classList.add('was-validated');
+          return;
+        }
+
+        // Advance steps
+        step1.classList.remove('active');
+        step2.classList.add('active');
+        
+        node1.classList.add('completed');
+        node2.classList.add('active');
+        label2.classList.add('active');
+        bar.style.width = '100%';
+      });
+
+      // Wizard Navigation: Step 2 -> Step 1
+      backBtn.addEventListener('click', () => {
+        step2.classList.remove('active');
+        step1.classList.add('active');
+        
+        node1.classList.remove('completed');
+        node2.classList.remove('active');
+        label2.classList.remove('active');
+        bar.style.width = '0%';
+      });
+
+      // Plan Selection Cards Click Handlers
+      planCards.forEach(card => {
+        card.addEventListener('click', () => {
+          planCards.forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          
+          currentPlan = card.getAttribute('data-plan');
+          currentPrice = card.getAttribute('data-price');
+          
+          selectedPlanInput.value = currentPlan;
+          
+          // Format price with comma if needed (e.g. 2,499)
+          const displayPrice = parseInt(currentPrice).toLocaleString('en-IN');
+          payBtn.innerHTML = `<i class="fa-solid fa-credit-card me-2"></i> Pay ₹${displayPrice} & Deploy`;
+        });
+      });
+
+      // Form submission & Razorpay checkout integration
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Final form validation check
+        if (!form.checkValidity()) {
+          form.classList.add('was-validated');
+          return;
+        }
+
+        // Show loading state
+        const originalBtnText = payBtn.innerHTML;
+        payBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Securing Payment gateway...`;
+        payBtn.disabled = true;
+
+        try {
+          // 1. Call backend to create Razorpay Order
+          const res = await fetch('/auth/create-order', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ plan: currentPlan })
+          });
+
+          const data = await res.json();
+          if (!data.success) {
+            throw new Error(data.error || 'Failed to initialize payment gateway.');
+          }
+
+          // 2. Configure and Open Razorpay Checkout overlay
+          const options = {
+            key: data.key_id,
+            amount: data.amount,
+            currency: 'INR',
+            name: 'HRMS SaaS Hub',
+            description: `Subscription Plan - ${data.planName}`,
+            order_id: data.order_id,
+            handler: function (response) {
+              // Inject payment tokens into hidden inputs
+              document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+              document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+              document.getElementById('razorpay_signature').value = response.razorpay_signature;
+              
+              // Submit the form to verify payment and deploy database
+              payBtn.innerHTML = `<i class="fa-solid fa-cog fa-spin me-2"></i> Deploying cloud database instance...`;
+              form.submit();
+            },
+            prefill: {
+              name: document.getElementById('adminFirstName').value + ' ' + document.getElementById('adminLastName').value,
+              email: document.getElementById('adminEmail').value
+            },
+            theme: {
+              color: '#0052cc'
+            },
+            modal: {
+              ondismiss: function () {
+                // Restore button on checkout modal close
+                payBtn.innerHTML = originalBtnText;
+                payBtn.disabled = false;
+              }
+            }
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.open();
+
+        } catch (err) {
+          console.error('[Checkout Error]:', err);
+          alert('Checkout initialization failed: ' + err.message);
+          payBtn.innerHTML = originalBtnText;
+          payBtn.disabled = false;
+        }
+      });
+
+    })();
+  </script>
+
+</body>
+
+</html>

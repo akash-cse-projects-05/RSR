@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const createTenantModelProxy = require("../utils/tenantModel");
 
 const documentSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -16,7 +17,6 @@ const documentSchema = new mongoose.Schema({
     enum: ['OPEN', 'CLOSED'],
     default: 'OPEN'
   }
-  
 });
 
-module.exports = mongoose.model('Document', documentSchema);
+module.exports = createTenantModelProxy('Document', documentSchema);

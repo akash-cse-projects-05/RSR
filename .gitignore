@@ -6,3 +6,8 @@ node_modules/
 
 # Scripts
 scripts/seed-hr.js
+
+# Superadmin Isolated Portal
+superadmin-server.js
+routes/superadmin.js
+views/superadmin/

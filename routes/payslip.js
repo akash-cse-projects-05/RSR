@@ -8,7 +8,7 @@ router.post('/generate', async (req, res) => {
   try {
     let {
       employeeId, month, year,
-      basicSalary, hra, travelAllowance, otherAllowances, bonuses,
+      basicSalary, hra, travelAllowance, otherAllowances, bonuses, reimbursements,
       pf, professionalTax, taxes, deductions, gstPercent
     } = req.body;
 
@@ -18,6 +18,7 @@ router.post('/generate', async (req, res) => {
     travelAllowance = Number(travelAllowance) || 0;
     otherAllowances = Number(otherAllowances) || 0;
     bonuses = Number(bonuses) || 0;
+    reimbursements = Number(reimbursements) || 0;
 
     pf = Number(pf) || 0;
     professionalTax = Number(professionalTax) || 0;
@@ -35,7 +36,7 @@ router.post('/generate', async (req, res) => {
     // Total Allowances (for DB aggregate field if needed)
     const totalAllowances = hra + travelAllowance + otherAllowances;
 
-    const totalEarnings = basicSalary + totalAllowances + bonuses;
+    const totalEarnings = basicSalary + totalAllowances + bonuses + reimbursements;
 
     // --- CALCULATE DEDUCTIONS ---
     let deductionDetails = [];
@@ -107,7 +108,7 @@ router.post('/generate', async (req, res) => {
       otherAllowances,
       allowances: totalAllowances, // Aggregate
       bonuses,
-
+      reimbursements,
       pf,
       professionalTax,
       taxes, // TDS
@@ -274,7 +275,7 @@ router.get('/hr/payslips/:employeeId', async (req, res) => {
 router.post('/hr/update-structure/:employeeId', async (req, res) => {
   try {
     const {
-      salary, hra, travelAllowance, otherAllowances,
+      salary, hra, travelAllowance, otherAllowances, bonuses, reimbursements, deductions,
       pf, professionalTax, incomeTax
     } = req.body;
 
@@ -283,6 +284,9 @@ router.post('/hr/update-structure/:employeeId', async (req, res) => {
       hra: Number(hra) || 0,
       travelAllowance: Number(travelAllowance) || 0,
       otherAllowances: Number(otherAllowances) || 0,
+      bonuses: Number(bonuses) || 0,
+      reimbursements: Number(reimbursements) || 0,
+      deductions: Number(deductions) || 0,
       pf: Number(pf) || 0,
       professionalTax: Number(professionalTax) || 0,
       incomeTax: Number(incomeTax) || 0
@@ -422,7 +426,8 @@ router.post('/bulk-generate', async (req, res) => {
           basicSalary,
           hra,
           travelAllowance,
-          allowances: 0,
+          otherAllowances,
+          allowances: hra + travelAllowance + otherAllowances,
           bonuses,
           reimbursements: totalReimbursements,
           lopDays,

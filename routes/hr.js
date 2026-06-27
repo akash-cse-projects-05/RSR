@@ -30,34 +30,82 @@ router.get("/hr-login", (req, res) => {
   if (req.session.userId && req.session.role === "HR") {
     return res.redirect("/hr/dashboard");
   }
-  res.render("hr/login");
+  res.render("hr/login", {
+    company: req.query.company || "",
+    error: req.query.error || ""
+  });
 });
 
 // POST HR Login
 router.post("/hr-login", async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { tenantId, username, password } = req.body;
+    const lowercaseTenantId = tenantId ? tenantId.toLowerCase().trim() : "";
 
     // Hardcoded System Login Bypass
     if (username === 'system' && password === 'password') {
+      if (!lowercaseTenantId) {
+        if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+          return res.status(400).json({ error: "Please enter your Company ID" });
+        }
+        return res.render("hr/login", { error: "Please enter your Company ID", company: "" });
+      }
+
+      // Check if the tenant exists in the master registry first
+      const Tenant = require("../models/master/Tenant");
+      const tenant = await Tenant.findOne({ tenantId: lowercaseTenantId });
+      if (!tenant) {
+        const errorMsg = `Company ID '${tenantId}' not found or inactive.`;
+        if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+          return res.status(404).json({ error: errorMsg });
+        }
+        return res.render("hr/login", { error: errorMsg, company: tenantId });
+      }
+
       req.session.userId = '000000000000000000000000'; // Fake valid ObjectId
       req.session.employeeId = '000000000000000000000000';
       req.session.role = "HR";
-      console.log("✅ Hardcoded System Admin logged in");
+      req.session.tenantId = lowercaseTenantId; // Bind dynamically to the entered company ID
+      console.log(`✅ Hardcoded System Admin logged in to Tenant: ${lowercaseTenantId}`);
       if (req.headers.accept?.includes('application/json')) {
-        return res.json({ success: true, role: 'HR', employeeName: 'System Admin' });
+        return res.json({ success: true, role: 'HR', employeeName: 'System Admin', tenantId: lowercaseTenantId });
       }
       return res.redirect("/hr/dashboard");
     }
 
+    if (!lowercaseTenantId) {
+      if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+        return res.status(400).json({ error: "Please enter your Company ID" });
+      }
+      return res.render("hr/login", { error: "Please enter your Company ID", company: "" });
+    }
+
+    req.session.tenantId = lowercaseTenantId;
+
+    const { getTenantConnection } = require("../utils/tenantManager");
+    let tenantConn;
+    try {
+      tenantConn = await getTenantConnection(lowercaseTenantId);
+    } catch (dbErr) {
+      req.session.tenantId = undefined;
+      const errorMsg = `Company ID '${tenantId}' not found or inactive.`;
+      if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+        return res.status(404).json({ error: errorMsg });
+      }
+      return res.render("hr/login", { error: errorMsg, company: tenantId });
+    }
+
+    const UserModel = tenantConn.model("User", User.schema);
+    const EmployeeModel = tenantConn.model("Employee", Employee.schema);
+
     // 1. Find User by username (which corresponds to employeeCode)
-    const user = await User.findOne({ username });
+    const user = await UserModel.findOne({ username });
 
     if (!user) {
       if (req.headers.accept?.includes('application/json')) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
-      return res.render("hr/login", { error: "Invalid credentials" });
+      return res.render("hr/login", { error: "Invalid credentials", company: tenantId });
     }
 
     // 2. Verify password
@@ -66,11 +114,11 @@ router.post("/hr-login", async (req, res) => {
       if (req.headers.accept?.includes('application/json')) {
         return res.status(401).json({ error: "Invalid credentials" });
       }
-      return res.render("hr/login", { error: "Invalid credentials" });
+      return res.render("hr/login", { error: "Invalid credentials", company: tenantId });
     }
 
     // 3. Find associated Employee to check Role/Department
-    const employee = await Employee.findOne({
+    const employee = await EmployeeModel.findOne({
       _id: user.employeeId,
       status: "Active"
     });
@@ -79,7 +127,7 @@ router.post("/hr-login", async (req, res) => {
       if (req.headers.accept?.includes('application/json')) {
         return res.status(401).json({ error: "Employee record not found or inactive" });
       }
-      return res.render("hr/login", { error: "Employee record not found or inactive" });
+      return res.render("hr/login", { error: "Employee record not found or inactive", company: tenantId });
     }
 
     // 4. Role validation
@@ -87,18 +135,19 @@ router.post("/hr-login", async (req, res) => {
       if (req.headers.accept?.includes('application/json')) {
         return res.status(403).json({ error: "Access denied: Not an HR" });
       }
-      return res.render("hr/login", { error: "Access denied: Not an HR" });
+      return res.render("hr/login", { error: "Access denied: Not an HR", company: tenantId });
     }
 
     // 5. Create HR session
     req.session.userId = user._id; // Store User ID in session
     req.session.employeeId = employee._id;
     req.session.role = "HR";
+    req.session.tenantId = lowercaseTenantId;
 
     console.log("✅ HR logged in:", employee.employeeCode);
 
     if (req.headers.accept?.includes('application/json')) {
-      return res.json({ success: true, role: 'HR', employeeName: employee.firstName, employeeId: employee._id });
+      return res.json({ success: true, role: 'HR', employeeName: employee.firstName, employeeId: employee._id, tenantId: lowercaseTenantId });
     }
     res.redirect("/hr/dashboard");
 
@@ -108,7 +157,7 @@ router.post("/hr-login", async (req, res) => {
     if (req.headers.accept?.includes('application/json')) {
       return res.status(500).json({ error: "Database connection failed" });
     }
-    res.render("hr/login", { error: "Database connection failed or timed out. Please check your network and try again." });
+    res.render("hr/login", { error: "Database connection failed: " + err.message, company: req.body.tenantId });
   }
 });
 
@@ -230,8 +279,8 @@ router.post("/leave-action/:id", hrAuth, async (req, res) => {
     if (status === "APPROVED") {
       if (leave.leaveType === "LOP") {
         // Track LOP count
-        const newLopCount = employee.lopCount + leave.totalDays;
-        const newLopDaysThisMonth = employee.lopDaysThisMonth + leave.totalDays;
+        const newLopCount = (employee.lopCount || 0) + leave.totalDays;
+        const newLopDaysThisMonth = (employee.lopDaysThisMonth || 0) + leave.totalDays;
 
         await Employee.updateOne(
           { _id: employee._id },
@@ -270,7 +319,7 @@ router.post("/leave-action/:id", hrAuth, async (req, res) => {
           payslip.lopDays += leave.totalDays;
 
           payslip.deductions += lopDeduction;
-          payslip.netPay = payslip.basicSalary + payslip.allowances + payslip.bonuses - payslip.deductions - payslip.taxes;
+          payslip.netPay = (payslip.basicSalary || 0) + (payslip.allowances || 0) + (payslip.bonuses || 0) + (payslip.reimbursements || 0) - (payslip.deductions || 0) - (payslip.pf || 0) - (payslip.professionalTax || 0) - (payslip.taxes || 0);
           await payslip.save();
 
           console.log(`✅ LOP deduction applied: ₹${lopDeduction.toFixed(2)} for ${leave.totalDays} days`);
@@ -642,6 +691,105 @@ router.post('/toggle-status/:employeeId', hrAuth, async (req, res) => {
     console.error(err);
     if (isJson) return res.status(500).json({ error: "Error updating status" });
     res.status(500).send("Error updating status");
+  }
+});
+
+/* ==========================
+   HR IN-APP BILLING PORTAL
+   ========================== */
+
+// GET: View HR Billing & Subscription Panel
+router.get("/billing", hrAuth, async (req, res) => {
+  try {
+    const Tenant = require("../models/master/Tenant");
+    let tenantId = req.session.tenantId;
+    if (tenantId === "default") {
+      tenantId = "rsr";
+    }
+
+    // Fetch tenant configuration from the central registry
+    const tenant = await Tenant.findOne({ tenantId });
+    if (!tenant) {
+      return res.redirect("/hr/dashboard?error=Tenant+details+not+found.");
+    }
+
+    // Calculate days remaining
+    const daysRemaining = tenant.subscriptionExpiry
+      ? Math.max(0, Math.ceil((new Date(tenant.subscriptionExpiry) - new Date()) / (1000 * 60 * 60 * 24)))
+      : 0;
+
+    res.render("hr/billing", {
+      tenant,
+      daysRemaining,
+      razorpayKeyId: process.env.RAZORPAY_KEY_ID,
+      success: req.query.success || "",
+      error: req.query.error || ""
+    });
+  } catch (err) {
+    console.error("Error loading HR billing page:", err);
+    res.redirect("/hr/dashboard?error=" + encodeURIComponent(err.message));
+  }
+});
+
+// POST: Verify and Renew Subscription (Extend Expiry by 30 Days)
+router.post("/billing/renew", hrAuth, async (req, res) => {
+  const {
+    razorpay_payment_id,
+    razorpay_order_id,
+    razorpay_signature,
+    selectedPlan
+  } = req.body;
+
+  const crypto = require("crypto");
+  const Tenant = require("../models/master/Tenant");
+
+  try {
+    // 1. Cryptographic Payment Verification
+    if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+      return res.redirect("/hr/billing?error=Missing+payment+references.+Renewal+aborted.");
+    }
+
+    const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
+    hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+    const generatedSignature = hmac.digest("hex");
+
+    if (generatedSignature !== razorpay_signature) {
+      console.error("[Billing Renewal Signature Mismatch]");
+      return res.redirect("/hr/billing?error=Payment+verification+failed.+Invalid+signature.");
+    }
+
+    // 2. Extend subscription by 30 days
+    let tenantId = req.session.tenantId;
+    if (tenantId === "default") {
+      tenantId = "rsr";
+    }
+    const tenant = await Tenant.findOne({ tenantId });
+    if (!tenant) {
+      return res.redirect("/hr/billing?error=Tenant+record+not+found.");
+    }
+
+    // Base date: If current subscription is still active, extend from the expiry date.
+    // If it has already expired, extend from the current timestamp.
+    const baseDate = (tenant.subscriptionExpiry && tenant.subscriptionExpiry > new Date())
+      ? new Date(tenant.subscriptionExpiry)
+      : new Date();
+
+    baseDate.setDate(baseDate.getDate() + 30); // Add 30 days
+
+    tenant.subscriptionExpiry = baseDate;
+    tenant.paymentStatus = "paid";
+    tenant.subscriptionPlan = selectedPlan || tenant.subscriptionPlan;
+    tenant.razorpayOrderId = razorpay_order_id;
+    tenant.razorpayPaymentId = razorpay_payment_id;
+
+    await tenant.save();
+
+    console.log(`✅ Subscription successfully renewed for company '${tenantId}' by 30 days. Expiry: ${baseDate}`);
+    res.redirect("/hr/billing?success=Subscription+successfully+renewed+for+30+days!");
+
+  } catch (err) {
+    console.error("Error processing subscription renewal:", err);
+    res.redirect("/hr/billing?error=" + encodeURIComponent("Renewal error: " + err.message));
   }
 });
 

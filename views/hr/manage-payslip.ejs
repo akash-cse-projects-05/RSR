@@ -246,7 +246,11 @@
             </div>
             <div class="col-md-4">
               <label class="form-label">Performance Bonus</label>
-              <input type="number" name="bonuses" class="form-control" value="0" />
+              <input type="number" name="bonuses" class="form-control" value="<%= employee.bonuses || 0 %>" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Reimbursements</label>
+              <input type="number" name="reimbursements" class="form-control" value="<%= employee.reimbursements || 0 %>" />
             </div>
           </div>
 
@@ -268,7 +272,7 @@
             </div>
             <div class="col-md-12">
               <label class="form-label">Other Manual Deductions</label>
-              <input type="number" name="deductions" class="form-control" value="0" />
+              <input type="number" name="deductions" class="form-control" value="<%= employee.deductions || 0 %>" />
             </div>
           </div>
 
@@ -404,8 +408,23 @@
                     value="<%= employee.otherAllowances || 0 %>">
                 </div>
                 <div class="col-md-4">
+                  <label class="form-label text-muted small fw-bold">Default Performance Bonus</label>
+                  <input type="number" name="bonuses" class="form-control"
+                    value="<%= employee.bonuses || 0 %>">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label text-muted small fw-bold">Default Reimbursements</label>
+                  <input type="number" name="reimbursements" class="form-control"
+                    value="<%= employee.reimbursements || 0 %>">
+                </div>
+                <div class="col-md-4">
                   <label class="form-label text-muted small fw-bold">Provident Fund (PF)</label>
                   <input type="number" name="pf" class="form-control" value="<%= employee.pf || 0 %>">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label text-muted small fw-bold">Default Other Deductions</label>
+                  <input type="number" name="deductions" class="form-control"
+                    value="<%= employee.deductions || 0 %>">
                 </div>
                 <div class="col-md-6">
                   <label class="form-label text-muted small fw-bold">Professional Tax</label>

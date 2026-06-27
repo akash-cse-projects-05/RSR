@@ -136,6 +136,15 @@
       background-color: #fff1f0;
       color: #d85140;
     }
+
+    .alert-success-custom {
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border: none;
+      background-color: #e6f4ea;
+      color: #137333;
+    }
   </style>
 </head>
 
@@ -152,14 +161,46 @@
         <p>Enter your credentials to access the HRMS portal</p>
       </div>
 
-      <% if (typeof error !=="undefined" ) { %>
+      <% if (typeof success_msg !== 'undefined' && success_msg && success_msg.length > 0) { %>
+        <div class="alert alert-success-custom d-flex align-items-center mb-4">
+          <i class="fa-solid fa-circle-check me-2"></i>
+          <%= success_msg %>
+        </div>
+      <% } %>
+
+      <% if (typeof error_msg !== 'undefined' && error_msg && error_msg.length > 0) { %>
         <div class="alert alert-custom d-flex align-items-center mb-4">
           <i class="fa-solid fa-circle-exclamation me-2"></i>
-          <%= error %>
+          <%= error_msg %>
         </div>
+      <% } %>
+
+      <% if (typeof error !== 'undefined' && error && error.length > 0) { %>
+        <% if (error.toLowerCase().includes('success')) { %>
+          <div class="alert alert-success-custom d-flex align-items-center mb-4">
+            <i class="fa-solid fa-circle-check me-2"></i>
+            <%= error %>
+          </div>
+        <% } else { %>
+          <div class="alert alert-custom d-flex align-items-center mb-4">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>
+            <%= error %>
+          </div>
         <% } %>
+      <% } %>
 
           <form method="POST" action="/auth/login" novalidate class="needs-validation">
+
+            <div class="mb-3">
+              <label class="form-label">Company ID</label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="fa-solid fa-building"></i>
+                </span>
+                <input type="text" name="tenantId" class="form-control" placeholder="acme" value="<%= typeof company !== 'undefined' && company ? company : '' %>" required>
+              </div>
+              <div class="invalid-feedback">Please enter your company ID.</div>
+            </div>
 
             <div class="mb-3">
               <label class="form-label">Employee Code</label>

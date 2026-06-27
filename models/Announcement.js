@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const createTenantModelProxy = require("../utils/tenantModel");
 
 const announcementSchema = new mongoose.Schema({
   title: String,
@@ -7,4 +8,4 @@ const announcementSchema = new mongoose.Schema({
   department: String
 });
 
-module.exports = mongoose.model('Announcement', announcementSchema);
+module.exports = createTenantModelProxy('Announcement', announcementSchema);

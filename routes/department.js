@@ -33,6 +33,15 @@ router.post('/:department/training/:taskId/progress', async (req, res) => {
     return res.status(404).send('Task not found');
   }
   task.progress = Math.max(0, Math.min(100, parseInt(progress, 10)));
+  if (task.progress === 100) {
+    task.status = 'Completed';
+    task.completed = true;
+    task.completedAt = new Date();
+  } else if (task.status === 'Completed') {
+    task.status = 'Acknowledged';
+    task.completed = false;
+    task.completedAt = null;
+  }
   await task.save();
   if (isJson) {
     return res.json({ success: true, message: 'Training progress updated successfully', task });
@@ -171,7 +180,7 @@ router.get('/:department/mytasks/:employeeId', async (req, res) => {
 // Staff: acknowledge a task
 router.post('/:department/task/:taskId/acknowledge', async (req, res) => {
   const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
-  const { employeeId } = req.body;
+  const employeeId = req.body.employeeId || req.session.employeeId;
   const employee = await Employee.findById(employeeId);
   const task = await Task.findById(req.params.taskId);
   if (!employee || !task || task.assignedTo.toString() !== employee._id.toString()) {
@@ -185,13 +194,14 @@ router.post('/:department/task/:taskId/acknowledge', async (req, res) => {
   if (isJson) {
     return res.json({ success: true, message: 'Task acknowledged successfully', task });
   }
-  res.redirect(`/department/${req.params.department}/mytasks/${employeeId}`);
+  res.redirect(`/department/${req.params.department}/mytasks/${employee._id}`);
 });
 
 // Staff: complete a task
 router.post('/:department/task/:taskId/complete', async (req, res) => {
   const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
-  const { employeeId, comments } = req.body;
+  const { comments } = req.body;
+  const employeeId = req.body.employeeId || req.session.employeeId;
   const employee = await Employee.findById(employeeId);
   const task = await Task.findById(req.params.taskId);
   if (!employee || !task || task.assignedTo.toString() !== employee._id.toString()) {
@@ -202,11 +212,14 @@ router.post('/:department/task/:taskId/complete', async (req, res) => {
   task.completed = true;
   task.completedAt = new Date();
   task.comments = comments || '';
+  if (task.type === 'Training') {
+    task.progress = 100;
+  }
   await task.save();
   if (isJson) {
     return res.json({ success: true, message: 'Task completed successfully', task });
   }
-  res.redirect(`/department/${req.params.department}/mytasks/${employeeId}`);
+  res.redirect(`/department/${req.params.department}/mytasks/${employee._id}`);
 });
 
 const nodemailer = require('nodemailer');

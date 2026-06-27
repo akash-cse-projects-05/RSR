@@ -173,7 +173,7 @@
 
         <div class="col-md-6">
           <label class="form-label">Assign Department</label>
-          <select name="department" class="form-select" required>
+          <select name="department" id="departmentSelect" class="form-select" required>
             <option value="SALES">SALES</option>
             <option value="IT">IT</option>
             <option value="HR">HR</option>
@@ -182,7 +182,9 @@
             <option value="OPERATIONS">OPERATIONS</option>
             <option value="STORES">STORES</option>
             <option value="ACCOUNTS">ACCOUNTS</option>
+            <option value="OTHER">OTHER (Type manually)</option>
           </select>
+          <input type="text" id="otherDepartmentInput" class="form-control mt-2" placeholder="Type custom department name..." style="display: none;">
         </div>
         <div class="col-md-6">
           <label class="form-label">Designation / Role</label>
@@ -233,6 +235,25 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const departmentSelect = document.getElementById('departmentSelect');
+    const otherDepartmentInput = document.getElementById('otherDepartmentInput');
+
+    departmentSelect.addEventListener('change', function() {
+      if (this.value === 'OTHER') {
+        otherDepartmentInput.style.display = 'block';
+        otherDepartmentInput.required = true;
+        otherDepartmentInput.name = 'department';
+        departmentSelect.removeAttribute('name');
+        otherDepartmentInput.focus();
+      } else {
+        otherDepartmentInput.style.display = 'none';
+        otherDepartmentInput.required = false;
+        otherDepartmentInput.removeAttribute('name');
+        departmentSelect.name = 'department';
+      }
+    });
+  </script>
 </body>
 
 </html>

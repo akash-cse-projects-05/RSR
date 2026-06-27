@@ -3,7 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
 const session = require("express-session");
-const MongoStore = require("connect-mongo");
+const { MongoStore } = require("connect-mongo");
 const flash = require("connect-flash");
 const Attendance = require("./models/Attendence.js");
 const Employee = require("./models/Employee.js");
@@ -40,7 +40,7 @@ app.use(
     secret: process.env.SESSION_SECRET || "rsr_hrms_secret",
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
+    store: new MongoStore({
       mongoUrl: process.env.MONGODB_URI,
       ttl: 24 * 60 * 60, // Sessions expire in 24 hours
       autoRemove: 'native'
@@ -64,6 +64,10 @@ app.use((req, res, next) => {
 });
 
 app.use(preventCache); // Prevent caching for all routes (or move inside specific routes if public assets need caching)
+
+// Resolve Tenant dynamically on every request
+const tenantResolver = require("./middleware/tenantResolver");
+app.use(tenantResolver);
 
 
 
@@ -127,6 +131,7 @@ app.use('/payslip', requireAuth, require('./routes/payslip.js'));
 
 // employee login - NO AUTH REQUIRED
 app.use("/auth", require("./routes/auth.js"));
+app.use("/auth", require("./routes/saas")); // SaaS registration
 
 // punch in / punch out (Protected)
 app.use("/attendance", requireAuth, require("./routes/attendance.js"));
@@ -185,6 +190,9 @@ app.get("/", (req, res) => {
 // });
 // Dashboard (Protected)
 app.get("/dashboard", requireAuth, async (req, res) => {
+  if (req.session.role === "HR") {
+    return res.redirect("/hr/dashboard");
+  }
 
   try {
     if (!req.session.userId) {
@@ -212,6 +220,10 @@ app.get("/dashboard", requireAuth, async (req, res) => {
        EMPLOYEE DETAILS
     ========================= */
     const employee = await Employee.findById(employeeId);
+    if (!employee) {
+      req.session.destroy();
+      return res.redirect("/auth/login");
+    }
     const employees = await Employee.find();
 
     /* =========================

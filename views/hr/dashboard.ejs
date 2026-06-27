@@ -61,34 +61,34 @@
 
     /* Quick Action Buttons */
     .action-bar {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
       margin-bottom: 30px;
     }
 
     .btn-action {
       border-radius: 12px;
-      padding: 10px 20px;
+      padding: 12px 20px;
       font-weight: 700;
       font-size: 0.85rem;
-      display: inline-flex;
+      display: flex;
       align-items: center;
+      justify-content: flex-start;
       transition: all 0.2s;
       border: 1px solid var(--rsr-border);
       background: #fff;
       color: var(--rsr-dark);
+      width: 100%;
+      text-decoration: none;
     }
 
     .btn-action:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       border-color: var(--rsr-blue);
-      color: var(--rsr-blue);
+      color: var(--rsr-blue) !important;
     }
 
     .btn-action i {
-      margin-right: 8px;
+      margin-right: 10px;
     }
 
     /* Stat Cards */
@@ -181,6 +181,7 @@
             <li class="nav-item"><a class="nav-link text-light" href="/hr/attendance-history">History</a></li>
             <li class="nav-item"><a class="nav-link text-light" href="/employee/add">Recruitment</a></li>
             <li class="nav-item"><a class="nav-link text-light" href="/regularization/hr">Regularization</a></li>
+            <li class="nav-item"><a class="nav-link text-light" href="/hr/billing">Billing</a></li>
           </ul>
           <div class="d-flex align-items-center">
             <span class="badge bg-primary me-3 px-3">HR TERMINAL</span>
@@ -208,31 +209,50 @@
 
     <div class="container pb-5">
 
-      <div class="action-bar">
-        <a href="/hr/users" class="btn-action shadow-sm">
-          <i class="fa-solid fa-users-gear"></i> Manage User Profiles
-        </a>
-        <a href="/notice-board/new" class="btn-action shadow-sm">
-          <i class="fa-solid fa-plus-circle"></i> Create Announcement
-        </a>
-        <a href="/notice-board" class="btn-action shadow-sm">
-          <i class="fa-solid fa-bullhorn"></i> Notice Board
-        </a>
-        <a href="/payslip/hr/payslips" class="btn-action shadow-sm">
-          <i class="fa-solid fa-money-check-dollar"></i> Manage Payslips
-        </a>
-        <a href="/expense/hr/dashboard" class="btn-action shadow-sm text-primary border-primary">
-          <i class="fa-solid fa-map-location-dot"></i> Expense & Tracking
-        </a>
-        <a href="/trip/hr/dashboard" class="btn-action shadow-sm text-success border-success">
-          <i class="fa-solid fa-earth-americas"></i> Trip Management
-        </a>
-
-        <button type="button" class="btn-action shadow-sm text-dark border-dark" data-bs-toggle="modal"
-          data-bs-target="#changePasswordModal">
-          <i class="fa-solid fa-key"></i> Change Password
-        </button>
+      <div class="row g-3 action-bar">
+        <div class="col-lg-3 col-md-6 col-12">
+          <a href="/hr/users" class="btn-action shadow-sm">
+            <i class="fa-solid fa-users-gear"></i> Manage User Profiles
+          </a>
+        </div>
+        <div class="col-lg-3 col-md-6 col-12">
+          <a href="/notice-board/new" class="btn-action shadow-sm">
+            <i class="fa-solid fa-plus-circle"></i> Create Announcement
+          </a>
+        </div>
+        <div class="col-lg-3 col-md-6 col-12">
+          <a href="/notice-board" class="btn-action shadow-sm">
+            <i class="fa-solid fa-bullhorn"></i> Notice Board
+          </a>
+        </div>
+        <div class="col-lg-3 col-md-6 col-12">
+          <a href="/payslip/hr/payslips" class="btn-action shadow-sm">
+            <i class="fa-solid fa-money-check-dollar"></i> Manage Payslips
+          </a>
+        </div>
+        <div class="col-lg-3 col-md-6 col-12">
+          <a href="/expense/hr/dashboard" class="btn-action shadow-sm text-primary border-primary">
+            <i class="fa-solid fa-map-location-dot"></i> Expense & Tracking
+          </a>
+        </div>
+        <div class="col-lg-3 col-md-6 col-12">
+          <a href="/trip/hr/dashboard" class="btn-action shadow-sm text-success border-success">
+            <i class="fa-solid fa-earth-americas"></i> Trip Management
+          </a>
+        </div>
+        <div class="col-lg-3 col-md-6 col-12">
+          <a href="/hr/billing" class="btn-action shadow-sm text-danger border-danger">
+            <i class="fa-solid fa-credit-card"></i> Billing & Subscription
+          </a>
+        </div>
+        <div class="col-lg-3 col-md-6 col-12">
+          <button type="button" class="btn-action shadow-sm text-dark border-dark" data-bs-toggle="modal"
+            data-bs-target="#changePasswordModal">
+            <i class="fa-solid fa-key"></i> Change Password
+          </button>
+        </div>
       </div>
+
 
       <!-- Change Password Modal -->
       <div class="modal fade" id="changePasswordModal" tabindex="-1">

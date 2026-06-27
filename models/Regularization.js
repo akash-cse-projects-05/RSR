@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const createTenantModelProxy = require("../utils/tenantModel");
 
 const regularizationSchema = new mongoose.Schema({
   employeeId: { type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true },
@@ -10,4 +11,4 @@ const regularizationSchema = new mongoose.Schema({
 
 regularizationSchema.index({ employeeId: 1, date: 1 }, { unique: true });
 
-module.exports = mongoose.model("Regularization", regularizationSchema);
+module.exports = createTenantModelProxy("Regularization", regularizationSchema);
