@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Training Modules | HRMS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; color: #0f172a; }
+    .page-header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: white; padding: 35px 0; margin-bottom: 30px; }
+  </style>
+</head>
+<body>
+  <%- include('../partials/anti-cache') %>
+
+  <div class="page-header">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="fw-bold mb-1"><i class="fa-solid fa-chalkboard-user me-2 text-warning"></i>HR Training & LMS Management</h3>
+        <p class="text-slate-400 mb-0">Publish training courses and track completion rates across departments</p>
+      </div>
+      <div>
+        <button class="btn btn-warning rounded-pill px-4 me-2" data-bs-toggle="modal" data-bs-target="#newTrainingModal">
+          <i class="fa-solid fa-plus-circle me-1"></i>Create Training Course
+        </button>
+        <a href="/training" class="btn btn-outline-light rounded-pill px-3 me-2"><i class="fa-solid fa-book me-1"></i>Learning Portal</a>
+        <a href="/dashboard" class="btn btn-light rounded-pill px-3"><i class="fa-solid fa-house me-1"></i>Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container pb-5">
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="alert alert-success alert-dismissible fade show rounded-3 mb-4"><%= success %><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-4"><%= error %><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <% } %>
+
+    <h5 class="fw-bold mb-4">Published Company Training Modules (<%= trainings.length %>)</h5>
+
+    <% if (trainings.length === 0) { %>
+      <div class="text-center py-5 bg-white rounded-4 border">
+        <i class="fa-solid fa-folder-open text-slate-300 fa-4x mb-3"></i>
+        <h5 class="fw-semibold text-muted">No training modules created yet</h5>
+        <p class="text-muted small">Click the "Create Training Course" button above to publish your first training course.</p>
+      </div>
+    <% } else { %>
+      <div class="table-responsive bg-white rounded-4 border shadow-sm">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="ps-4">Course Title</th>
+              <th>Category</th>
+              <th>Target Dept</th>
+              <th>Duration</th>
+              <th>Assigned Users</th>
+              <th>Completions</th>
+              <th class="text-end pe-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% trainings.forEach(t => { %>
+              <% const completedCount = t.assignedEmployees ? t.assignedEmployees.filter(a => a.status === 'Completed').length : 0; %>
+              <tr>
+                <td class="ps-4 fw-bold"><%= t.title %></td>
+                <td><span class="badge bg-slate-100 text-slate-700 border rounded-pill px-3 py-1"><%= t.category %></span></td>
+                <td><span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1"><%= t.targetDepartment %></span></td>
+                <td><%= t.durationMinutes %> Mins</td>
+                <td><%= t.assignedEmployees ? t.assignedEmployees.length : 0 %> Employees</td>
+                <td>
+                  <span class="fw-bold text-success"><%= completedCount %></span> / <%= t.assignedEmployees ? t.assignedEmployees.length : 0 %>
+                </td>
+                <td class="text-end pe-4">
+                  <a href="<%= t.contentUrl %>" target="_blank" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="fa-solid fa-eye me-1"></i>View Material</a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Create Training Modal -->
+  <div class="modal fade" id="newTrainingModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content rounded-4 border-0 shadow">
+        <form action="/hr/training/create" method="POST">
+          <div class="modal-header border-bottom-0 pb-0">
+            <h5 class="modal-title fw-bold"><i class="fa-solid fa-graduation-cap me-2 text-warning"></i>Create New Training Module</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label class="form-label fw-semibold">Course Title</label>
+                <input type="text" name="title" class="form-control" placeholder="e.g. Cybersecurity Fundamentals 2026" required>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label fw-semibold">Category</label>
+                <select name="category" class="form-select">
+                  <option value="Compliance">Compliance</option>
+                  <option value="Technical" selected>Technical</option>
+                  <option value="Soft Skills">Soft Skills</option>
+                  <option value="Safety">Safety</option>
+                  <option value="Onboarding">Onboarding</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Target Department</label>
+                <select name="targetDepartment" class="form-select">
+                  <option value="ALL" selected>All Departments</option>
+                  <option value="IT">IT</option>
+                  <option value="HR">HR</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Sales">Sales</option>
+                  <option value="Operations">Operations</option>
+                </select>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label fw-semibold">Content Type</label>
+                <select name="contentType" class="form-select">
+                  <option value="Document" selected>Document / PDF</option>
+                  <option value="Video">Video Course</option>
+                  <option value="Interactive">Interactive Workshop</option>
+                </select>
+              </div>
+              <div class="col-md-3 mb-3">
+                <label class="form-label fw-semibold">Duration (Mins)</label>
+                <input type="number" name="durationMinutes" class="form-control" value="30" min="5" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Content URL / Document Link</label>
+              <input type="url" name="contentUrl" class="form-control" placeholder="https://example.com/training-document.pdf or video link" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Course Description & Instructions</label>
+              <textarea name="description" class="form-control" rows="3" placeholder="Explain what the employee will learn..." required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer border-top-0 pt-0">
+            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-warning text-dark fw-bold rounded-pill px-4"><i class="fa-solid fa-check me-1"></i>Publish & Assign Course</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

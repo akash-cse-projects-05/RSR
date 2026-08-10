@@ -11,3 +11,6 @@ scripts/seed-hr.js
 superadmin-server.js
 routes/superadmin.js
 views/superadmin/
+
+Videos/
+MOBILE-APPLICATION/

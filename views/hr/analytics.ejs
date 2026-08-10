@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR Executive Analytics Suite | Enterprise HRMS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --brand-primary: #4F46E5;
+      --brand-secondary: #0EA5E9;
+      --brand-dark: #0F172A;
+      --bg-body: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --text-main: #1E293B;
+      --text-muted: #64748B;
+      --border-color: #E2E8F0;
+      --success: #10B981;
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --purple: #8B5CF6;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%) !important;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .navbar-brand { font-weight: 800; font-size: 1.2rem; }
+    .nav-link { 
+      font-weight: 500; 
+      font-size: 0.875rem; 
+      padding: 0.5rem 1rem !important; 
+      color: rgba(255,255,255,0.75) !important;
+      transition: all 0.2s ease; 
+    }
+    .nav-link:hover, .nav-link.active { color: #ffffff !important; font-weight: 600; }
+
+    .page-header {
+      background: #FFFFFF;
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+    }
+    .page-header .suptitle {
+      color: var(--brand-primary);
+      font-weight: 800;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .page-header h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .dashboard-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .dashboard-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+    }
+
+    .kpi-card { padding: 1.25rem 1.5rem; }
+    .kpi-icon-wrapper {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+    .kpi-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.2;
+      color: var(--text-main);
+      margin-top: 0.5rem;
+    }
+    .kpi-label {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .icon-primary { background: rgba(79, 70, 229, 0.1); color: var(--brand-primary); }
+    .icon-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+    .icon-info { background: rgba(14, 165, 233, 0.1); color: var(--brand-secondary); }
+    .icon-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+    .icon-purple { background: rgba(139, 92, 246, 0.1); color: var(--purple); }
+    .icon-warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+
+    .insights-card {
+      background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+      border: 1px solid #C7D2FE;
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-card { padding: 1.5rem; height: 100%; }
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .chart-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      margin: 0;
+    }
+    .chart-container {
+      position: relative;
+      height: 270px;
+      width: 100%;
+    }
+
+    @media print {
+      .navbar, .btn-print, .btn-csv, footer { display: none !important; }
+      body { background: white !important; }
+      .dashboard-card { border: 1px solid #ccc !important; box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="navbar-brand text-white" href="/dashboard">
+      <i class="fa-solid fa-chart-pie me-2 text-indigo"></i>HRMS Executive Analytics
+    </a>
+    <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="/dashboard">Overview</a></li>
+        <li class="nav-item"><a class="nav-link active" href="/hr/analytics">Analytics</a></li>
+        <li class="nav-item"><a class="nav-link" href="/hr/leaves">Leaves</a></li>
+        <li class="nav-item"><a class="nav-link" href="/hr/appraisals">Appraisals</a></li>
+        <li class="nav-item ms-lg-3"><a class="btn btn-sm btn-outline-light mt-1" href="/logout">Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="container d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <div class="suptitle"><i class="fa-solid fa-bolt me-1"></i> Executive Workforce Intelligence</div>
+      <h1 class="mb-1">HR & Payroll Executive Analytics Suite</h1>
+      <p class="text-muted mb-0">360° workforce metrics covering headcount, attendance compliance, payroll investment, performance, and expenses.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button onclick="exportAnalyticsCSV()" class="btn btn-outline-secondary btn-csv font-weight-bold px-3 py-2">
+        <i class="fa-solid fa-file-csv me-2 text-success"></i>Export CSV (Excel)
+      </button>
+      <button onclick="window.print()" class="btn btn-primary btn-print font-weight-bold px-3 py-2 shadow-sm">
+        <i class="fa-solid fa-file-pdf me-2"></i>Export Report (PDF)
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="container pb-5">
+
+  <!-- AI Workforce Insights Card -->
+  <% if (analytics && analytics.insights && analytics.insights.length > 0) { %>
+    <div class="insights-card">
+      <div class="d-flex align-items-center mb-2">
+        <i class="fa-solid fa-wand-magic-sparkles text-primary me-2 fs-5"></i>
+        <h3 class="h6 mb-0 font-weight-bold text-primary text-uppercase tracking-wider">Automated Executive Insights</h3>
+      </div>
+      <div class="row g-2">
+        <% analytics.insights.forEach(insight => { %>
+          <div class="col-md-6">
+            <div class="d-flex align-items-center small text-dark fw-medium">
+              <i class="fa-solid fa-circle-check text-success me-2 fs-6"></i>
+              <span><%- insight.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') %></span>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Executive KPI Row -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-2 col-md-4 col-6">
+      <div class="dashboard-card kpi-card">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="kpi-icon-wrapper icon-primary"><i class="fa-solid fa-users"></i></div>
+          <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1 small">Active</span>
+        </div>
+        <div class="kpi-value"><%= (analytics && analytics.totalActive) || 0 %></div>
+        <div class="kpi-label">Active Headcount</div>
+      </div>
+    </div>
+    
+    <div class="col-lg-2 col-md-4 col-6">
+      <div class="dashboard-card kpi-card">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="kpi-icon-wrapper icon-success"><i class="fa-solid fa-user-check"></i></div>
+          <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1 small">Today</span>
+        </div>
+        <div class="kpi-value"><%= (analytics && analytics.todayAttendanceRate) || 0 %><span class="fs-6 text-muted">%</span></div>
+        <div class="kpi-label">Attendance Rate</div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-4 col-12">
+      <div class="dashboard-card kpi-card">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="kpi-icon-wrapper icon-purple"><i class="fa-solid fa-sack-dollar"></i></div>
+          <span class="badge bg-purple bg-opacity-10 text-purple rounded-pill px-2 py-1 small">Monthly</span>
+        </div>
+        <div class="kpi-value">₹<%= ((analytics && analytics.totalMonthlyPayroll) || 0).toLocaleString('en-IN') %></div>
+        <div class="kpi-label">Monthly Payroll Investment</div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-6">
+      <div class="dashboard-card kpi-card">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="kpi-icon-wrapper icon-warning"><i class="fa-solid fa-receipt"></i></div>
+          <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-2 py-1 small">Approved</span>
+        </div>
+        <div class="kpi-value">₹<%= ((analytics && analytics.totalApprovedExpenses) || 0).toLocaleString('en-IN') %></div>
+        <div class="kpi-label">Expense Reimbursements</div>
+      </div>
+    </div>
+
+    <div class="col-lg-2 col-md-6 col-6">
+      <div class="dashboard-card kpi-card">
+        <div class="d-flex align-items-start justify-content-between">
+          <div class="kpi-icon-wrapper icon-info"><i class="fa-solid fa-star"></i></div>
+        </div>
+        <div class="kpi-value"><%= (analytics && analytics.avgPerformanceRating) || "N/A" %><span class="fs-6 text-muted">/5</span></div>
+        <div class="kpi-label">Avg Rating</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1: Hiring Trend & Department Headcount -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="dashboard-card chart-card">
+        <div class="chart-header">
+          <div class="d-flex align-items-center">
+            <i class="fa-solid fa-chart-line text-primary me-2"></i>
+            <h2 class="chart-title">Hiring vs Attrition Trend (12 Months)</h2>
+          </div>
+          <span class="text-muted small"><i class="fa-regular fa-clock me-1"></i>Rolling Year</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="dashboard-card chart-card">
+        <div class="chart-header">
+          <div class="d-flex align-items-center">
+            <i class="fa-solid fa-sitemap text-info me-2"></i>
+            <h2 class="chart-title">Department Headcount Distribution</h2>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="deptChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW FEATURE: Department Performance & Leave Comparison Graph -->
+  <div class="row g-4 mb-4">
+    <div class="col-12">
+      <div class="dashboard-card chart-card">
+        <div class="chart-header">
+          <div class="d-flex align-items-center">
+            <i class="fa-solid fa-chart-column text-indigo me-2"></i>
+            <h2 class="chart-title">Department Performance & Leave Utilization Graph</h2>
+          </div>
+          <span class="badge bg-primary bg-opacity-10 text-primary border px-3 py-1">Comparative Analytics</span>
+        </div>
+        <div class="chart-container" style="height: 300px;">
+          <canvas id="deptPerformanceChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 2: Performance Ratings, Expense & Diversity -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-4">
+      <div class="dashboard-card chart-card">
+        <div class="chart-header">
+          <div class="d-flex align-items-center">
+            <i class="fa-solid fa-star text-warning me-2"></i>
+            <h2 class="chart-title">Performance Appraisal Ratings</h2>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="performanceChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="dashboard-card chart-card">
+        <div class="chart-header">
+          <div class="d-flex align-items-center">
+            <i class="fa-solid fa-receipt text-success me-2"></i>
+            <h2 class="chart-title">Expense Claims by Category</h2>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="expenseChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="dashboard-card chart-card">
+        <div class="chart-header">
+          <div class="d-flex align-items-center">
+            <i class="fa-solid fa-venus-mars text-purple me-2"></i>
+            <h2 class="chart-title">Gender Diversity Breakdown</h2>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="genderChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 3: Salary Bands & Daily Attendance -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="dashboard-card chart-card">
+        <div class="chart-header">
+          <div class="d-flex align-items-center">
+            <i class="fa-solid fa-money-bill-wave text-success me-2"></i>
+            <h2 class="chart-title">Salary Band Distribution</h2>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="salaryChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="dashboard-card chart-card">
+        <div class="chart-header">
+          <div class="d-flex align-items-center">
+            <i class="fa-regular fa-calendar-check text-primary me-2"></i>
+            <h2 class="chart-title">Daily Attendance Punch-Ins (Current Month)</h2>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="attendanceChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="text-center py-4 border-top mt-auto bg-white">
+  <p class="text-muted small mb-0">© 2026 Enterprise HRMS • Executive Analytics & Intelligence Suite</p>
+</footer>
+
+<script>
+function exportAnalyticsCSV() {
+  const data = [
+    ["Metric", "Value"],
+    ["Active Headcount", "<%= (analytics && analytics.totalActive) || 0 %>"],
+    ["Today Attendance Rate", "<%= (analytics && analytics.todayAttendanceRate) || 0 %>%"],
+    ["Est. Monthly Payroll", "<%= (analytics && analytics.totalMonthlyPayroll) || 0 %>"],
+    ["Approved Expenses", "<%= (analytics && analytics.totalApprovedExpenses) || 0 %>"],
+    ["Avg Performance Score", "<%= (analytics && analytics.avgPerformanceRating) || 'N/A' %>"]
+  ];
+
+  let csvContent = "data:text/csv;charset=utf-8," + data.map(e => e.join(",")).join("\n");
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "HR_Executive_Analytics_Report.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (typeof Chart === 'undefined') {
+    console.error('Chart.js CDN failed to load.');
+    return;
+  }
+
+  const colors = {
+    primary: '#4F46E5',
+    secondary: '#0EA5E9',
+    success: '#10B981',
+    danger: '#EF4444',
+    warning: '#F59E0B',
+    purple: '#8B5CF6',
+    grid: '#F1F5F9',
+    text: '#475569'
+  };
+
+  const chartPalette = ['#4F46E5', '#0EA5E9', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#3B82F6', '#14B8A6'];
+
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { usePointStyle: true, boxWidth: 8, padding: 15, font: { size: 12, weight: '500' } } }
+    }
+  };
+
+  const commonScales = {
+    x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+    y: { border: { display: false }, grid: { color: colors.grid }, ticks: { font: { size: 11 } } }
+  };
+
+  // 1. Hiring vs Attrition Trend
+  try {
+    const trendData = <%- JSON.stringify((analytics && analytics.monthlyTrends) || []) %>;
+    const el = document.getElementById('trendChart');
+    if (el) {
+      new Chart(el, {
+        type: 'line',
+        data: {
+          labels: trendData.map(t => t.month),
+          datasets: [
+            { label: 'Joined', data: trendData.map(t => t.joined), borderColor: colors.success, backgroundColor: 'rgba(16, 185, 129, 0.15)', tension: 0.4, fill: true, borderWidth: 2.5 },
+            { label: 'Exited', data: trendData.map(t => t.exited), borderColor: colors.danger, backgroundColor: 'rgba(239, 68, 68, 0.15)', tension: 0.4, fill: true, borderWidth: 2.5 }
+          ]
+        },
+        options: { ...commonOptions, interaction: { mode: 'index', intersect: false }, scales: commonScales }
+      });
+    }
+  } catch(e) { console.error('trendChart error:', e); }
+
+  // 2. Department Distribution
+  try {
+    const deptData = <%- JSON.stringify((analytics && analytics.deptCounts) || {}) %>;
+    const el = document.getElementById('deptChart');
+    if (el) {
+      new Chart(el, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(deptData),
+          datasets: [{ data: Object.values(deptData), backgroundColor: chartPalette, borderWidth: 0 }]
+        },
+        options: { ...commonOptions, cutout: '65%', plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+  } catch(e) { console.error('deptChart error:', e); }
+
+  // 3. NEW: Department Performance & Leave Comparison Bar Chart
+  try {
+    const deptData = <%- JSON.stringify((analytics && analytics.deptCounts) || {}) %>;
+    const leaveData = <%- JSON.stringify((analytics && analytics.leaveByDept) || {}) %>;
+    const deptLabels = Object.keys(deptData);
+    
+    const el = document.getElementById('deptPerformanceChart');
+    if (el) {
+      new Chart(el, {
+        type: 'bar',
+        data: {
+          labels: deptLabels,
+          datasets: [
+            {
+              label: 'Headcount',
+              data: deptLabels.map(d => deptData[d] || 0),
+              backgroundColor: colors.primary,
+              borderRadius: 6
+            },
+            {
+              label: 'Leave Days Used',
+              data: deptLabels.map(d => leaveData[d] || 0),
+              backgroundColor: colors.warning,
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          ...commonOptions,
+          scales: commonScales
+        }
+      });
+    }
+  } catch(e) { console.error('deptPerformanceChart error:', e); }
+
+  // 4. Performance Rating Distribution
+  try {
+    const perfData = <%- JSON.stringify((analytics && analytics.performanceRatings) || {}) %>;
+    const el = document.getElementById('performanceChart');
+    if (el) {
+      new Chart(el, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(perfData),
+          datasets: [{ label: 'Employees', data: Object.values(perfData), backgroundColor: [colors.success, colors.primary, colors.secondary, colors.danger], borderRadius: 6 }]
+        },
+        options: { ...commonOptions, plugins: { legend: { display: false } }, scales: commonScales }
+      });
+    }
+  } catch(e) { console.error('performanceChart error:', e); }
+
+  // 5. Expense Claims by Category
+  try {
+    const expenseData = <%- JSON.stringify((analytics && analytics.expenseCategoryTotals) || {}) %>;
+    const el = document.getElementById('expenseChart');
+    if (el) {
+      new Chart(el, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(expenseData),
+          datasets: [{ data: Object.values(expenseData), backgroundColor: [colors.secondary, colors.warning, colors.purple, '#64748B'], borderWidth: 0 }]
+        },
+        options: { ...commonOptions, cutout: '60%', plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+  } catch(e) { console.error('expenseChart error:', e); }
+
+  // 6. Gender Demographics
+  try {
+    const genderData = <%- JSON.stringify((analytics && analytics.genderCounts) || {}) %>;
+    const el = document.getElementById('genderChart');
+    if (el) {
+      new Chart(el, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(genderData),
+          datasets: [{ data: Object.values(genderData), backgroundColor: [colors.secondary, colors.purple, colors.warning], borderWidth: 0 }]
+        },
+        options: { ...commonOptions, cutout: '60%', plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+  } catch(e) { console.error('genderChart error:', e); }
+
+  // 7. Salary Band
+  try {
+    const salaryData = <%- JSON.stringify((analytics && analytics.salaryBands) || {}) %>;
+    const el = document.getElementById('salaryChart');
+    if (el) {
+      new Chart(el, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(salaryData),
+          datasets: [{ label: 'Headcount', data: Object.values(salaryData), backgroundColor: colors.primary, borderRadius: 6 }]
+        },
+        options: { ...commonOptions, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: commonScales.y, y: { grid: { display: false } } } }
+      });
+    }
+  } catch(e) { console.error('salaryChart error:', e); }
+
+  // 8. Daily Attendance
+  try {
+    const attendData = <%- JSON.stringify((analytics && analytics.dailyAttendance) || {}) %>;
+    const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+    const dayLabels = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    const el = document.getElementById('attendanceChart');
+    if (el) {
+      new Chart(el, {
+        type: 'bar',
+        data: {
+          labels: dayLabels,
+          datasets: [{ label: 'Punched In', data: dayLabels.map(d => attendData[d] || 0), backgroundColor: colors.primary, borderRadius: 4 }]
+        },
+        options: { ...commonOptions, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: commonScales.y } }
+      });
+    }
+  } catch(e) { console.error('attendanceChart error:', e); }
+});
+</script>
+
+</body>
+</html>

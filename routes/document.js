@@ -1,14 +1,54 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const path = require('path');
 const Document = require('../models/Documents');
 const Employee = require('../models/Employee');
 
+// HR Authorization Middleware
+function hrAuth(req, res, next) {
+  if (!req.session.userId || req.session.role !== 'HR') {
+    const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
+    if (isJson) return res.status(403).json({ error: 'Unauthorized. HR session required.' });
+    return res.redirect('/hr/hr-login');
+  }
+  next();
+}
+
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+
+// Multer configuration for documents (PDF/Images, max 5MB)
+const uploadDocument = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|pdf/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Only images (jpeg, jpg, png) and PDFs are allowed!'));
+  }
+});
+
+// Multer configuration for profile photos (Images only, max 2MB)
+const uploadPhoto = multer({
+  storage: storage,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|gif/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Only images (jpeg, jpg, png, gif) are allowed!'));
+  }
+});
 
 // Upload document
-router.post('/upload', upload.single('document'), async (req, res) => {
+router.post('/upload', uploadDocument.single('document'), async (req, res) => {
   const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   try {
     // Use Document model to find the overall status document
@@ -51,7 +91,7 @@ router.post('/upload', upload.single('document'), async (req, res) => {
 });
 
 // Upload profile photo
-router.post('/upload-photo', upload.single('profilePhoto'), async (req, res) => {
+router.post('/upload-photo', uploadPhoto.single('profilePhoto'), async (req, res) => {
   const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   try {
     let fileBuffer, fileMimeType;
@@ -133,6 +173,18 @@ router.post('/bank-details', async (req, res) => {
 router.get('/download/:docId', async (req, res) => {
   try {
     const doc = await Document.findById(req.params.docId);
+    if (!doc) {
+      return res.status(404).send('Document not found');
+    }
+
+    // 🔒 Security Check: Only the owner or HR can download the document
+    const isOwner = doc.user && doc.user.toString() === req.session.userId.toString();
+    const isHr = req.session.role === 'HR';
+
+    if (!isOwner && !isHr) {
+      return res.status(403).send('Access denied. You do not have permission to download this document.');
+    }
+
     res.set('Content-Type', doc.fileType);
     res.set('Content-Disposition', `attachment; filename="${doc.name}"`);
     res.send(doc.file);
@@ -141,12 +193,8 @@ router.get('/download/:docId', async (req, res) => {
   }
 });
 
-
-
-
-
 // HR: View all pending documents
-router.get('/review', async (req, res) => {
+router.get('/review', hrAuth, async (req, res) => {
   const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
   try {
     const docs = await Document.find({ status: 'PENDING', name: { $ne: '__OVERALL_STATUS__' } })
@@ -165,7 +213,7 @@ router.get('/review', async (req, res) => {
 });
 
 // HR: Approve or reject a document
-router.post('/review/:docId/:action', async (req, res) => {
+router.post('/review/:docId/:action', hrAuth, async (req, res) => {
   const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   try {
     const status = req.params.action === 'approve' ? 'APPROVED' : 'REJECTED';
@@ -181,7 +229,7 @@ router.post('/review/:docId/:action', async (req, res) => {
 });
 
 // HR: View and update overall status
-router.get('/status', async (req, res) => {
+router.get('/status', hrAuth, async (req, res) => {
   const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
   try {
     let statusDoc = await Document.findOne({ name: '__OVERALL_STATUS__' });
@@ -199,7 +247,7 @@ router.get('/status', async (req, res) => {
   }
 });
 
-router.post('/status', async (req, res) => {
+router.post('/status', hrAuth, async (req, res) => {
   const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   try {
     let statusDoc = await Document.findOne({ name: '__OVERALL_STATUS__' });

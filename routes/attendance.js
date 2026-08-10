@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Attendance = require("../models/Attendence");
+const Roster = require("../models/Roster");
+const Shift = require("../models/Shift");
 
 
 // ================= GET ATTENDANCE PAGE =================
@@ -83,6 +85,34 @@ router.post("/punch-in", async (req, res) => {
     //   return res.json({ success: false, message: `You are ${Math.round(distance)}m away from office. Must be within ${ALLOWED_RADIUS_METERS}m.` });
     // }
 
+    const todayDate = new Date();
+    todayDate.setHours(0,0,0,0);
+    const roster = await Roster.findOne({
+      employeeId: req.session.employeeId,
+      startDate: { $lte: todayDate },
+      endDate: { $gte: todayDate }
+    }).populate("shiftId");
+
+    let resolvedShiftId = null;
+    let isLate = false;
+
+    if (roster && roster.shiftId) {
+      resolvedShiftId = roster.shiftId._id;
+      const shift = roster.shiftId;
+      const [shiftHour, shiftMin] = shift.startTime.split(":").map(Number);
+      const actualTime = new Date();
+      const actualHour = actualTime.getHours();
+      const actualMin = actualTime.getMinutes();
+
+      const shiftMinutes = shiftHour * 60 + shiftMin;
+      const actualMinutes = actualHour * 60 + actualMin;
+      const allowedMinutes = shiftMinutes + (shift.gracePeriod || 15);
+
+      if (actualMinutes > allowedMinutes) {
+        isLate = true;
+      }
+    }
+
     await Attendance.create({
       employeeId: req.session.employeeId,
       date: today,
@@ -91,7 +121,9 @@ router.post("/punch-in", async (req, res) => {
         lat: lat || null,
         lng: lng || null,
         address: address || null
-      }
+      },
+      shiftId: resolvedShiftId,
+      isLate: isLate
     });
 
     res.json({ success: true });
@@ -143,6 +175,34 @@ router.post("/location-optional-punch-in", async (req, res) => {
       return res.json({ success: false, message: "Work From Home is not authorized for today. Please contact your manager." });
     }
 
+    const todayDate = new Date();
+    todayDate.setHours(0,0,0,0);
+    const roster = await Roster.findOne({
+      employeeId: req.session.employeeId,
+      startDate: { $lte: todayDate },
+      endDate: { $gte: todayDate }
+    }).populate("shiftId");
+
+    let resolvedShiftId = null;
+    let isLate = false;
+
+    if (roster && roster.shiftId) {
+      resolvedShiftId = roster.shiftId._id;
+      const shift = roster.shiftId;
+      const [shiftHour, shiftMin] = shift.startTime.split(":").map(Number);
+      const actualTime = new Date();
+      const actualHour = actualTime.getHours();
+      const actualMin = actualTime.getMinutes();
+
+      const shiftMinutes = shiftHour * 60 + shiftMin;
+      const actualMinutes = actualHour * 60 + actualMin;
+      const allowedMinutes = shiftMinutes + (shift.gracePeriod || 15);
+
+      if (actualMinutes > allowedMinutes) {
+        isLate = true;
+      }
+    }
+
     await Attendance.create({
       employeeId: req.session.employeeId,
       date: today,
@@ -152,7 +212,9 @@ router.post("/location-optional-punch-in", async (req, res) => {
         lng: lng || null
       },
       workFromHome: wfh === true,
-      wfhReason: reason || "No reason provided"
+      wfhReason: reason || "No reason provided",
+      shiftId: resolvedShiftId,
+      isLate: isLate
     });
 
     res.json({ success: true });

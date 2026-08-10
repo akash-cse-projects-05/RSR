@@ -3,26 +3,83 @@ const router = express.Router();
 const Employee = require("../models/Employee");
 const User = require("../models/User");
 const Document = require("../models/Documents");
+const ChecklistTemplate = require("../models/ChecklistTemplate");
+const EmployeeChecklist = require("../models/EmployeeChecklist");
 
-// SHOW ADD EMPLOYEE PAGE (NEW)
-router.get("/add", (req, res) => {
-  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
-  if (isJson) {
-    return res.json({ success: true });
+// HR Authorization Middleware
+function hrAuth(req, res, next) {
+  if (!req.session.userId || req.session.role !== 'HR') {
+    const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
+    if (isJson) return res.status(401).json({ error: 'Unauthorized. HR session required.' });
+    return res.redirect('/hr/hr-login');
   }
-  res.render("employee/add.ejs");
+  next();
+}
+
+// Field Whitelist Helper
+const whitelistEmployeeFields = (body) => {
+  const allowed = [
+    'employeeCode', 'firstName', 'lastName', 'dob', 'email', 'phoneNumber', 'address',
+    'department', 'designation', 'employmentType', 'joiningDate', 'reportingManager',
+    'workLocation', 'status', 'salary', 'hra', 'travelAllowance', 'otherAllowances',
+    'bonuses', 'reimbursements', 'deductions', 'pf', 'professionalTax', 'incomeTax'
+  ];
+  const cleaned = {};
+  allowed.forEach(f => {
+    if (body[f] !== undefined) cleaned[f] = body[f];
+  });
+  return cleaned;
+};
+
+// SHOW ADD EMPLOYEE PAGE (NEW - HR Only)
+router.get("/add", hrAuth, async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
+  try {
+    const managers = await Employee.find({ designation: "MANAGER", status: "Active" }).sort({ firstName: 1 });
+    if (isJson) {
+      return res.json({ success: true, managers });
+    }
+    res.render("employee/add.ejs", { managers });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading add employee page");
+  }
 });
 
-// HR add employee (FORM SUBMIT)
-router.post("/add", async (req, res) => {
+// HR add employee (FORM SUBMIT - HR Only)
+router.post("/add", hrAuth, async (req, res) => {
   const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   try {
-    const employee = await Employee.create(req.body);
+    const sanitizedData = whitelistEmployeeFields(req.body);
+    const employee = await Employee.create(sanitizedData);
 
     await User.create({
       employeeId: employee._id,
       username: employee.employeeCode,
       password: "temp123"
+    });
+
+    // Lifecycle Onboarding Checklist Trigger
+    const template = await ChecklistTemplate.findOne({ type: "Onboarding" });
+    let runTasks = [];
+    if (template && template.tasks && template.tasks.length > 0) {
+      runTasks = template.tasks.map(t => ({
+        taskTitle: t.taskTitle,
+        assignedRole: t.assignedRole,
+        status: "Pending"
+      }));
+    } else {
+      runTasks = [
+        { taskTitle: "Collect Bank Details & PAN/Aadhar Documents", assignedRole: "HR" },
+        { taskTitle: "Allocate Laptop & Set Up Workstation", assignedRole: "IT" },
+        { taskTitle: "Conduct Security & General Compliance Briefing", assignedRole: "HR" },
+        { taskTitle: "Manager Welcome Meeting & Goal Setting", assignedRole: "Manager" }
+      ];
+    }
+    await EmployeeChecklist.create({
+      employeeId: employee._id,
+      type: "Onboarding",
+      tasks: runTasks
     });
 
     if (isJson) {
@@ -105,7 +162,7 @@ router.get('/photo/:id', async (req, res) => {
   }
 });
 
-router.get("/edit/:id", async (req, res) => {
+router.get("/edit/:id", hrAuth, async (req, res) => {
   const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
   try {
     const employee = await Employee.findById(req.params.id);
@@ -124,10 +181,11 @@ router.get("/edit/:id", async (req, res) => {
   }
 });
 
-router.post("/edit/:id", async (req, res) => {
+router.post("/edit/:id", hrAuth, async (req, res) => {
   const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
   try {
-    const employee = await Employee.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const sanitizedData = whitelistEmployeeFields(req.body);
+    const employee = await Employee.findByIdAndUpdate(req.params.id, sanitizedData, { new: true });
     if (isJson) {
       return res.json({ success: true, employee });
     }
@@ -140,7 +198,7 @@ router.post("/edit/:id", async (req, res) => {
 });
 
 const Announcement = require('../models/Announcement');
-const nodemailer = require('nodemailer');
+const { sendEmail } = require('../utils/email');
 
 // Handle Resignation Application
 router.post('/resign', async (req, res) => {
@@ -157,6 +215,30 @@ router.post('/resign', async (req, res) => {
     employee.resignationReason = req.body.reason || 'No reason provided';
     await employee.save();
 
+    // Lifecycle Offboarding Checklist Trigger
+    const template = await ChecklistTemplate.findOne({ type: "Offboarding" });
+    let runTasks = [];
+    if (template && template.tasks && template.tasks.length > 0) {
+      runTasks = template.tasks.map(t => ({
+        taskTitle: t.taskTitle,
+        assignedRole: t.assignedRole,
+        status: "Pending"
+      }));
+    } else {
+      runTasks = [
+        { taskTitle: "Conduct Exit Interview", assignedRole: "HR" },
+        { taskTitle: "Approve Asset Return & Laptop Cleanse", assignedRole: "IT" },
+        { taskTitle: "Process Final Settlement & Gratuity Calculation", assignedRole: "Finance" },
+        { taskTitle: "Revoke Email and System Access Logs", assignedRole: "IT" },
+        { taskTitle: "Manager Clearance & Handover Review", assignedRole: "Manager" }
+      ];
+    }
+    await EmployeeChecklist.create({
+      employeeId: employee._id,
+      type: "Offboarding",
+      tasks: runTasks
+    });
+
     // Notify Manager via Department Announcement (Scoped)
     await Announcement.create({
       title: `Resignation: ${employee.firstName} ${employee.lastName}`,
@@ -167,17 +249,8 @@ router.post('/resign', async (req, res) => {
     // Find Manager for Email
     const manager = await Employee.findOne({ department: employee.department, designation: 'MANAGER' });
     if (manager && manager.email) {
-      const transporter = nodemailer.createTransport({
-        service: process.env.SMTP_SERVICE || "Gmail",
-        auth: {
-          user: process.env.SMTP_EMAIL,
-          pass: process.env.SMTP_PASSWORD
-        }
-      });
-
-      await transporter.sendMail({
+      await sendEmail({
         to: manager.email,
-        from: process.env.SMTP_EMAIL,
         subject: `Resignation Request - ${employee.firstName} ${employee.lastName}`,
         html: `<p>Dear ${manager.firstName},</p>
                  <p>${employee.firstName} ${employee.lastName} has applied for resignation on ${new Date().toLocaleDateString()}.</p>

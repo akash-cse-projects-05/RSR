@@ -3,8 +3,18 @@ const router = express.Router();
 const Payslip = require('../models/Payslip');
 const Employee = require('../models/Employee');
 
+// HR Authorization Middleware
+function hrAuth(req, res, next) {
+  if (!req.session.userId || req.session.role !== 'HR') {
+    const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
+    if (isJson) return res.status(401).json({ error: 'Unauthorized. HR session required.' });
+    return res.redirect('/hr/hr-login');
+  }
+  next();
+}
+
 // HR: Generate payslip for an employee
-router.post('/generate', async (req, res) => {
+router.post('/generate', hrAuth, async (req, res) => {
   try {
     let {
       employeeId, month, year,
@@ -52,12 +62,27 @@ router.post('/generate', async (req, res) => {
       });
     }
 
-    // 2. LOP
+    // 2. LOP Calculation
+    const Leave = require('../models/Leave');
+    const monthStr = month.toString().padStart(2, '0');
+    const searchPattern = new RegExp(`^${year}-${monthStr}-`);
+    
+    const lopLeaves = await Leave.find({
+      employeeId: employee._id,
+      leaveType: 'LOP',
+      status: 'APPROVED',
+      fromDate: { $regex: searchPattern }
+    });
+
+    let lopDays = 0;
+    lopLeaves.forEach(l => lopDays += l.totalDays);
+
+    if (employee.lopDaysThisMonth > lopDays) {
+      lopDays = employee.lopDaysThisMonth;
+    }
+
     let lopDeduction = 0;
-    const lopDays = employee.lopDaysThisMonth || 0;
     if (lopDays > 0) {
-      // Assuming LOP is based on Basic Salary? Or Gross? Usually Basic. 
-      // Using Basic as per previous logic.
       lopDeduction = (basicSalary / 30) * lopDays;
       deductionDetails.push({
         type: 'LOP',
@@ -83,44 +108,32 @@ router.post('/generate', async (req, res) => {
       deductionDetails.push({ type: 'PT', label: 'Professional Tax', amount: professionalTax });
     }
 
-    // Total Deductions Sum (PF + PT + Taxes/TDS + Manual + LOP + GST)
-    // Note: 'taxes' here is TDS. PT is Professional Tax.
-    // Previous system had 'deductions' DB field as the sum of non-tax deductions.
-    // For clarity, we will store the specific fields. 
-    // And 'deductions' field can store the "Manual + LOP + GST" part to not break old views completely,
-    // OR we just rely on netPay calculation.
-    // Let's make 'deductions' field = Manual + LOP + GST.
-    // And 'taxes' field = TDS.
-    // PF and PT have their own fields.
-
     const otherDeductionsSum = deductions + gstDeduction + lopDeduction;
 
     // Net Pay
     const netPay = totalEarnings - (otherDeductionsSum + pf + professionalTax + taxes);
 
-    const payslip = new Payslip({
-      employee: employeeId,
-      month,
-      year,
-      basicSalary,
-      hra,
-      travelAllowance,
-      otherAllowances,
-      allowances: totalAllowances, // Aggregate
-      bonuses,
-      reimbursements,
-      pf,
-      professionalTax,
-      taxes, // TDS
-
-      deductions: otherDeductionsSum, // Manual + LOP + Gst
-      deductionDetails,
-      lopDays,
-
-      netPay
-    });
-
-    await payslip.save();
+    await Payslip.findOneAndUpdate(
+      { employee: employeeId, month, year },
+      {
+        basicSalary,
+        hra,
+        travelAllowance,
+        otherAllowances,
+        allowances: totalAllowances, // Aggregate
+        bonuses,
+        reimbursements,
+        pf,
+        professionalTax,
+        taxes, // TDS
+        deductions: otherDeductionsSum, // Manual + LOP + Gst
+        deductionDetails,
+        lopDays,
+        netPay,
+        paymentStatus: 'Not Yet Paid'
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
     // Reset monthly LOP counter
     await Employee.updateOne(
@@ -135,11 +148,19 @@ router.post('/generate', async (req, res) => {
   }
 });
 
-// Employee: View payslips
+// Employee: View payslips (ownership enforced)
 router.get('/employee/:employeeId', async (req, res) => {
   try {
+    const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json');
+
+    // Security: Only allow if the employee is viewing their OWN payslips, or if they are HR
+    if (req.params.employeeId !== req.session.employeeId?.toString() && req.session.role !== 'HR') {
+      if (isJson) return res.status(403).json({ error: 'Access denied. You can only view your own payslips.' });
+      return res.status(403).send('Access denied. You can only view your own payslips.');
+    }
+
     const payslips = await Payslip.find({ employee: req.params.employeeId }).sort({ year: -1, month: -1 });
-    if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
+    if (isJson) {
       return res.json({ payslips });
     }
     res.render('employee/payslips', { payslips });
@@ -171,13 +192,12 @@ router.get('/employee-payslips', async (req, res) => {
 });
 
 
-// Printable Payslip View
+// Printable Payslip View (ownership enforced)
 router.get('/view/:payslipId', async (req, res) => {
   try {
     const payslip = await Payslip.findById(req.params.payslipId);
     if (!payslip) return res.status(404).send('Payslip not found');
 
-    // Check if employee field exists
     if (!payslip.employee) {
       return res.status(404).send('Employee record missing from payslip');
     }
@@ -187,8 +207,10 @@ router.get('/view/:payslipId', async (req, res) => {
       return res.status(404).send('Employee details not found');
     }
 
-    // Ensure we have access (simple check, strictly should check session user vs employee id)
-    // if (req.session.employeeId && req.session.employeeId !== employee._id.toString()) ... 
+    // Security: Only allow if the payslip belongs to the logged-in user, or if they are HR
+    if (req.session.employeeId?.toString() !== employee._id.toString() && req.session.role !== 'HR') {
+      return res.status(403).send('Access denied. You can only view your own payslips.');
+    }
 
     res.render('employee/payslip-print', { payslip, employee });
   } catch (err) {
@@ -196,7 +218,7 @@ router.get('/view/:payslipId', async (req, res) => {
   }
 });
 
-// Download/Print View (Alternative Layout)
+// Download/Print View (ownership enforced)
 router.get('/download/:payslipId', async (req, res) => {
   try {
     const payslip = await Payslip.findById(req.params.payslipId);
@@ -211,6 +233,11 @@ router.get('/download/:payslipId', async (req, res) => {
       return res.status(404).send('Employee details not found');
     }
 
+    // Security: Only allow if the payslip belongs to the logged-in user, or if they are HR
+    if (req.session.employeeId?.toString() !== employee._id.toString() && req.session.role !== 'HR') {
+      return res.status(403).send('Access denied. You can only view your own payslips.');
+    }
+
     res.render('employee/payslip_download', { payslip, employee });
   } catch (err) {
     res.status(500).send('Error downloading payslip');
@@ -218,8 +245,8 @@ router.get('/download/:payslipId', async (req, res) => {
 });
 
 
-// HR: List all employees for payslip management
-router.get('/hr/payslips', async (req, res) => {
+// HR: List all employees for payslip management (HR only)
+router.get('/hr/payslips', hrAuth, async (req, res) => {
   try {
     const query = {};
     if (req.query.search) {
@@ -243,8 +270,8 @@ router.get('/hr/payslips', async (req, res) => {
   }
 });
 
-// HR: Manage payslips for a specific employee
-router.get('/hr/payslips/:employeeId', async (req, res) => {
+// HR: Manage payslips for a specific employee (HR only)
+router.get('/hr/payslips/:employeeId', hrAuth, async (req, res) => {
   try {
     const employee = await Employee.findById(req.params.employeeId);
     const payslips = await Payslip.find({ employee: req.params.employeeId }).sort({ year: -1, month: -1 });
@@ -271,8 +298,8 @@ router.get('/hr/payslips/:employeeId', async (req, res) => {
   }
 });
 
-// HR: Update Salary Structure
-router.post('/hr/update-structure/:employeeId', async (req, res) => {
+// HR: Update Salary Structure (HR only)
+router.post('/hr/update-structure/:employeeId', hrAuth, async (req, res) => {
   try {
     const {
       salary, hra, travelAllowance, otherAllowances, bonuses, reimbursements, deductions,
@@ -305,8 +332,8 @@ router.post('/hr/update-structure/:employeeId', async (req, res) => {
   }
 });
 
-// HR: Bulk Generate Payslips (Automated)
-router.post('/bulk-generate', async (req, res) => {
+// HR: Bulk Generate Payslips (HR only)
+router.post('/bulk-generate', hrAuth, async (req, res) => {
   const { month, year } = req.body;
 
   const now = new Date();

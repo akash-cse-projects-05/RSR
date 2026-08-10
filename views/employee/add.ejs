@@ -211,6 +211,17 @@
           <label class="form-label">Onboarding Date</label>
           <input type="date" name="joiningDate" class="form-control" required>
         </div>
+        <div class="col-md-6">
+          <label class="form-label">Reporting Manager</label>
+          <select name="reportingManager" class="form-select">
+            <option value="">None (Top-level / Manager)</option>
+            <% if (typeof managers !== 'undefined' && managers && managers.length > 0) { %>
+              <% managers.forEach(m => { %>
+                <option value="<%= m._id %>"><%= m.firstName %> <%= m.lastName %> (<%= m.employeeCode %>)</option>
+              <% }) %>
+            <% } %>
+          </select>
+        </div>
 
         <div class="col-12">
           <label class="form-label">Assigned Work Location</label>

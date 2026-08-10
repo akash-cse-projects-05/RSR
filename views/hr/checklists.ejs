@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lifecycle Pipelines | HRMS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --rsr-blue: #2563eb;
+      --rsr-bg: #f8fafc;
+      --rsr-light: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: rgba(15, 23, 42, 0.08);
+      --hrms-blue-dark: #050c1e;
+    }
+    body {
+      background-color: var(--rsr-bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+    }
+    .navbar {
+      background: var(--hrms-blue-dark) !important;
+      padding: 0.8rem 0;
+    }
+    .navbar-brand {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .page-header {
+      padding: 40px 0;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 30px;
+    }
+    .card {
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+      overflow: hidden;
+    }
+    .card-header {
+      font-weight: 700;
+      background: transparent;
+      border-bottom: 1px solid var(--border-color);
+      padding: 20px 24px;
+    }
+    .form-control, .form-select {
+      border-radius: 10px;
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+    }
+    .btn-main {
+      background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      padding: 10px 20px;
+    }
+    .btn-main:hover {
+      opacity: 0.9;
+      color: white;
+    }
+    .badge-role {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .badge-HR { background-color: rgba(37, 99, 235, 0.1); color: #2563eb; }
+    .badge-IT { background-color: rgba(14, 165, 233, 0.1); color: #0ea5e9; }
+    .badge-Finance { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .badge-Manager { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .badge-Employee { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+    .checklist-task-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .checklist-task-row:last-child {
+      border-bottom: none;
+    }
+    .task-title {
+      font-weight: 500;
+    }
+    .task-completed .task-title {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand text-white" href="/hr/dashboard">
+      <i class="fa-solid fa-paper-plane me-2"></i> HR Admin Portal
+    </a>
+    <div class="ms-auto">
+      <a href="/hr/dashboard" class="btn btn-outline-light btn-sm rounded-pill px-3">Back to Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="container">
+    <p class="text-primary fw-bold mb-1" style="letter-spacing: 0.1em; font-size: 0.8rem;">WORKFORCE ADMINISTRATION</p>
+    <h1 class="fw-bold mb-0">Lifecycle Checklist Pipelines</h1>
+    <p class="text-muted mb-0">Define templates and execute onboarding / offboarding task progress.</p>
+  </div>
+</header>
+
+<div class="container pb-5">
+  <!-- Tabs Navigation -->
+  <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active fw-bold px-4 py-2 rounded-pill me-2" id="pills-active-tab" data-bs-toggle="pill" data-bs-target="#pills-active" type="button" role="tab">
+        <i class="fa-solid fa-list-check me-2"></i> Active Pipelines
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link fw-bold px-4 py-2 rounded-pill" id="pills-templates-tab" data-bs-toggle="pill" data-bs-target="#pills-templates" type="button" role="tab">
+        <i class="fa-solid fa-gears me-2"></i> Template Configuration
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Contents -->
+  <div class="tab-content" id="pills-tabContent">
+    
+    <!-- Tab 1: Active Pipelines -->
+    <div class="tab-pane fade show active" id="pills-active" role="tabpanel">
+      <div class="row g-4">
+        <% if (activeRuns && activeRuns.length > 0) { %>
+          <% activeRuns.forEach(run => { 
+            if (run.employeeId) { 
+              const completedCount = run.tasks.filter(t => t.status === 'Completed').length;
+              const progressPct = run.tasks.length > 0 ? Math.round((completedCount / run.tasks.length) * 100) : 0;
+            %>
+              <div class="col-lg-6 col-12">
+                <div class="card mb-3">
+                  <div class="card-header bg-light d-flex align-items-center justify-content-between py-3">
+                    <div>
+                      <span class="badge <%= run.type === 'Onboarding' ? 'bg-success' : 'bg-danger' %> me-2"><%= run.type %></span>
+                      <strong class="text-dark"><%= run.employeeId.firstName %> <%= run.employeeId.lastName %></strong>
+                      <span class="text-muted small ms-1">(<%= run.employeeId.employeeCode %>)</span>
+                    </div>
+                    <span class="fw-bold text-primary"><%= progressPct %>% Done</span>
+                  </div>
+                  
+                  <div class="p-3 bg-light border-bottom">
+                    <div class="progress" style="height: 6px;">
+                      <div class="progress-bar bg-primary" role="progressbar" style="width: <%= progressPct %>%"></div>
+                    </div>
+                  </div>
+
+                  <div class="card-body p-0">
+                    <% run.tasks.forEach(task => { %>
+                      <div class="checklist-task-row <%= task.status === 'Completed' ? 'task-completed' : '' %>">
+                        <div class="d-flex align-items-center">
+                          <!-- Form to toggle status -->
+                          <form action="/hr/checklists/run/<%= run._id %>/task/<%= task._id %>/toggle" method="POST" class="me-3">
+                            <button type="submit" class="btn btn-sm border-0 bg-transparent text-primary p-0" style="font-size: 1.2rem;">
+                              <% if (task.status === 'Completed') { %>
+                                <i class="fa-regular fa-square-check text-success"></i>
+                              <% } else { %>
+                                <i class="fa-regular fa-square text-muted"></i>
+                              <% } %>
+                            </button>
+                          </form>
+                          <div>
+                            <div class="task-title"><%= task.taskTitle %></div>
+                            <% if (task.status === 'Completed' && task.completedAt) { %>
+                              <span class="text-muted small" style="font-size: 10px;">Done <%= new Date(task.completedAt).toLocaleDateString() %></span>
+                            <% } %>
+                          </div>
+                        </div>
+                        <span class="badge-role badge-<%= task.assignedRole %>"><%= task.assignedRole %></span>
+                      </div>
+                    <% }) %>
+                  </div>
+                </div>
+              </div>
+            <% } 
+          }) %>
+        <% } else { %>
+          <div class="col-12">
+            <div class="card p-5 text-center text-muted">
+              <i class="fa-solid fa-clipboard-question fa-3x mb-3 text-secondary"></i>
+              <h5>No Active Checklist Runs</h5>
+              <p class="mb-0">Checklists will automatically appear here when new employees are added (Onboarding) or when resignations are submitted (Offboarding).</p>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Tab 2: Template Configuration -->
+    <div class="tab-pane fade" id="pills-templates" role="tabpanel">
+      <div class="row g-4">
+        <!-- Add Task Form -->
+        <div class="col-lg-4">
+          <div class="card">
+            <div class="card-header">Add Task to Template</div>
+            <div class="card-body p-4">
+              <form action="/hr/checklists/template/task/add" method="POST">
+                <div class="mb-3">
+                  <label class="form-label fw-600">Pipeline Stage</label>
+                  <select name="type" class="form-select" required>
+                    <option value="Onboarding">Onboarding (New Hire)</option>
+                    <option value="Offboarding">Offboarding (Exit)</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-600">Task Title</label>
+                  <input type="text" name="taskTitle" class="form-control" placeholder="e.g. Issue Security ID Badges" required />
+                </div>
+                <div class="mb-4">
+                  <label class="form-label fw-600">Assigned To</label>
+                  <select name="assignedRole" class="form-select" required>
+                    <option value="HR">HR Department</option>
+                    <option value="IT">IT Support</option>
+                    <option value="Finance">Finance Operations</option>
+                    <option value="Manager">Reporting Manager</option>
+                    <option value="Employee">Employee Himself</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-main w-100 py-3">Add Task to Template</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Templates Overview -->
+        <div class="col-lg-8">
+          <div class="row g-3">
+            <% ["Onboarding", "Offboarding"].forEach(tType => { 
+              const tmpl = templates.find(t => t.type === tType);
+            %>
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header bg-light d-flex align-items-center justify-content-between">
+                    <span><%= tType %> Pipeline Template</span>
+                    <span class="badge rounded-pill bg-dark px-3"><%= tmpl ? tmpl.tasks.length : 0 %> Tasks</span>
+                  </div>
+                  <div class="card-body p-0">
+                    <% if (tmpl && tmpl.tasks.length > 0) { %>
+                      <% tmpl.tasks.forEach(task => { %>
+                        <div class="checklist-task-row">
+                          <div class="d-flex align-items-center">
+                            <span class="text-dark fw-bold me-2">•</span>
+                            <span><%= task.taskTitle %></span>
+                          </div>
+                          <div class="d-flex align-items-center">
+                            <span class="badge-role badge-<%= task.assignedRole %> me-3"><%= task.assignedRole %></span>
+                            <form action="/hr/checklists/template/task/delete/<%= tmpl._id %>/<%= task._id %>" method="POST">
+                              <button type="submit" class="btn btn-sm btn-outline-danger border-0 bg-transparent p-0">
+                                <i class="fa-solid fa-trash-can"></i>
+                              </button>
+                            </form>
+                          </div>
+                        </div>
+                      <% }) %>
+                    <% } else { %>
+                      <div class="p-4 text-center text-muted">No tasks defined for <%= tType %> pipeline. Create one using the form on the left.</div>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

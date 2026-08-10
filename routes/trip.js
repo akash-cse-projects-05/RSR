@@ -2,12 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Trip = require('../models/Trip');
 const Employee = require('../models/Employee');
-
-// Middleware
-function requireAuth(req, res, next) {
-    if (!req.session.userId) return res.redirect('/auth/login');
-    next();
-}
+const { requireAuth } = require('../middleware/auth');
 
 // 1. Request Trip (Page)
 router.get('/request', requireAuth, async (req, res) => {

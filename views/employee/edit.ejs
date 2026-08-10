@@ -96,6 +96,14 @@
                         <input type="text" name="phoneNumber" value="<%= employee.phoneNumber %>" class="form-control"
                             required>
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Employment Status</label>
+                        <select name="status" class="form-select" required>
+                            <option value="Active" <%= employee.status === 'Active' ? 'selected' : '' %>>Active</option>
+                            <option value="Inactive" <%= employee.status === 'Inactive' ? 'selected' : '' %>>Inactive</option>
+                            <option value="Resigned" <%= employee.status === 'Resigned' ? 'selected' : '' %>>Resigned</option>
+                        </select>
+                    </div>
                     <div class="col-12 mt-4">
                         <button type="submit" class="btn btn-primary w-100 py-3 fw-bold">Save Changes</button>
                         <a href="/hr/users" class="btn btn-light w-100 py-2 mt-2">Cancel</a>

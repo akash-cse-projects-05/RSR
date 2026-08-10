@@ -1,276 +1,744 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HRMS | Enterprise Workforce Management</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
   <style>
     :root {
-      --rsr-blue: #0052cc;
-      --rsr-dark: #091e42;
-      --rsr-text: #222222;
-      --rsr-text-light: #626f86;
-      --rsr-border: #ebebeb;
-      --rsr-bg: #ffffff;
+      --hrms-blue-dark: #050c1e;
+      --hrms-blue-glow: #020612;
+      --hrms-electric: #38bdf8;
+      --hrms-cyan: #06b6d4;
+      --hrms-cobalt: #2563eb;
+      --hrms-text-dark: #0f172a;
+      --hrms-text-muted: #475569;
+      --hrms-border: rgba(15, 23, 42, 0.06);
+      --hrms-bg-light: #f8fafc;
+
+      --btn-gradient: linear-gradient(135deg, #2563eb 0%, #0284c7 50%, #06b6d4 100%);
+      --btn-gradient-hover: linear-gradient(135deg, #1d4ed8 0%, #0369a1 50%, #0891b2 100%);
     }
 
     body {
-      background-color: var(--rsr-bg);
+      background-color: #ffffff;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      color: var(--rsr-text);
+      color: var(--hrms-text-dark);
       letter-spacing: -0.02em;
       scroll-behavior: smooth;
     }
 
-    /* Modern Navbar */
+    /* --- LOGO BRANDING EMBLEM --- */
     .navbar {
-      background: rgba(255, 255, 255, 0.95) !important;
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--rsr-border);
-      padding: 1rem 0;
+      background: rgba(255, 255, 255, 0.8) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--hrms-border);
+      padding: 0.5rem 0;
     }
+
+    .brand-emblem {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--hrms-cobalt) 0%, var(--hrms-cyan) 100%);
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .brand-emblem i.fa-circle-nodes {
+      font-size: 0.55rem;
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      color: var(--hrms-electric);
+      background: var(--hrms-blue-dark);
+      border-radius: 50%;
+      padding: 1px;
+    }
+
     .navbar-brand {
       font-weight: 800;
-      color: var(--rsr-blue) !important;
+      color: var(--hrms-blue-dark) !important;
+      letter-spacing: -0.04em;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-size: 1.3rem;
+    }
+
+    .brand-accent {
+      background: linear-gradient(to right, var(--hrms-cobalt), var(--hrms-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .btn-outline-nav {
+      background: transparent;
+      color: var(--hrms-cobalt);
+      border: 1px solid var(--hrms-cobalt);
+      padding: 6px 18px;
+      border-radius: 99px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+
+    .btn-outline-nav:hover {
+      background: rgba(37, 99, 235, 0.05);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary-nav {
+      background: var(--btn-gradient);
+      color: #fff !important;
+      border: none;
+      padding: 7px 18px;
+      border-radius: 99px;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      font-size: 0.85rem;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    }
+
+    .btn-primary-nav:hover {
+      background: var(--btn-gradient-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+    }
+
+    /* --- HERO --- */
+    .hero {
+      padding: 140px 0 100px;
+      background: radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 20% 80%, rgba(37, 99, 235, 0.12) 0%, transparent 50%),
+        linear-gradient(135deg, var(--hrms-blue-dark) 0%, var(--hrms-blue-glow) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero h1 {
+      font-weight: 800;
+      font-size: 3.8rem;
+      line-height: 1.1;
+      color: #ffffff;
+      margin-bottom: 20px;
       letter-spacing: -0.04em;
     }
 
-    /* Hero Section */
-    .hero {
-      padding: 140px 0 100px;
-      background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
-    }
-    .hero h1 {
-      font-weight: 800;
-      font-size: 4rem;
-      line-height: 1;
-      color: var(--rsr-dark);
-      margin-bottom: 24px;
+    .hero h1 span {
+      background: linear-gradient(to right, #ffffff, var(--hrms-electric), var(--hrms-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    /* Auth Cards */
-    .auth-card {
-      border: 1px solid var(--rsr-border);
-      border-radius: 24px;
-      padding: 40px;
-      background: #fff;
-      transition: all 0.3s ease;
-      height: 100%;
+    .hero p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      max-width: 520px;
     }
+
+    .hero-tag {
+      background: rgba(6, 182, 212, 0.08);
+      color: var(--hrms-electric);
+      padding: 5px 14px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(6, 182, 212, 0.15);
+      letter-spacing: 0.06em;
+    }
+
+    .btn-hero-primary {
+      background: var(--btn-gradient);
+      color: #ffffff !important;
+      border: none;
+      padding: 12px 32px;
+      border-radius: 99px;
+      font-weight: 700;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-hero-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(6, 182, 212, 0.35);
+    }
+
+    .btn-hero-link {
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-hero-link:hover {
+      color: var(--hrms-electric);
+      transform: translateX(3px);
+    }
+
+    /* --- 3-PILLAR ENGINE WIDGET --- */
+    .mockup-container {
+      perspective: 1400px;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    .mockup-card {
+      background: rgba(10, 25, 47, 0.4);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+      text-align: left;
+      transform: rotateY(-6deg) rotateX(3deg) rotateZ(0.5deg);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .mockup-card:hover {
+      transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg) translateY(-4px);
+      border-color: rgba(6, 182, 212, 0.4);
+      box-shadow: 0 30px 60px rgba(6, 182, 212, 0.2);
+    }
+
+    .mockup-header {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding-bottom: 0.8rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .mockup-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+
+    .mockup-dot:nth-child(2) {
+      background: #f59e0b;
+    }
+
+    .mockup-dot:nth-child(3) {
+      background: #10b981;
+    }
+
+    .mockup-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+
+    .mockup-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .mockup-item strong {
+      color: #f8fafc;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .mockup-item p {
+      margin: 0;
+      color: #94a3b8;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .mockup-item span {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+    }
+
+    .status-badge-cyan {
+      color: #22d3ee;
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.15);
+    }
+
+    .status-badge-blue {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.15);
+    }
+
+    .status-badge-emerald {
+      color: #34d399;
+      background: rgba(52, 211, 153, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.15);
+    }
+
+    /* --- PORTAL ENTRY CARDS GRID --- */
+    .section-padding {
+      padding: 100px 0;
+    }
+
+    .auth-card {
+      border: 1px solid var(--hrms-border);
+      border-radius: 24px;
+      padding: 45px 35px;
+      background: #ffffff;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      height: 100%;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.01);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
     .auth-card:hover {
       transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+      box-shadow: 0 30px 60px rgba(15, 23, 42, 0.08);
+      border-color: rgba(37, 99, 235, 0.2);
     }
-    .auth-icon {
+
+    .auth-icon-box {
       width: 64px;
       height: 64px;
-      border-radius: 16px;
+      border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      margin-bottom: 24px;
+      font-size: 1.5rem;
+      margin: 0 auto 24px;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Sections */
-    .section-padding { padding: 100px 0; }
-    
+    .auth-card:hover .auth-icon-box {
+      transform: scale(1.08) rotate(3deg);
+    }
+
+    .btn-auth-gradient {
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 0.9rem;
+      background: var(--btn-gradient);
+      color: #ffffff;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: block;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.15);
+    }
+
+    .btn-auth-gradient:hover {
+      background: var(--btn-gradient-hover);
+      color: #ffffff;
+      box-shadow: 0 8px 22px rgba(37, 99, 235, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-auth-outline {
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 11px;
+      font-size: 0.9rem;
+      background: transparent;
+      color: var(--hrms-cobalt);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: block;
+      text-align: center;
+    }
+
+    .btn-auth-outline:hover {
+      background: rgba(37, 99, 235, 0.04);
+      border-color: var(--hrms-cobalt);
+    }
+
+    /* --- FEATURES COMPONENT --- */
+    .feature-card {
+      background: #ffffff;
+      border: 1px solid var(--hrms-border);
+      border-radius: 20px;
+      padding: 2rem 1.75rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      height: 100%;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(37, 99, 235, 0.05);
+      border-color: var(--hrms-cobalt);
+    }
+
+    .feature-icon-wrapper {
+      width: 46px;
+      height: 46px;
+      background: rgba(37, 99, 235, 0.05);
+      color: var(--hrms-cobalt);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .feature-card:hover .feature-icon-wrapper {
+      background: var(--btn-gradient);
+      color: #ffffff;
+    }
+
     .img-rounded {
-      border-radius: 32px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+      border-radius: 24px 0 0 24px;
     }
 
-    .btn-primary-rsr {
-      background: var(--rsr-blue);
-      color: #fff;
-      border: none;
-      padding: 12px 32px;
-      border-radius: 12px;
-      font-weight: 700;
-      transition: 0.2s;
-    }
-    .btn-primary-rsr:hover { background: #0043a8; transform: scale(1.02); }
-
-    .btn-dark-rsr {
-      background: var(--rsr-dark);
-      color: #fff;
-      border: none;
-      padding: 12px 32px;
-      border-radius: 12px;
-      font-weight: 700;
+    @media (max-width: 767px) {
+      .img-rounded {
+        border-radius: 24px 24px 0 0;
+      }
     }
 
-    .feature-tag {
-      background: #eef2ff;
-      color: var(--rsr-blue);
-      padding: 6px 16px;
-      border-radius: 100px;
-      font-size: 0.8rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      display: inline-block;
-      margin-bottom: 16px;
+    .governance-wrapper {
+      background: #ffffff;
+      border: 1px solid var(--hrms-border);
+      border-radius: 24px;
+      box-shadow: 0 30px 60px rgba(15, 23, 42, 0.02);
+      overflow: hidden;
     }
 
     footer {
-      background: #f8fafc;
+      background: var(--hrms-bg-light);
       padding: 80px 0 40px;
-      border-top: 1px solid var(--rsr-border);
+      border-top: 1px solid var(--hrms-border);
     }
   </style>
 </head>
+
 <body>
 
-<nav class="navbar navbar-expand-lg fixed-top">
-  <div class="container">
-    <a class="navbar-brand" href="/">
-      <i class="fa-solid fa-building-user me-2"></i> HRMS
-    </a>
-    <div class="ms-auto">
-      <a href="#login-gate" class="btn btn-primary-rsr btn-sm">Access Portal</a>
-    </div>
-  </div>
-</nav>
-
-<section class="hero">
-  <div class="container">
-    <div class="row align-items-center">
-      <div class="col-lg-6">
-        <span class="feature-tag">Next-Gen Workforce Management</span>
-        <h1>Scale your team with precision.</h1>
-        <p class="lead text-muted mb-5">
-          A centralized Human Resource Management System built for modern enterprises. Streamline attendance, payroll, and employee records in one secure platform.
-        </p>
-        <div class="d-flex gap-3">
-          <a href="#login-gate" class="btn btn-primary-rsr">Get Started</a>
-          <a href="#features" class="btn btn-link text-decoration-none fw-bold text-dark">Explore Features <i class="fa-solid fa-arrow-right ms-1"></i></a>
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <div class="brand-emblem">
+          <i class="fa-solid fa-shield-halved"></i>
+          <i class="fa-solid fa-circle-nodes"></i>
         </div>
-      </div>
-      <div class="col-lg-6">
-        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80" class="img-fluid img-rounded" alt="Modern Office">
+        <span><span class="brand-accent">H</span>RMS</span>
+      </a>
+      <div class="ms-auto d-flex gap-2">
+        <a href="/auth/register-company" class="btn btn-outline-nav">Register Company</a>
+        <a href="#login-gate" class="btn btn-primary-nav">Access Portal</a>
       </div>
     </div>
-  </div>
-</section>
+  </nav>
 
-<section class="section-padding bg-light" id="login-gate">
-  <div class="container text-center mb-5">
-    <h2 class="fw-800 display-5">Select Your Portal</h2>
-    <p class="text-muted">Choose your access level to proceed to the secure terminal.</p>
-  </div>
-  <div class="container">
-    <div class="row g-4 justify-content-center">
-      <div class="col-md-5">
-        <div class="auth-card text-center">
-          <div class="auth-icon bg-primary bg-opacity-10 text-primary mx-auto">
-            <i class="fa-solid fa-user-tie"></i>
+  <section class="hero">
+    <div class="container">
+      <div class="row align-items-center g-5">
+
+        <div class="col-lg-6">
+          <span class="hero-tag">
+            <i class="fa-solid fa-bolt-lightning"></i> Next-Gen Workforce Management
+          </span>
+          <h1>Scale your team <span>with precision.</span></h1>
+          <p class="mb-4">
+            A centralized Human Resource Management System built for modern enterprises. Streamline attendance, payroll,
+            and employee records in one secure platform.
+          </p>
+          <div class="d-flex gap-4 align-items-center">
+            <a href="#login-gate" class="btn-hero-primary">Get Started</a>
+            <a href="#features" class="btn-hero-link">Explore Features <i class="fa-solid fa-arrow-right"></i></a>
           </div>
-          <h3 class="fw-bold">Employee Self-Service</h3>
-          <p class="text-muted mb-4">Mark attendance, download payslips, and manage your personal professional profile.</p>
-          <a href="auth/login" class="btn btn-primary-rsr w-100 py-3">Login as Employee</a>
+        </div>
+
+        <div class="col-lg-6 text-center">
+          <div class="mockup-container">
+            <div class="mockup-card">
+              <div class="mockup-header">
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <div class="mockup-dot"></div>
+                <span
+                  style="color: #64748b; font-size: 0.7rem; margin-left: 0.4rem; font-family: monospace;">saas-core-engine</span>
+              </div>
+
+              <div style="margin-bottom: 1.25rem;">
+                <h4
+                  style="color: #ffffff; font-size: 0.95rem; margin-bottom: 0.2rem; font-weight: 700; margin-top: 0; letter-spacing: -0.01em;">
+                  SaaS Core Modules</h4>
+                <p style="color: #64748b; font-size: 0.7rem; margin: 0;">Enterprise infrastructure layer</p>
+              </div>
+
+              <div class="mockup-item">
+                <div>
+                  <p>Directory &amp; Space</p>
+                  <strong>Employee Management</strong>
+                </div>
+                <span class="status-badge-cyan">1,245 ACTIVE</span>
+              </div>
+
+              <div class="mockup-item">
+                <div>
+                  <p>Identity Verification</p>
+                  <strong>Attendance Tracking</strong>
+                </div>
+                <span class="status-badge-blue">LIVE LOGS</span>
+              </div>
+
+              <div class="mockup-item">
+                <div>
+                  <p>Financial Router</p>
+                  <strong>Automated Payrolls</strong>
+                </div>
+                <span class="status-badge-emerald">COMPLIANT</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ENHANCED LOGIN PORTAL GATEWAY CARDS -->
+  <section class="section-padding bg-light" id="login-gate">
+    <div class="container text-center mb-5 pb-2">
+      <h2 class="fw-800 display-5" style="letter-spacing: -0.03em;">Select Your Portal</h2>
+      <p class="text-muted" style="font-size: 1.05rem;">Access your workspace or register your organization to get
+        started.</p>
+    </div>
+    <div class="container">
+      <div class="row g-4 justify-content-center">
+
+        <!-- Card 1: Employee -->
+        <div class="col-lg-4 col-md-6">
+          <div class="auth-card text-center">
+            <div>
+              <div class="auth-icon-box" style="background: rgba(37, 99, 235, 0.05); color: var(--hrms-cobalt);">
+                <i class="fa-solid fa-user-tie"></i>
+              </div>
+              <h4 class="fw-800 mb-3" style="letter-spacing: -0.02em; color: var(--hrms-text-dark);">Employee Space</h4>
+              <p class="text-muted small mb-4" style="line-height: 1.65;">Mark attendance seamlessly, check shift
+                cycles, download payslips, and manage your workspace profile parameters.</p>
+            </div>
+            <a href="auth/login" class="btn btn-auth-gradient w-100">Login as Employee</a>
+          </div>
+        </div>
+
+        <!-- Card 2: Admin -->
+        <div class="col-lg-4 col-md-6">
+          <div class="auth-card text-center">
+            <div>
+              <div class="auth-icon-box" style="background: rgba(6, 182, 212, 0.05); color: var(--hrms-cyan);">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <h4 class="fw-800 mb-3" style="letter-spacing: -0.02em; color: var(--hrms-text-dark);">HR Administration
+              </h4>
+              <p class="text-muted small mb-4" style="line-height: 1.65;">Supervise personnel profiles, execute
+                automated payroll routes, manage leaves, and verify tracking metrics.</p>
+            </div>
+            <a href="/hr/hr-login" class="btn btn-auth-gradient w-100">Login as Administrator</a>
+          </div>
+        </div>
+
+        <!-- Card 3: Register -->
+        <div class="col-lg-4 col-md-6">
+          <div class="auth-card text-center">
+            <div>
+              <div class="auth-icon-box" style="background: #f3e8ff; color: #6d28d9;">
+                <i class="fa-solid fa-building"></i>
+              </div>
+              <h4 class="fw-800 mb-3" style="letter-spacing: -0.02em; color: var(--hrms-text-dark);">Register Company
+              </h4>
+              <p class="text-muted small mb-4" style="line-height: 1.65;">Initialize a brand new secure corporate
+                instance workspace, configure admin roles, and scale operations instantly.</p>
+            </div>
+            <a href="/auth/register-company" class="btn btn-auth-outline w-100">Create New Instance</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 2x4 OPERATIONS GRID -->
+  <section class="section-padding" id="features">
+    <div class="container">
+      <div class="row align-items-center mb-5 pb-2">
+        <div class="col-md-6">
+          <h2 class="fw-800 display-6" style="letter-spacing: -0.03em;">Engineered for Operational Excellence</h2>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p class="text-muted" style="max-width: 480px; display: inline-block;">A comprehensive suite of tools designed
+            to remove administrative friction from your department.</p>
         </div>
       </div>
-      <div class="col-md-5">
-        <div class="auth-card text-center border-dark border-opacity-10">
-          <div class="auth-icon bg-dark bg-opacity-10 text-dark mx-auto">
-            <i class="fa-solid fa-shield-halved"></i>
+
+      <div class="row g-4">
+        <div class="col-lg-3 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-location-dot"></i></div>
+            <h5 class="fw-bold" style="letter-spacing: -0.01em;">GPS Attendance</h5>
+            <p class="text-muted small mb-0" style="line-height: 1.6;">Punch in/out from mobile with live location
+              tracking.</p>
           </div>
-          <h3 class="fw-bold">HR Administration</h3>
-          <p class="text-muted mb-4">Manage employee records, approve leaves, process payroll, and control system audits.</p>
-          <a href="/hr/hr-login" class="btn btn-dark-rsr w-100 py-3">Login as Administrator</a>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-calendar-check"></i></div>
+            <h5 class="fw-bold" style="letter-spacing: -0.01em;">Leave Management</h5>
+            <p class="text-muted small mb-0" style="line-height: 1.6;">Apply, approve, and track leave balances
+              seamlessly.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+            <h5 class="fw-bold" style="letter-spacing: -0.01em;">Payroll &amp; Payslips</h5>
+            <p class="text-muted small mb-0" style="line-height: 1.6;">Auto-generate salary slips with LOP, PF, and TDS
+              calculations.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-plane-departure"></i></div>
+            <h5 class="fw-bold" style="letter-spacing: -0.01em;">Trip Management</h5>
+            <p class="text-muted small mb-0" style="line-height: 1.6;">Request and track field employee trips and
+              travels.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-receipt"></i></div>
+            <h5 class="fw-bold" style="letter-spacing: -0.01em;">Expense Claims</h5>
+            <p class="text-muted small mb-0" style="line-height: 1.6;">Submit and approve expense reimbursements with
+              ease.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-file-shield"></i></div>
+            <h5 class="fw-bold" style="letter-spacing: -0.01em;">Document Management</h5>
+            <p class="text-muted small mb-0" style="line-height: 1.6;">Upload and verify secure employee documents
+              online.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-list-check"></i></div>
+            <h5 class="fw-bold" style="letter-spacing: -0.01em;">Department Tasks</h5>
+            <p class="text-muted small mb-0" style="line-height: 1.6;">Assign and track team tasks, goals, and training
+              progress.</p>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <div class="feature-card">
+            <div class="feature-icon-wrapper"><i class="fa-solid fa-bullhorn"></i></div>
+            <h5 class="fw-bold" style="letter-spacing: -0.01em;">Notice Board</h5>
+            <p class="text-muted small mb-0" style="line-height: 1.6;">Publish and view global company announcements and
+              notifications.</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="section-padding" id="features">
-  <div class="container">
-    <div class="row align-items-center mb-5">
+  <!-- SECURITY AUDIT LAYOUT ROW -->
+  <section class="container mb-5 pb-5">
+    <div class="row g-0 governance-wrapper">
       <div class="col-md-6">
-        <h2 class="fw-800 display-6">Engineered for Operational Excellence</h2>
+        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80"
+          class="img-fluid h-100 w-100 img-rounded" style="object-fit: cover;" alt="Governance">
       </div>
-      <div class="col-md-6 text-md-end">
-        <p class="text-muted">A comprehensive suite of tools designed to remove administrative friction from your department.</p>
-      </div>
-    </div>
-    
-    
-
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="p-4 rounded-4 border h-100">
-          <i class="fa-solid fa-fingerprint text-primary mb-3 fs-3"></i>
-          <h5 class="fw-bold">Smart Attendance</h5>
-          <p class="text-muted small">Geo-fenced attendance marking ensures your workforce is present and accounted for at the correct site.</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="p-4 rounded-4 border h-100">
-          <i class="fa-solid fa-file-invoice-dollar text-primary mb-3 fs-3"></i>
-          <h5 class="fw-bold">Payroll Logic</h5>
-          <p class="text-muted small">Automated salary generation with integrated Loss-of-Pay (LOP) calculations based on live attendance.</p>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="p-4 rounded-4 border h-100">
-          <i class="fa-solid fa-folder-tree text-primary mb-3 fs-3"></i>
-          <h5 class="fw-bold">Unified Directory</h5>
-          <p class="text-muted small">Maintain single-source-of-truth records for all employees across different departments and roles.</p>
+      <div class="col-md-6 bg-white p-5 d-flex flex-column justify-content-center">
+        <h3 class="fw-bold display-6" style="letter-spacing: -0.03em;">Secure Governance</h3>
+        <p class="text-muted mt-2 mb-4" style="line-height: 1.65;">Role-based access control (RBAC) ensures that
+          managers and administrators only see the data they need to see. Our system logs every action for maximum
+          transparency.</p>
+        <div>
+          <div class="d-flex align-items-center mb-3"><i class="fa-solid fa-circle-check fs-5 me-3"
+              style="color: #10b981;"></i> <span class="fw-600">Audit-ready compliance reports</span></div>
+          <div class="d-flex align-items-center mb-3"><i class="fa-solid fa-circle-check fs-5 me-3"
+              style="color: #10b981;"></i> <span class="fw-600">Secure document storage</span></div>
+          <div class="d-flex align-items-center"><i class="fa-solid fa-circle-check fs-5 me-3"
+              style="color: #10b981;"></i> <span class="fw-600">Departmental data isolation</span></div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<section class="container mb-5">
-  <div class="row g-0 rounded-4 overflow-hidden border">
-    <div class="col-md-6">
-      <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80" class="img-fluid h-100 w-100" style="object-fit: cover;">
-    </div>
-    <div class="col-md-6 bg-white p-5 d-flex flex-column justify-content-center">
-      <h3 class="fw-bold">Secure Governance</h3>
-      <p class="text-muted">Role-based access control (RBAC) ensures that managers and administrators only see the data they need to see. Our system logs every action for maximum transparency.</p>
-      <div class="mt-4">
-        <div class="d-flex mb-3"><i class="fa-solid fa-circle-check text-success me-3 pt-1"></i> <span>Audit-ready compliance reports</span></div>
-        <div class="d-flex mb-3"><i class="fa-solid fa-circle-check text-success me-3 pt-1"></i> <span>Secure document storage</span></div>
-        <div class="d-flex"><i class="fa-solid fa-circle-check text-success me-3 pt-1"></i> <span>Departmental data isolation</span></div>
+  <!-- SYSTEM FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <h5 class="fw-bold text-dark mb-3" style="letter-spacing: -0.03em;">HRMS</h5>
+          <p class="text-muted small" style="line-height: 1.6;">Centralized Workforce Management platform for enterprise
+            organizations and modern departments.</p>
+        </div>
+        <div class="col-md-2 mb-4">
+          <h6 class="fw-bold mb-3" style="font-size: 0.9rem;">Portals</h6>
+          <ul class="list-unstyled small">
+            <li class="mb-2"><a href="/auth/login" class="text-muted text-decoration-none">Employee Portal</a></li>
+            <li><a href="/hr/hr-login" class="text-muted text-decoration-none">HR Dashboard</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 mb-4">
+          <h6 class="fw-bold mb-3" style="font-size: 0.9rem;">Registration &amp; Legal</h6>
+          <ul class="list-unstyled small">
+            <li class="mb-2"><a href="/auth/register-company" class="text-muted text-decoration-none">Register
+                Organization</a></li>
+            <li class="mb-2"><a href="/terms" class="text-muted text-decoration-none">Terms &amp; Conditions</a></li>
+            <li><a href="/terms" class="text-muted text-decoration-none">Copyright Policy</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3 text-md-end mb-4">
+          <h6 class="fw-bold mb-3" style="font-size: 0.9rem;">System Security</h6>
+          <p class="text-muted small">Encrypted session handling • Multi-factor ready • GDPR Compliant logic</p>
+        </div>
+      </div>
+      <div class="pt-4 mt-4 border-top text-center">
+        <p class="mb-0 small text-muted">© 2026 HRMS • Built for Professional Excellence • All rights reserved.</p>
       </div>
     </div>
-  </div>
-</section>
+  </footer>
 
-<footer>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-4 mb-4">
-        <h5 class="fw-bold text-primary mb-3">HRMS</h5>
-        <p class="text-muted small">Centralized Workforce Management platform for enterprise organizations and modern departments.</p>
-      </div>
-      <div class="col-md-2 mb-4">
-        <h6 class="fw-bold mb-3">Portals</h6>
-        <ul class="list-unstyled small">
-          <li><a href="/auth/login" class="text-muted text-decoration-none">Employee Portal</a></li>
-          <li><a href="/hr/hr-login" class="text-muted text-decoration-none">HR Dashboard</a></li>
-        </ul>
-      </div>
-      <div class="col-md-6 text-md-end mb-4">
-        <h6 class="fw-bold mb-3">System Security</h6>
-        <p class="text-muted small">Encrypted session handling • Multi-factor ready • GDPR Compliant logic</p>
-      </div>
-    </div>
-    <div class="pt-4 mt-4 border-top text-center">
-      <p class="mb-0 small text-muted">© 2026 HRMS • Built for Professional Excellence</p>
-    </div>
-  </div>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>

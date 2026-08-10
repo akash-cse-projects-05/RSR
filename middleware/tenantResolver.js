@@ -36,12 +36,23 @@ module.exports = async (req, res, next) => {
   } catch (err) {
     console.error(`[Tenant Resolution Error] Failed for tenant '${tenantId}':`, err.message);
     
+    const isConnectionError = err.name === 'MongoNetworkError' || 
+                              err.name === 'MongooseError' ||
+                              err.message.includes('connect') || 
+                              err.message.includes('buffering timed out') ||
+                              mongoose.connection.readyState === 0 ||
+                              mongoose.connection.readyState === 3;
+
+    const friendlyMessage = isConnectionError 
+      ? "Could not connect to cloud database, check your internet connection."
+      : err.message;
+
     const isJson = req.query && req.query.format === 'json' || req.headers && req.headers.accept?.includes('application/json');
     if (isJson) {
-      return res.status(404).json({ error: err.message });
+      return res.status(isConnectionError ? 503 : 404).json({ error: friendlyMessage });
     }
     
-    const errorParam = encodeURIComponent(err.message);
+    const errorParam = encodeURIComponent(friendlyMessage);
     if (req.session) {
       req.session.destroy(() => {
         res.redirect(`/auth/login?error=${errorParam}&company=${tenantId}`);

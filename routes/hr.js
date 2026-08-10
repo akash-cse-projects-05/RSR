@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 
 const Employee = require("../models/Employee");
 const Attendance = require("../models/Attendence"); // keep spelling same as file
@@ -36,14 +37,25 @@ router.get("/hr-login", (req, res) => {
   });
 });
 
+const rateLimit = require("express-rate-limit");
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: "Too many login attempts, please try again after 15 minutes.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // POST HR Login
-router.post("/hr-login", async (req, res) => {
+router.post("/hr-login", authLimiter, async (req, res) => {
   try {
     const { tenantId, username, password } = req.body;
     const lowercaseTenantId = tenantId ? tenantId.toLowerCase().trim() : "";
 
-    // Hardcoded System Login Bypass
-    if (username === 'system' && password === 'password') {
+    // System Admin Login (credentials from environment variables)
+    const sysUser = process.env.SYSTEM_HR_USERNAME || 'system';
+    const sysPass = process.env.SYSTEM_HR_PASSWORD || 'password';
+    if (username === sysUser && password === sysPass) {
       if (!lowercaseTenantId) {
         if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
           return res.status(400).json({ error: "Please enter your Company ID" });
@@ -68,7 +80,9 @@ router.post("/hr-login", async (req, res) => {
       req.session.tenantId = lowercaseTenantId; // Bind dynamically to the entered company ID
       console.log(`✅ Hardcoded System Admin logged in to Tenant: ${lowercaseTenantId}`);
       if (req.headers.accept?.includes('application/json')) {
-        return res.json({ success: true, role: 'HR', employeeName: 'System Admin', tenantId: lowercaseTenantId });
+        const cookieSignature = require('cookie-signature');
+        const signedSid = 's:' + cookieSignature.sign(req.sessionID, process.env.SESSION_SECRET || "rsr_hrms_secret");
+        return res.json({ success: true, role: 'HR', employeeName: 'System Admin', tenantId: lowercaseTenantId, sessionId: signedSid });
       }
       return res.redirect("/hr/dashboard");
     }
@@ -88,9 +102,19 @@ router.post("/hr-login", async (req, res) => {
       tenantConn = await getTenantConnection(lowercaseTenantId);
     } catch (dbErr) {
       req.session.tenantId = undefined;
-      const errorMsg = `Company ID '${tenantId}' not found or inactive.`;
+      const isConnectionError = dbErr.name === 'MongoNetworkError' || 
+                                dbErr.name === 'MongooseError' ||
+                                dbErr.message.includes('connect') || 
+                                dbErr.message.includes('buffering timed out') ||
+                                mongoose.connection.readyState === 0 ||
+                                mongoose.connection.readyState === 3;
+
+      const errorMsg = isConnectionError 
+        ? "Could not connect to cloud database, check your internet connection."
+        : `Company ID '${tenantId}' not found or inactive.`;
+
       if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
-        return res.status(404).json({ error: errorMsg });
+        return res.status(isConnectionError ? 503 : 404).json({ error: errorMsg });
       }
       return res.render("hr/login", { error: errorMsg, company: tenantId });
     }
@@ -147,17 +171,30 @@ router.post("/hr-login", async (req, res) => {
     console.log("✅ HR logged in:", employee.employeeCode);
 
     if (req.headers.accept?.includes('application/json')) {
-      return res.json({ success: true, role: 'HR', employeeName: employee.firstName, employeeId: employee._id, tenantId: lowercaseTenantId });
+      const cookieSignature = require('cookie-signature');
+      const signedSid = 's:' + cookieSignature.sign(req.sessionID, process.env.SESSION_SECRET || "rsr_hrms_secret");
+      return res.json({ success: true, role: 'HR', employeeName: employee.firstName, employeeId: employee._id, tenantId: lowercaseTenantId, sessionId: signedSid });
     }
     res.redirect("/hr/dashboard");
 
   } catch (err) {
     require('fs').appendFileSync('error.log', err.stack + '\n');
     console.error(err);
+    const isConnectionError = err.name === 'MongoNetworkError' || 
+                              err.name === 'MongooseError' ||
+                              err.message.includes('connect') || 
+                              err.message.includes('buffering timed out') ||
+                              mongoose.connection.readyState === 0 ||
+                              mongoose.connection.readyState === 3;
+
+    const errorMsg = isConnectionError 
+      ? "Could not connect to cloud database, check your internet connection."
+      : "Database connection failed: " + err.message;
+
     if (req.headers.accept?.includes('application/json')) {
-      return res.status(500).json({ error: "Database connection failed" });
+      return res.status(isConnectionError ? 503 : 500).json({ error: errorMsg });
     }
-    res.render("hr/login", { error: "Database connection failed: " + err.message, company: req.body.tenantId });
+    res.render("hr/login", { error: errorMsg, company: req.body.tenantId || "" });
   }
 });
 
@@ -178,6 +215,21 @@ router.get("/dashboard", hrAuth, async (req, res) => {
     const inProgress = todayAttendance.filter(a => !a.punchOut).length;
     const absent = Math.max(totalEmployees - present, 0);
 
+    const Project = require("../models/Project");
+    const Appraisal = require("../models/Appraisal");
+
+    let projectQuery = { status: "Active" };
+    if (req.session.role !== "HR" && req.session.employeeId) {
+      const manager = await Employee.findById(req.session.employeeId);
+      if (manager) {
+        projectQuery = { status: "Active", departments: manager.department };
+      }
+    }
+
+    const projects = await Project.find(projectQuery).sort({ createdAt: -1 });
+    const appraisals = await Appraisal.find().populate("employeeId").sort({ createdAt: -1 });
+    const pendingResignations = await Employee.find({ resignationStatus: "Pending" });
+
     if (req.query.format === 'json' || req.headers.accept?.includes('application/json')) {
       return res.json({
         totalEmployees,
@@ -185,7 +237,10 @@ router.get("/dashboard", hrAuth, async (req, res) => {
         completed,
         inProgress,
         absent,
-        todayAttendance
+        todayAttendance,
+        projects,
+        appraisals,
+        pendingResignations
       });
     }
 
@@ -195,7 +250,10 @@ router.get("/dashboard", hrAuth, async (req, res) => {
       completed,
       inProgress,
       absent,
-      todayAttendance
+      todayAttendance,
+      projects,
+      appraisals,
+      pendingResignations
     });
 
   } catch (err) {
@@ -354,11 +412,9 @@ router.post("/leave-action/:id", hrAuth, async (req, res) => {
     // --- SEND EMAIL NOTIFICATION (Approved/Rejected) ---
     try {
       if (employee.email) {
-        const nodemailer = require("nodemailer");
+        const { sendEmail } = require('../utils/email');
 
-        let emailSubject = '';
-        let messageHeader = '';
-        let statusColor = '';
+        let emailSubject, messageHeader, statusColor;
 
         if (status === "APPROVED") {
           emailSubject = 'Leave Approved - RSR Aviation (HR)';
@@ -370,47 +426,24 @@ router.post("/leave-action/:id", hrAuth, async (req, res) => {
           statusColor = '#dc3545';
         }
 
-        const transporter = nodemailer.createTransport({
-          service: process.env.SMTP_SERVICE || "Gmail",
-          auth: {
-            user: process.env.SMTP_EMAIL,
-            pass: process.env.SMTP_PASSWORD
-          }
-        });
-
-        await transporter.sendMail({
+        await sendEmail({
           to: employee.email,
-          from: process.env.SMTP_EMAIL,
           subject: emailSubject,
           html: `
-              <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
-                <h2 style="color: ${statusColor};">${messageHeader}</h2>
-                <p>Dear <strong>${employee.firstName}</strong>,</p>
-                <p>Your leave request has been <strong>${status}</strong> by HR.</p>
-                
-                ${status === 'REJECTED' ? `<p style="color: #d9534f;"><strong>HR Remark/Reason:</strong> ${leave.hrRemark || leave.rejectionReason}</p>` : ''}
-
-                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                  <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Leave Type:</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.leaveType}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>From Date:</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.fromDate}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>To Date:</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.toDate}</td>
-                  </tr>
-                   <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Total Days:</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.totalDays}</td>
-                  </tr>
-                </table>
-                <p style="color: #888; font-size: 12px; margin-top: 20px;">RSR Aviation HRMS</p>
-              </div>
-            `
+            <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+              <h2 style="color: ${statusColor};">${messageHeader}</h2>
+              <p>Dear <strong>${employee.firstName}</strong>,</p>
+              <p>Your leave request has been <strong>${status}</strong> by HR.</p>
+              ${status === 'REJECTED' ? `<p style="color: #d9534f;"><strong>HR Remark/Reason:</strong> ${leave.hrRemark || leave.rejectionReason}</p>` : ''}
+              <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Leave Type:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.leaveType}</td></tr>
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>From Date:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.fromDate}</td></tr>
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>To Date:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.toDate}</td></tr>
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Total Days:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.totalDays}</td></tr>
+              </table>
+              <p style="color: #888; font-size: 12px; margin-top: 20px;">RSR Aviation HRMS</p>
+            </div>
+          `
         });
         console.log(`HR Email sent to ${employee.email} [Status: ${status}]`);
       }
@@ -790,6 +823,83 @@ router.post("/billing/renew", hrAuth, async (req, res) => {
   } catch (err) {
     console.error("Error processing subscription renewal:", err);
     res.redirect("/hr/billing?error=" + encodeURIComponent("Renewal error: " + err.message));
+  }
+});
+
+// POST: HR Process Resignation (Approve/Reject)
+router.post("/resignation/:employeeId/action", hrAuth, async (req, res) => {
+  const isJson = req.query.format === 'json' || req.headers.accept?.includes('application/json') || req.body.format === 'json';
+  const { action } = req.body;
+
+  try {
+    const employee = await Employee.findById(req.params.employeeId);
+    if (!employee) {
+      if (isJson) return res.status(404).json({ error: 'Employee not found' });
+      return res.status(404).send('Employee not found');
+    }
+
+    const { sendEmail } = require('../utils/email');
+
+    if (action === 'approve') {
+      employee.resignationStatus = 'Approved';
+      employee.status = 'Resigned';
+
+      if (employee.email) {
+        try {
+          await sendEmail({
+            to: employee.email,
+            subject: 'Resignation Accepted - RSR Aviation',
+            html: `<p>Dear ${employee.firstName},</p><p>Your resignation has been accepted by the management. HR will contact you for the exit process.</p>`
+          });
+        } catch (emailErr) {
+          console.error("Email send failed for resignation approval:", emailErr);
+        }
+      }
+
+      // Automatically trigger Offboarding Checklist run if template exists
+      const ChecklistTemplate = require("../models/ChecklistTemplate");
+      const EmployeeChecklist = require("../models/EmployeeChecklist");
+      const template = await ChecklistTemplate.findOne({ type: "Offboarding" });
+      if (template) {
+        const runTasks = template.tasks.map(t => ({
+          taskTitle: t.taskTitle,
+          assignedRole: t.assignedRole,
+          status: "Pending"
+        }));
+        await EmployeeChecklist.create({
+          employeeId: employee._id,
+          type: "Offboarding",
+          tasks: runTasks
+        });
+        console.log(`Offboarding checklist auto-assigned to resigning employee: ${employee.firstName}`);
+      }
+
+    } else if (action === 'reject') {
+      employee.resignationStatus = 'Rejected';
+
+      if (employee.email) {
+        try {
+          await sendEmail({
+            to: employee.email,
+            subject: 'Resignation Request Rejected',
+            html: `<p>Dear ${employee.firstName},</p><p>Your resignation request has been declined. Please discuss with the HR / Management.</p>`
+          });
+        } catch (emailErr) {
+          console.error("Email send failed for resignation rejection:", emailErr);
+        }
+      }
+    }
+
+    await employee.save();
+    if (isJson) {
+      return res.json({ success: true, message: `Resignation successfully ${action}d`, employee });
+    }
+    res.redirect('/hr/dashboard');
+
+  } catch (err) {
+    console.error(err);
+    if (isJson) return res.status(500).json({ error: 'Error processing resignation' });
+    res.status(500).send('Error processing resignation');
   }
 });
 

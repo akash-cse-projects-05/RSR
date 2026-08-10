@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const Leave = require("../models/Leave");
-const Employee = require("../models/Employee"); // ✅ FIX 1
+const Employee = require("../models/Employee");
 const Payslip = require('../models/Payslip');
-const nodemailer = require("nodemailer");
+const { sendEmail } = require('../utils/email');
 
 
 /* ===============================
@@ -42,14 +42,28 @@ router.post("/apply", async (req, res) => {
     }
 
     const { leaveType, fromDate, toDate, reason } = req.body;
+    const employee = await Employee.findById(req.session.employeeId);
 
     const from = new Date(fromDate);
     const to = new Date(toDate);
 
-    const totalDays =
-      Math.ceil((to - from) / (1000 * 60 * 60 * 24)) + 1;
+    if (isNaN(from.getTime()) || isNaN(to.getTime())) {
+      const errorMsg = "Invalid dates provided. Please select valid From and To dates.";
+      if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+        return res.status(400).json({ error: errorMsg });
+      }
+      return res.render("leave/apply", { employee, error: errorMsg });
+    }
 
-    const employee = await Employee.findById(req.session.employeeId);
+    if (to < from) {
+      const errorMsg = "To Date cannot be earlier than From Date.";
+      if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
+        return res.status(400).json({ error: errorMsg });
+      }
+      return res.render("leave/apply", { employee, error: errorMsg });
+    }
+
+    const totalDays = Math.ceil((to - from) / (1000 * 60 * 60 * 24)) + 1;
 
     // Validate Leave Balance
     if (leaveType !== 'LOP') {
@@ -117,57 +131,27 @@ router.post("/apply", async (req, res) => {
         const managerName = managerToNotify.firstName;
         const employeeName = `${empWithManager.firstName} ${empWithManager.lastName}`;
 
-        // 2. Setup Transporter
-        const transporter = nodemailer.createTransport({
-          service: process.env.SMTP_SERVICE || "Gmail",
-          auth: {
-            user: process.env.SMTP_EMAIL,
-            pass: process.env.SMTP_PASSWORD
-          }
-        });
-
-        // 3. Email Content
-        const mailOptions = {
+        // Send leave notification email to manager
+        await sendEmail({
           to: managerEmail,
-          from: process.env.SMTP_EMAIL,
           subject: `Leave Application - ${employeeName}`,
           html: `
             <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
               <h2 style="color: #0052cc;">New Leave Application</h2>
               <p>Dear <strong>${managerName}</strong>,</p>
-              <p>Employee <strong>${employeeName}</strong> has applied for leave. details are below:</p>
-              
+              <p>Employee <strong>${employeeName}</strong> has applied for leave. Details are below:</p>
               <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                <tr>
-                  <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Leave Type:</strong></td>
-                  <td style="padding: 10px; border-bottom: 1px solid #eee;">${leaveType}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>From Date:</strong></td>
-                  <td style="padding: 10px; border-bottom: 1px solid #eee;">${fromDate}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>To Date:</strong></td>
-                  <td style="padding: 10px; border-bottom: 1px solid #eee;">${toDate}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Total Days:</strong></td>
-                  <td style="padding: 10px; border-bottom: 1px solid #eee;">${totalDays}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Reason:</strong></td>
-                  <td style="padding: 10px; border-bottom: 1px solid #eee;">${reason}</td>
-                </tr>
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Leave Type:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${leaveType}</td></tr>
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>From Date:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${fromDate}</td></tr>
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>To Date:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${toDate}</td></tr>
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Total Days:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${totalDays}</td></tr>
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Reason:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${reason}</td></tr>
               </table>
-
-              <p style="margin-top: 30px;">Please login to the properties dashboard to approve or reject this request.</p>
+              <p style="margin-top: 30px;">Please login to the HRMS dashboard to approve or reject this request.</p>
               <p style="color: #888; font-size: 12px; margin-top: 20px;">This is an automated message from RSR Aviation HRMS.</p>
             </div>
           `
-        };
-
-        // 4. Send Email
-        await transporter.sendMail(mailOptions);
+        });
         console.log(`Leave notification email sent to manager: ${managerEmail}`);
       } else {
         console.log("No reporting manager found or manager has no email.");
@@ -312,48 +296,24 @@ router.post("/approve/:leaveId", async (req, res) => {
     // --- SEND APPROVAL EMAIL TO EMPLOYEE ---
     try {
       if (employee.email) {
-        const transporter = nodemailer.createTransport({
-          service: process.env.SMTP_SERVICE || "Gmail",
-          auth: {
-            user: process.env.SMTP_EMAIL,
-            pass: process.env.SMTP_PASSWORD
-          }
-        });
-
-        const mailOptions = {
+        await sendEmail({
           to: employee.email,
-          from: process.env.SMTP_EMAIL,
-          subject: 'Leave Approved - RSR Aviation',
+          subject: 'Leave Approved - RSR Aviation HRMS',
           html: `
-              <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
-                <h2 style="color: #28a745;">Leave Approved</h2>
-                <p>Dear <strong>${employee.firstName}</strong>,</p>
-                <p>Your leave request has been <strong>APPROVED</strong>.</p>
-                
-                <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                  <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Leave Type:</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.leaveType}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>From Date:</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.fromDate}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>To Date:</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.toDate}</td>
-                  </tr>
-                   <tr>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Total Days:</strong></td>
-                    <td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.totalDays}</td>
-                  </tr>
-                </table>
-                <p style="color: #888; font-size: 12px; margin-top: 20px;">RSR Aviation HRMS</p>
-              </div>
-            `
-        };
-
-        await transporter.sendMail(mailOptions);
+            <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+              <h2 style="color: #28a745;">Leave Approved ✅</h2>
+              <p>Dear <strong>${employee.firstName}</strong>,</p>
+              <p>Your leave request has been <strong>APPROVED</strong>.</p>
+              <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Leave Type:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.leaveType}</td></tr>
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>From Date:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.fromDate}</td></tr>
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>To Date:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.toDate}</td></tr>
+                <tr><td style="padding: 10px; border-bottom: 1px solid #eee;"><strong>Total Days:</strong></td><td style="padding: 10px; border-bottom: 1px solid #eee;">${leave.totalDays}</td></tr>
+              </table>
+              <p style="color: #888; font-size: 12px; margin-top: 20px;">RSR Aviation HRMS</p>
+            </div>
+          `
+        });
         console.log(`Approval email sent to ${employee.email}`);
       }
     } catch (emailErr) {

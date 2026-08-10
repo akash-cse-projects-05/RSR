@@ -12,3 +12,5 @@ const payrollConfigSchema = new mongoose.Schema({
 });
 
 module.exports = createTenantModelProxy('PayrollConfig', payrollConfigSchema);
+
+

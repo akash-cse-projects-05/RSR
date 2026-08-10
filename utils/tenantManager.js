@@ -5,8 +5,10 @@ const tenantConnections = {};
 
 async function getTenantConnection(tenantId) {
   const cleanTenantId = tenantId ? tenantId.toLowerCase().trim() : "";
-  if (tenantConnections[cleanTenantId]) {
-    return tenantConnections[cleanTenantId];
+
+  // If the database connection is offline, throw early
+  if (mongoose.connection.readyState === 0 || mongoose.connection.readyState === 3) {
+    throw new Error("Could not connect to cloud database, check your internet connection.");
   }
 
   const tenant = await Tenant.findOne({ tenantId: cleanTenantId, status: "active" });
@@ -17,6 +19,10 @@ async function getTenantConnection(tenantId) {
   // Enforce SaaS Subscription Expiry Check
   if (tenant.subscriptionExpiry && new Date() > tenant.subscriptionExpiry) {
     throw new Error(`Subscription for Company ID '${tenantId}' has expired. Please contact your administrator to renew.`);
+  }
+
+  if (tenantConnections[cleanTenantId]) {
+    return tenantConnections[cleanTenantId];
   }
 
 

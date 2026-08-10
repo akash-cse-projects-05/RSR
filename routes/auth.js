@@ -1,10 +1,11 @@
 // routes/auth.routes.js
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 const User = require("../models/User");
 const Employee = require("../models/Employee");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
+const { sendEmail } = require('../utils/email');
 
 router.get("/login", (req, res) => {
   if (req.session.userId) {
@@ -37,9 +38,19 @@ router.post("/login", async (req, res) => {
       tenantConn = await getTenantConnection(lowercaseTenantId);
     } catch (dbErr) {
       req.session.tenantId = undefined;
-      const errorMsg = `Company ID '${tenantId}' not found or inactive.`;
+      const isConnectionError = dbErr.name === 'MongoNetworkError' || 
+                                dbErr.name === 'MongooseError' ||
+                                dbErr.message.includes('connect') || 
+                                dbErr.message.includes('buffering timed out') ||
+                                mongoose.connection.readyState === 0 ||
+                                mongoose.connection.readyState === 3;
+
+      const errorMsg = isConnectionError 
+        ? "Could not connect to cloud database, check your internet connection."
+        : `Company ID '${tenantId}' not found or inactive.`;
+
       if (req.headers.accept?.includes('application/json') || req.body.format === 'json') {
-        return res.status(404).json({ error: errorMsg });
+        return res.status(isConnectionError ? 503 : 404).json({ error: errorMsg });
       }
       return res.render("auth/login", { error: errorMsg, company: tenantId });
     }
@@ -78,15 +89,28 @@ router.post("/login", async (req, res) => {
     }
 
     if (req.headers.accept?.includes('application/json')) {
-      return res.json({ success: true, employeeId: employee._id, employeeName: employee.firstName, tenantId: lowercaseTenantId });
+      const cookieSignature = require('cookie-signature');
+      const signedSid = 's:' + cookieSignature.sign(req.sessionID, process.env.SESSION_SECRET || "rsr_hrms_secret");
+      return res.json({ success: true, employeeId: employee._id, employeeName: employee.firstName, tenantId: lowercaseTenantId, sessionId: signedSid });
     }
     res.redirect("/dashboard");
   } catch (err) {
     console.error(err);
+    const isConnectionError = err.name === 'MongoNetworkError' || 
+                              err.name === 'MongooseError' ||
+                              err.message.includes('connect') || 
+                              err.message.includes('buffering timed out') ||
+                              mongoose.connection.readyState === 0 ||
+                              mongoose.connection.readyState === 3;
+
+    const errorMsg = isConnectionError 
+      ? "Could not connect to cloud database, check your internet connection."
+      : "System connection error. Please check your internet and try again.";
+
     if (req.headers.accept?.includes('application/json')) {
-      return res.status(500).json({ error: "System connection error" });
+      return res.status(isConnectionError ? 503 : 500).json({ error: errorMsg });
     }
-    res.render("auth/login", { error: "System connection error. Please check your internet and try again." });
+    res.render("auth/login", { error: errorMsg, company: tenantId || "" });
   }
 });
 
@@ -163,29 +187,24 @@ router.post("/forgot-password", async (req, res) => {
 
     await user.save();
 
-    const resetUrl = `http://${req.headers.host}/auth/reset-password/${token}`;
+    // Build reset URL and send via Resend
+    const resetUrl = `${req.protocol}://${req.headers.host}/auth/reset-password/${token}`;
 
-    const transporter = nodemailer.createTransport({
-      service: process.env.SMTP_SERVICE || "Gmail",
-      auth: {
-        user: process.env.SMTP_EMAIL,
-        pass: process.env.SMTP_PASSWORD
-      }
+    await sendEmail({
+      to: email,
+      subject: 'RSR Aviation HRMS - Password Reset Request',
+      html: `
+        <p>You are receiving this because you (or someone else) requested a password reset for your account.</p>
+        <p><a href="${resetUrl}">Click here to reset your password</a></p>
+        <p>Or copy this link into your browser:</p>
+        <p>${resetUrl}</p>
+        <p>This link expires in <strong>1 hour</strong>.</p>
+        <p>If you did not request this, ignore this email — your password will remain unchanged.</p>
+      `,
+      text: `Password reset link: ${resetUrl}\n\nExpires in 1 hour. If you did not request this, ignore this email.`
     });
 
-    const mailOptions = {
-      to: email,
-      from: process.env.SMTP_EMAIL,
-      subject: "RSR Aviation - Password Reset",
-      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n` +
-        `Please click on the following link, or paste this into your browser to complete the process:\n\n` +
-        `${resetUrl}\n\n` +
-        `If you did not request this, please ignore this email and your password will remain unchanged.\n`
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    res.render("auth/forgot-password", { success: "An email has been sent to " + email + " with further instructions." });
+    res.render("auth/forgot-password", { success: "A password reset link has been sent to " + email + "." });
 
   } catch (err) {
     console.error(err);

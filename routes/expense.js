@@ -4,6 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const Expense = require('../models/Expense');
 const Employee = require('../models/Employee');
+const { requireAuth } = require('../middleware/auth');
 
 // --- MULTER SETUP (File Uploads) ---
 const storage = multer.diskStorage({
@@ -32,14 +33,6 @@ const upload = multer({
         cb(new Error('Only images and PDFs are allowed!'));
     }
 });
-
-// --- MIDDLEWARE ---
-function requireAuth(req, res, next) {
-    if (!req.session.userId) {
-        return res.redirect('/auth/login');
-    }
-    next();
-}
 
 // --- ROUTES ---
 

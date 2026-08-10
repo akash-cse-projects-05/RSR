@@ -8,3 +8,5 @@ const notificationSchema = new mongoose.Schema({
 });
 
 module.exports = createTenantModelProxy('Notification', notificationSchema);
+
+

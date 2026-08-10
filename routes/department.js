@@ -222,7 +222,7 @@ router.post('/:department/task/:taskId/complete', async (req, res) => {
   res.redirect(`/department/${req.params.department}/mytasks/${employee._id}`);
 });
 
-const nodemailer = require('nodemailer');
+const { sendEmail } = require('../utils/email');
 
 // Manager: approve/reject leave for staff in department
 router.post('/:department/leave/:leaveId', async (req, res) => {
@@ -366,21 +366,11 @@ router.post('/:department/leave/:leaveId', async (req, res) => {
           </div>
         `;
 
-        const transporter = nodemailer.createTransport({
-          service: process.env.SMTP_SERVICE || "Gmail",
-          auth: {
-            user: process.env.SMTP_EMAIL,
-            pass: process.env.SMTP_PASSWORD
-          }
-        });
-
-        await transporter.sendMail({
+        await sendEmail({
           to: employee.email,
-          from: process.env.SMTP_EMAIL,
           subject: emailSubject,
           html: emailBody
         });
-
         console.log(`Notification email sent to ${employee.email} regarding leave status: ${leave.status}`);
       }
     } catch (emailErr) {
@@ -499,13 +489,8 @@ router.post('/:department/resignation/:employeeId', async (req, res) => {
 
       // Notify Employee
       if (employee.email) {
-        const transporter = nodemailer.createTransport({
-          service: process.env.SMTP_SERVICE || "Gmail",
-          auth: { user: process.env.SMTP_EMAIL, pass: process.env.SMTP_PASSWORD }
-        });
-        await transporter.sendMail({
+        await sendEmail({
           to: employee.email,
-          from: process.env.SMTP_EMAIL,
           subject: 'Resignation Accepted - RSR Aviation',
           html: `<p>Dear ${employee.firstName},</p><p>Your resignation has been accepted by the management. HR will contact you for the exit process.</p>`
         });
@@ -516,13 +501,8 @@ router.post('/:department/resignation/:employeeId', async (req, res) => {
 
       // Notify Employee
       if (employee.email) {
-        const transporter = nodemailer.createTransport({
-          service: process.env.SMTP_SERVICE || "Gmail",
-          auth: { user: process.env.SMTP_EMAIL, pass: process.env.SMTP_PASSWORD }
-        });
-        await transporter.sendMail({
+        await sendEmail({
           to: employee.email,
-          from: process.env.SMTP_EMAIL,
           subject: 'Resignation Request Rejected',
           html: `<p>Dear ${employee.firstName},</p><p>Your resignation request has been declined. Please discuss with your manager.</p>`
         });

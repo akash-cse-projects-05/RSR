@@ -13,12 +13,21 @@
 
   <style>
     :root {
-      --rsr-blue: #0052cc;
-      --rsr-bg: #ffffff;
-      --rsr-light: #f7f9fc;
-      --text-main: #222222;
-      --text-muted: #717171;
-      --border-color: #ebebeb;
+      --rsr-blue: #2563eb;
+      --rsr-bg: #f8fafc;
+      --rsr-light: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: rgba(15, 23, 42, 0.08);
+
+      --hrms-blue-dark: #050c1e;
+      --hrms-blue-glow: #020612;
+      --hrms-electric: #38bdf8;
+      --hrms-cyan: #06b6d4;
+      --hrms-cobalt: #2563eb;
+
+      --btn-gradient: linear-gradient(135deg, #2563eb 0%, #0284c7 50%, #06b6d4 100%);
+      --btn-gradient-hover: linear-gradient(135deg, #1d4ed8 0%, #0369a1 50%, #0891b2 100%);
     }
 
     body {
@@ -28,43 +37,93 @@
       letter-spacing: -0.01em;
     }
 
-    /* Navbar */
+    /* Navbar Branding Emblem */
     .navbar {
-      background: #fff !important;
+      background: rgba(255, 255, 255, 0.8) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-color);
-      padding: 1.2rem 0;
+      padding: 0.8rem 0;
+    }
+
+    .brand-emblem {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--hrms-cobalt) 0%, var(--hrms-cyan) 100%);
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .brand-emblem i.fa-circle-nodes {
+      font-size: 0.55rem;
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      color: var(--hrms-electric);
+      background: var(--hrms-blue-dark);
+      border-radius: 50%;
+      padding: 1px;
     }
 
     .navbar-brand {
       font-weight: 800;
-      color: var(--rsr-blue) !important;
-      letter-spacing: -0.03em;
+      color: var(--hrms-blue-dark) !important;
+      letter-spacing: -0.04em;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-size: 1.3rem;
     }
 
-    /* Welcome Header */
+    .brand-accent {
+      background: linear-gradient(to right, var(--hrms-cobalt), var(--hrms-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Welcome Header Banner */
     .welcome-header {
-      padding: 60px 0 40px;
+      padding: 50px 0 40px;
+      background: linear-gradient(to right, #ffffff, #f1f5f9);
+      color: var(--text-main);
       border-bottom: 1px solid var(--border-color);
       margin-bottom: 40px;
     }
 
     .welcome-header h1 {
       font-weight: 800;
-      font-size: 2.5rem;
+      font-size: 2.6rem;
       margin-bottom: 8px;
+      color: var(--text-main);
+      letter-spacing: -0.03em;
+    }
+
+    .welcome-header .text-muted {
+      color: var(--text-muted) !important;
+    }
+
+    .welcome-header .text-primary {
+      color: var(--rsr-blue) !important;
     }
 
     /* Card Styling */
     .card {
       border: 1px solid var(--border-color);
       border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      background: #fff;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.02);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      background: #ffffff;
     }
 
     .card:hover {
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
     }
 
     .card-header {
@@ -73,6 +132,7 @@
       padding: 20px 24px;
       font-weight: 700;
       font-size: 1.1rem;
+      color: var(--text-main);
     }
 
     /* Performance Grid */
@@ -108,12 +168,14 @@
       text-decoration: none;
       color: var(--text-main);
       margin-bottom: 12px;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      background: #ffffff;
     }
 
     .action-item:hover {
-      background: var(--rsr-light);
+      background: rgba(37, 99, 235, 0.02);
       border-color: var(--rsr-blue);
+      transform: translateX(4px);
     }
 
     .action-item i {
@@ -122,19 +184,51 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--rsr-light);
+      background: rgba(37, 99, 235, 0.05);
       color: var(--rsr-blue);
       border-radius: 10px;
       margin-right: 15px;
+      transition: all 0.2s ease;
+    }
+
+    .action-item:hover i {
+      background: var(--btn-gradient);
+      color: #ffffff;
     }
 
     /* Buttons */
     .btn-primary {
-      background-color: var(--rsr-blue);
+      background: var(--btn-gradient);
       border: none;
       border-radius: 10px;
       padding: 12px 24px;
       font-weight: 600;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--btn-gradient-hover);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+      transform: translateY(-1px);
+      color: #ffffff;
+    }
+
+    .btn-outline-primary {
+      color: var(--rsr-blue);
+      border: 1px solid rgba(37, 99, 235, 0.25);
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .btn-outline-primary:hover {
+      background: rgba(37, 99, 235, 0.05);
+      border-color: var(--rsr-blue);
+      color: var(--rsr-blue);
+      transform: translateY(-1px);
     }
 
     /* Alerts */
@@ -153,11 +247,15 @@
   <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
       <a class="navbar-brand" href="/dashboard">
-        <i class="fa-solid fa-paper-plane me-2"></i> Human Resource Mangement
+        <div class="brand-emblem">
+          <i class="fa-solid fa-shield-halved"></i>
+          <i class="fa-solid fa-circle-nodes"></i>
+        </div>
+        <span><span class="brand-accent">H</span>RMS</span>
       </a>
       <div class="ms-auto d-flex align-items-center text-dark">
-        <i class="fa-solid fa-user me-2"></i>
-        <span class="me-3 fw-medium d-none d-md-inline">
+        <i class="fa-solid fa-user me-2 text-muted"></i>
+        <span class="me-3 fw-medium d-none d-md-inline text-dark">
           <%= employee.firstName %>
         </span>
         <a href="/logout" class="btn btn-outline-dark btn-sm rounded-pill px-3">Log out</a>
@@ -369,6 +467,74 @@
                                     </div>
                                   </div>
 
+                                  <!-- Phase 3/4 Goals & Deadlines Segment -->
+                                  <div class="col-lg-6 col-12">
+                                    <div class="card h-100">
+                                      <div class="card-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fa-solid fa-bullseye text-primary me-2"></i> My PMS & OKR Goals</span>
+                                        <a href="/performance/my-goals" class="btn btn-sm btn-outline-primary border rounded-pill px-3">Manage</a>
+                                      </div>
+                                      <div class="card-body p-4">
+                                        <% if (typeof goals !== 'undefined' && goals && goals.length > 0) { %>
+                                          <div class="d-flex flex-column gap-3">
+                                            <% goals.slice(0, 3).forEach(g => { %>
+                                              <div>
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                  <span class="fw-bold small text-dark"><%= g.description %></span>
+                                                  <span class="badge bg-light text-primary border small"><%= g.progress %>%</span>
+                                                </div>
+                                                <div class="progress" style="height: 6px;">
+                                                  <div class="progress-bar bg-primary" role="progressbar" style="width: <%= g.progress %>%"></div>
+                                                </div>
+                                                <div class="text-muted small mt-1" style="font-size: 11px;">
+                                                  <i class="fa-solid fa-calendar-check me-1"></i> Target: <%= new Date(g.targetDate).toLocaleDateString() %>
+                                                </div>
+                                              </div>
+                                            <% }) %>
+                                          </div>
+                                        <% } else { %>
+                                          <div class="text-center text-muted py-4">
+                                            <i class="fa-solid fa-trophy fa-2x mb-2 text-secondary"></i>
+                                            <p class="mb-0 small">No OKR goals configured. Establish your target milestones today!</p>
+                                          </div>
+                                        <% } %>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div class="col-lg-6 col-12">
+                                    <div class="card h-100">
+                                      <div class="card-header d-flex justify-content-between align-items-center">
+                                        <span><i class="fa-solid fa-business-time text-success me-2"></i> Project Deadlines</span>
+                                        <a href="/timesheets/my-timesheets" class="btn btn-sm btn-outline-success border rounded-pill px-3">Log Hours</a>
+                                      </div>
+                                      <div class="card-body p-4">
+                                        <% if (typeof projects !== 'undefined' && projects && projects.length > 0) { %>
+                                          <div class="list-group list-group-flush gap-2">
+                                            <% projects.slice(0, 3).forEach(p => { %>
+                                              <div class="list-group-item px-0 border-0 d-flex justify-content-between align-items-start">
+                                                <div>
+                                                  <strong class="text-dark d-block small"><%= p.name %></strong>
+                                                  <span class="text-muted small" style="font-size: 11px;"><%= p.client %></span>
+                                                </div>
+                                                <div class="text-end">
+                                                  <span class="badge <%= p.deadline ? 'bg-danger bg-opacity-10 text-danger' : 'bg-secondary bg-opacity-10 text-secondary' %> small">
+                                                    <%= p.deadline ? new Date(p.deadline).toLocaleDateString() : 'No Deadline' %>
+                                                  </span>
+                                                </div>
+                                              </div>
+                                            <% }) %>
+                                          </div>
+                                        <% } else { %>
+                                          <div class="text-center text-muted py-4">
+                                            <i class="fa-solid fa-diagram-project fa-2x mb-2 text-secondary"></i>
+                                            <p class="mb-0 small">No active projects assigned at the moment.</p>
+                                          </div>
+                                        <% } %>
+                                      </div>
+                                    </div>
+                                  </div>
+
                                   <div class="col-md-6">
                                     <h5 class="fw-bold mb-3">Field Operations</h5>
                                     <button onclick="performCheckIn()"
@@ -399,9 +565,14 @@
                                           Certs</small></span>
                                     </a>
                                     <a href="/notice-board" class="action-item">
-                                      <i class="fa-solid fa-bullhorn"></i>
+                                      <i class="fa-solid fa-bullhorn text-warning"></i>
                                       <span><strong>Notice Board</strong><br><small
                                           class="text-muted">Announcements</small></span>
+                                    </a>
+                                    <a href="/ticket" class="action-item">
+                                      <i class="fa-solid fa-headset text-info"></i>
+                                      <span><strong>Helpdesk Support</strong><br><small
+                                          class="text-muted">Raise & Track Tickets</small></span>
                                     </a>
                                   </div>
 
@@ -409,15 +580,20 @@
                                     <h5 class="fw-bold mb-3">Operations</h5>
                                     <% if (employee) { %>
                                       <a href="/payslip/employee/<%= employee._id %>" class="action-item">
-                                        <i class="fa-solid fa-money-bill-wave"></i>
+                                        <i class="fa-solid fa-money-bill-wave text-success"></i>
                                         <span><strong>Payslips</strong><br><small class="text-muted">Download Payroll
                                             Statements</small></span>
+                                      </a>
+                                      <a href="/training" class="action-item">
+                                        <i class="fa-solid fa-graduation-cap text-primary"></i>
+                                        <span><strong>Training Portal</strong><br><small class="text-muted">LMS &
+                                            Courses</small></span>
                                       </a>
                                       <a href="/department/<%= employee.department %>/training/<%= employee._id %>"
                                         class="action-item">
                                         <i class="fa-solid fa-graduation-cap"></i>
-                                        <span><strong>Training</strong><br><small class="text-muted">My
-                                            Progress</small></span>
+                                        <span><strong>My Training Progress</strong><br><small class="text-muted">Course
+                                            Status</small></span>
                                       </a>
 
                                       <% if (employee.designation !=='MANAGER' ) { %>
@@ -428,6 +604,18 @@
                                               Assignments</small></span>
                                         </a>
                                         <% } %>
+                                        <a href="/performance/my-goals" class="action-item">
+                                          <i class="fa-solid fa-bullseye"></i>
+                                          <span><strong>My OKR Goals</strong><br><small class="text-muted">Objectives & Targets</small></span>
+                                        </a>
+                                        <a href="/performance/my-appraisals" class="action-item">
+                                          <i class="fa-solid fa-star"></i>
+                                          <span><strong>Performance Appraisals</strong><br><small class="text-muted">Appraisal Surveys</small></span>
+                                        </a>
+                                        <a href="/timesheets/my-timesheets" class="action-item">
+                                          <i class="fa-solid fa-business-time"></i>
+                                          <span><strong>My Timesheets</strong><br><small class="text-muted">Log Project Work Hours</small></span>
+                                        </a>
                                           <% } %>
                                             <a href="/department/<%= employee.department %>" class="action-item">
                                               <i class="fa-solid fa-users"></i>
@@ -463,9 +651,16 @@
                                               class="btn btn-white border w-100 py-3 shadow-sm">Approve Leaves</a>
                                           </div>
                                           <div class="col-md-3">
+                                            <a href="/hr/appraisals"
+                                              class="btn btn-white border w-100 py-3 shadow-sm text-primary">Team OKRs & Appraisals</a>
+                                          </div>
+                                          <div class="col-md-3">
+                                            <a href="/hr/timesheets"
+                                              class="btn btn-white border w-100 py-3 shadow-sm text-success">Team Timesheets & Projects</a>
+                                          </div>
+                                          <div class="col-md-3">
                                             <a href="/department/<%= employee.department %>"
-                                              class="btn btn-white border w-100 py-3 shadow-sm text-primary">Department
-                                              Hub</a>
+                                              class="btn btn-white border w-100 py-3 shadow-sm text-secondary">Department Hub</a>
                                           </div>
                                         </div>
                                       </div>

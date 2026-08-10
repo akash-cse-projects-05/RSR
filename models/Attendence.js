@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 const createTenantModelProxy = require("../utils/tenantModel");
 
+
+
+
+
 const attendenceSchema = new mongoose.Schema(
   {
     employeeId: {
@@ -43,7 +47,16 @@ const attendenceSchema = new mongoose.Schema(
       default: "0h 0m"
     },
     workFromHome: { type: Boolean, default: false },
-    wfhReason: { type: String, default: null }
+    wfhReason: { type: String, default: null },
+    shiftId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Shift",
+      default: null
+    },
+    isLate: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: true }
 );
